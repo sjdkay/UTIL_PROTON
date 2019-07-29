@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <TSystem.h>
 
-void run_PionYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_cut = 5, Int_t pscal = 1)
+void run_ProtonYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_cut = 5, Int_t pscal = 1)
 {
   TString Hostname = gSystem->HostName();
   TString rootFileNameString;
@@ -47,7 +47,7 @@ void run_PionYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_c
     rootFileNameString = Form("/home/cdaq/hallc-online/hallc_replay_lt/ROOTfilesPion/PionLT_coin_replay_production_%i_%i.root",RunNumber,MaxEvent);
   }
   else if (Hostname.Contains("phys.uregina.ca")){
-    rootFileNameString = Form("/home/${USER}/work/JLab/hallc_replay_lt/ROOTfilesPion/PionLT_coin_replay_production_%i_%i.root",RunNumber,MaxEvent);
+    rootFileNameString = Form("/home/${USER}/work/JLab/hallc_replay_lt/UTIL_PROTON/ROOTfiles_KaonOL/KaonLT_coin_replay_production_%i_%i.root",RunNumber,MaxEvent);
   }
   TString threshold = Form("%f",threshold_cut);
   TString runNum = Form("%d",RunNumber);
@@ -56,7 +56,7 @@ void run_PionYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_c
   TString line2 = "coin_cut t(\"" + rootFileNameString + "\")";
   TString line3 = "t.Loop(\"" + runNum + "\"," + threshold + "," + prescal + ")";
 
-  //Begin Counting Good Pion Events
+  //Begin Counting Good Proton Events
   TChain ch("T");
   ch.Add(rootFileNameString);
   TString option = Form("%i",RunNumber);
@@ -64,7 +64,7 @@ void run_PionYield(Int_t RunNumber = 0, Int_t MaxEvent = 0, Double_t threshold_c
   TProof *proof = TProof::Open("workers=4");
   //proof->SetProgressDialog(0);  
   ch.SetProof();
-  ch.Process("PionYield.C+",option);
+  ch.Process("ProtonYield.C+",option);
   proof->Close();
   
   TChain sc("TSH");

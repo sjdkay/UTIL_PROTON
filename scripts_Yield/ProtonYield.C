@@ -1,5 +1,5 @@
-#define PionYield_cxx
-// The class definition in PionYield.h has been generated automatically
+#define ProtonYield_cxx
+// The class definition in ProtonYield.h has been generated automatically
 // by the ROOT utility TTree::MakeSelector(). This class is derived
 // from the ROOT class TSelector. For more information on the TSelector
 // framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
@@ -18,11 +18,11 @@
 //
 // To use this file, try the following session on your Tree T:
 //
-// root> T->Process("PionYield.C")
-// root> T->Process("PionYield.C","some options")
-// root> T->Process("PionYield.C+")
+// root> T->Process("ProtonYield.C")
+// root> T->Process("ProtonYield.C","some options")
+// root> T->Process("ProtonYield.C+")
 
-#include "PionYield.h"
+#include "ProtonYield.h"
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TLine.h>
@@ -30,7 +30,7 @@
 #include <TPaveText.h>
 #include <TGaxis.h>
 
-void PionYield::Begin(TTree * /*tree*/)
+void ProtonYield::Begin(TTree * /*tree*/)
 {
   // The Begin() function is called at the start of the query.
   // When running with PROOF Begin() is only called on the client.
@@ -38,7 +38,7 @@ void PionYield::Begin(TTree * /*tree*/)
   TString option = GetOption();
 }
 
-void PionYield::SlaveBegin(TTree * /*tree*/)
+void ProtonYield::SlaveBegin(TTree * /*tree*/)
 {
   // The SlaveBegin() function is called after the Begin() function.
   // When running with PROOF SlaveBegin() is called on each slave server.
@@ -163,23 +163,8 @@ void PionYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h1TRIG5);
 }
 
-Bool_t PionYield::Process(Long64_t entry)
+Bool_t ProtonYield::Process(Long64_t entry)
 {
-  // The Process() function is called for each entry in the tree (or possibly
-  // keyed object in the case of PROOF) to be processed. The entry argument
-  // specifies which entry in the currently loaded tree is to be processed.
-  // When processing keyed objects with PROOF, the object is already loaded
-  // and is available via the fObject pointer.
-  //
-  // This function should contain the \"body\" of the analysis. It can contain
-  // simple or elaborate selection criteria, run algorithms on the data
-  // of the event and typically fill histograms.
-  //
-  // The processing can be stopped by calling Abort().
-  //
-  // Use fStatus to set the return value of TTree::Process().
-  //
-  // The return value is currently not used.
   fReader.SetEntry(entry);
 
   // Fill some histograms before applying any cuts
@@ -194,11 +179,10 @@ Bool_t PionYield::Process(Long64_t entry)
   h1SHMS_ph->Fill(P_gtr_ph[0]);
   h1HMS_th->Fill(H_gtr_th[0]);
   h1HMS_ph->Fill(H_gtr_ph[0]);
-  // Need to double check MMp/MMk formulae are correct, try doing this on paper!
-  Double_t MMp = sqrt(pow(emiss[0] + sqrt(pow(0.13957018,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.93828,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a proton
-  Double_t MMPi = sqrt(pow(emiss[0],2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a pion
-  Double_t MMK = sqrt(pow(emiss[0] + sqrt(pow(0.13957018,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.493677,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a kaon
-
+  // This analysis operates on runs that have been analysed as though a kaon is going into the SHMS
+  Double_t MMp = sqrt(pow(emiss[0] + sqrt(pow(0.493677,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.93828,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a proton
+  Double_t MMPi = sqrt(pow(emiss[0] + sqrt(pow(0.493677,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.13957018,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a kaon 
+  Double_t MMK = sqrt(pow(emiss[0],2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a pion
   h1mmissK->Fill(MMK);
   h1mmisspi->Fill(MMPi);
   h1mmissp->Fill(MMp);
@@ -242,8 +226,8 @@ Bool_t PionYield::Process(Long64_t entry)
   }
 
   //Event identified as Pion
-  //  if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { 
-  if (P_aero_npeSum[0] > 1.5) { 
+  if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { 
+    //if (P_aero_npeSum[0] > 1.5) { 
     h2ROC1_Coin_Beta_noID_pion->Fill((CTime_ePiCoinTime_ROC1[0] - 44.15),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.3) return kTRUE;
     h2misspicut_CT->Fill( CTime_ePiCoinTime_ROC1[0] - 44.15, MMPi);
@@ -280,14 +264,14 @@ Bool_t PionYield::Process(Long64_t entry)
   return kTRUE;
 }
 
-void PionYield::SlaveTerminate()
+void ProtonYield::SlaveTerminate()
 {
   // The SlaveTerminate() function is called after all entries or objects
   // have been processed. When running with PROOF SlaveTerminate() is called
   // on each slave server.
 }
 
-void PionYield::Terminate()
+void ProtonYield::Terminate()
 {
   TString option = GetOption();
   TH1F* EDTM = dynamic_cast<TH1F*> (GetOutputList()->FindObject("EDTM"));
@@ -302,51 +286,8 @@ void PionYield::Terminate()
   h1mmisspi_remove->Add(h1mmisspi_cut,h1mmisspi_rand,1,-1);
   h1mmissp_remove->Add(h1mmissp_cut,h1mmissp_rand,1,-1);
   
-  TF1 *Back_Fit = new TF1("Back_Fit","[A] + [B]*x",0.9,1.1);
-  h1mmisspi_remove->Fit("Back_Fit","RMQN");
-  
-  TF1 *GausBack = new TF1("GausBack","[Constant]*exp(-0.5*((x-[Mean])/[Sigma])*((x-[Mean])/[Sigma])) + [A] + [B]*x",0.92,0.96);
-  GausBack->FixParameter(0,Back_Fit->GetParameter(0)); // Intercept
-  GausBack->FixParameter(1,Back_Fit->GetParameter(1));  // Gradient
-  GausBack->SetParameter(2, 2000); // Amplitdue
-  GausBack->SetParameter(3,0.94); // Mean of Guassian, expect ~0.940 GeV
-  GausBack->SetParameter(4,0.004); // Std dev
-  GausBack->SetParLimits(2,0,500000); // Tweak up if seeing way more than this
-  GausBack->SetParLimits(3,0.92,0.96);
-  GausBack->SetParLimits(4,0.001,0.02); // If peak is wider, tweak
-  h1mmisspi_remove->Fit("GausBack","RMQN");
-
-  TF1 *Gauss_Fit = new TF1("Gauss_Fit","[Constant]*exp(-0.5*((x-[Mean])/[Sigma])*((x-[Mean])/[Sigma]))",0.92,0.96);
-  Gauss_Fit->FixParameter(0,GausBack->GetParameter(2));
-  Gauss_Fit->FixParameter(1,GausBack->GetParameter(3));
-  Gauss_Fit->FixParameter(2,GausBack->GetParameter(4));
-
-  TH1F *h1mmisspi_noback = (TH1F*) h1mmisspi_remove->Clone();
-  h1mmisspi_noback->Add(Back_Fit,-1);
-
-  //Fit the Neutron Missing Mass
-  TF1 *Neutron_Fit = new TF1("Neutron_Fit","[0]*exp(-0.5*((x-[1])/[2])*((x-[1])/[2]))",0.90, 0.98);
-  Neutron_Fit->SetParName(0,"Amplitude");
-  Neutron_Fit->SetParName(1,"Mean");
-  Neutron_Fit->SetParName(2,"Sigma");
-  Neutron_Fit->SetParLimits(0,0.0,500000.0);
-  Neutron_Fit->SetParLimits(1,0.90,0.98);
-  Neutron_Fit->SetParLimits(2,0.0,0.1);
-  Neutron_Fit->SetParameter(0,2000);
-  Neutron_Fit->SetParameter(1,0.94);
-  Neutron_Fit->SetParameter(2,0.011);
-  h1mmisspi_remove->Fit("Neutron_Fit","RMQN");
-
-  TF1 *Neutron_Fit_Full = new TF1("Neutron_Fit_Full","[0]*exp(-0.5*((x-[1])/[2])*((x-[1])/[2]))",0.90,0.98);
-  Neutron_Fit_Full->SetParName(0,"Amplitude");
-  Neutron_Fit_Full->SetParName(1,"Mean");
-  Neutron_Fit_Full->SetParName(2,"Sigma");
-  Neutron_Fit_Full->SetParameter(0,Neutron_Fit->GetParameter(0));
-  Neutron_Fit_Full->SetParameter(1,Neutron_Fit->GetParameter(1));
-  Neutron_Fit_Full->SetParameter(2,Neutron_Fit->GetParameter(2));
-
   // Provide a full path?
-  TString foutname = Form("../OUTPUT/Pion_Kinematics_Run%i_AllPlots", option.Atoi());
+  TString foutname = Form("../OUTPUT/Proton_Kinematics_Run%i_AllPlots", option.Atoi());
   TString outputpng = foutname + ".png";
   TString outputpng_coin = foutname + "_coin.png";
   TString outputpdf = foutname + ".pdf";
@@ -375,35 +316,59 @@ void PionYield::Terminate()
   cAngles->cd(8); h1SHMS_ph_cut->Draw();
   cAngles->Print(outputpdf);
 
-  TCanvas *cID = new TCanvas("ID","Summary of Pion Particle ID Cuts",300,100,1000,900);
-  cID->Divide(2,4);
-  cID->cd(1); h2SHMS_AERO_HGC->Draw("Colz");
-  cID->cd(2); h2SHMSpi_kaon_cut->Draw("Colz");
-  cID->cd(3); h2SHMS_CAL_HGC->Draw("Colz");
-  cID->cd(4); h2SHMSpi_pion_cut->Draw("Colz");
-  cID->cd(5); h2ROC1_Coin_Beta_noID_pion->Draw("Colz");
-  cID->Update();
+  TCanvas *cpiID = new TCanvas("piID","Summary of Pion Particle ID Cuts",300,100,1000,900);
+  cpiID->Divide(2,4);
+  cpiID->cd(1); h2SHMS_AERO_HGC->Draw("Colz");
+  cpiID->cd(2); h2SHMSpi_kaon_cut->Draw("Colz");
+  cpiID->cd(3); h2SHMS_CAL_HGC->Draw("Colz");
+  cpiID->cd(4); h2SHMSpi_pion_cut->Draw("Colz");
+  cpiID->cd(5); h2ROC1_Coin_Beta_noID_pion->Draw("Colz");
+  cpiID->Update();
+  TLine *piLowerRand = new TLine(5.0,gPad->GetUymin(),5.0,gPad->GetUymax()); 
+  piLowerRand->SetLineColor(kRed); piLowerRand->SetLineWidth(1); piLowerRand->Draw();
+  TLine *piUpperRand = new TLine(19.0,gPad->GetUymin(),19.0,gPad->GetUymax());  
+  piUpperRand->SetLineColor(kRed); piUpperRand->SetLineWidth(1); piUpperRand->Draw();
+  cpiID->cd(6); h2ROC1_Coin_Beta_pion->Draw("Colz");
+  cpiID->cd(7); h1mmisspi->Draw();
+  cpiID->cd(8); h1mmisspi_remove->Draw("hist");
+  cpiID->Update();
+  cpiID->Print(outputpdf);
 
-  TLine *LowerRand = new TLine(5.0,gPad->GetUymin(),5.0,gPad->GetUymax()); 
-  LowerRand->SetLineColor(kRed); LowerRand->SetLineWidth(1); LowerRand->Draw();
-  TLine *UpperRand = new TLine(19.0,gPad->GetUymin(),19.0,gPad->GetUymax());  
-  UpperRand->SetLineColor(kRed); UpperRand->SetLineWidth(1); UpperRand->Draw();
-  cID->cd(6); h2ROC1_Coin_Beta_pion->Draw("Colz");
-  cID->cd(7); h1mmisspi->Draw();
-  cID->cd(8); h1mmisspi_remove->Draw("hist");
-  cID->Update();
-  TLine *NeutronMass = new TLine(0.939565,0,0.939565,gPad->GetUymax()); 
-  NeutronMass->SetLineColor(kBlack); NeutronMass->SetLineWidth(1); NeutronMass->SetLineStyle(2);
-  NeutronMass->Draw();
-  Neutron_Fit->SetLineColor(kBlack); Neutron_Fit->SetLineWidth(3);
-  Neutron_Fit->Draw("same");
-  Neutron_Fit_Full->SetLineColor(kGreen); Neutron_Fit_Full->SetLineWidth(1);
-  Neutron_Fit_Full->Draw("same");
-  Back_Fit->SetLineColor(kRed); Back_Fit->SetLineWidth(1);
-  Back_Fit->Draw("same");
-  GausBack->SetLineColor(kBlue); GausBack->SetLineWidth(3);
-  GausBack->Draw("same");  
-  cID->Print(outputpdf);
+  TCanvas *cKID = new TCanvas("KID","Summary of Kaon Particle ID Cuts",300,100,1000,900);
+  cKID->Divide(2,4);
+  cKID->cd(1); h2SHMS_AERO_HGC->Draw("Colz");
+  cKID->cd(2); h2SHMSK_kaon_cut->Draw("Colz");
+  cKID->cd(3); h2SHMS_CAL_HGC->Draw("Colz");
+  cKID->cd(4); h2SHMSK_pion_cut->Draw("Colz");
+  cKID->cd(5); h2ROC1_Coin_Beta_noID_kaon->Draw("Colz");
+  cKID->Update();
+  TLine *KLowerRand = new TLine(-21,gPad->GetUymin(),-21,gPad->GetUymax()); 
+  KLowerRand->SetLineColor(kRed); KLowerRand->SetLineWidth(1); KLowerRand->Draw();
+  TLine *KUpperRand = new TLine(-9.0,gPad->GetUymin(),-9.0,gPad->GetUymax());  
+  KUpperRand->SetLineColor(kRed); KUpperRand->SetLineWidth(1); KUpperRand->Draw();
+  cKID->cd(6); h2ROC1_Coin_Beta_kaon->Draw("Colz");
+  cKID->cd(7); h1mmissK->Draw();
+  cKID->cd(8); h1mmissK_remove->Draw("hist");
+  cKID->Update();
+  cKID->Print(outputpdf);
+
+  TCanvas *cpID = new TCanvas("pID","Summary of Proton Particle ID Cuts",300,100,1000,900);
+  cpID->Divide(2,4);
+  cpID->cd(1); h2SHMS_AERO_HGC->Draw("Colz");
+  cpID->cd(2); h2SHMSp_kaon_cut->Draw("Colz");
+  cpID->cd(3); h2SHMS_CAL_HGC->Draw("Colz");
+  cpID->cd(4); h2SHMSp_pion_cut->Draw("Colz");
+  cpID->cd(5); h2ROC1_Coin_Beta_noID_proton->Draw("Colz");
+  cpID->Update();
+  TLine *pLowerRand = new TLine(6.0,gPad->GetUymin(),6.0,gPad->GetUymax()); 
+  pLowerRand->SetLineColor(kRed); pLowerRand->SetLineWidth(1); pLowerRand->Draw();
+  TLine *pUpperRand = new TLine(20.0,gPad->GetUymin(),20.0,gPad->GetUymax());  
+  pUpperRand->SetLineColor(kRed); pUpperRand->SetLineWidth(1); pUpperRand->Draw();
+  cpID->cd(6); h2ROC1_Coin_Beta_proton->Draw("Colz");
+  cpID->cd(7); h1mmissp->Draw();
+  cpID->cd(8); h1mmissp_remove->Draw("hist");
+  cpID->Update();
+  cpID->Print(outputpdf);  
   
   TCanvas *cCoinTime = new TCanvas("cCoinTime","Summary of coincidence time and random",400,150,1000,900);
   cCoinTime->Divide(2,2);
@@ -415,74 +380,13 @@ void PionYield::Terminate()
   h1mmisspi_rand->Draw();
   cCoinTime->cd(3);
   h1mmisspi_remove->Draw();
-  Back_Fit->Draw("SAME");
   cCoinTime->cd(4);
   h2misspicut_CT->Draw("Colz");
   cCoinTime->Print(outputpng_coin);
   cCoinTime->Print(outputpdf);
-
-  TCanvas *cKine = new TCanvas("Kine","Summary of Higher Order Kinematics",500,200,1000,900);
-  cKine->Divide(2,2);
-  cKine->cd(1); h2WvsQ2->Draw("Colz"); 
-  h2WvsQ2->SetTitleOffset(1.0,"Y");
-  cKine->cd(3); 
-  h2tvsph_q->Draw("SURF2 POL"); //Labels on this need fixing, not correct and overlapping! Reduce size
-  gPad->SetTheta(90); gPad->SetPhi(180);
-  TPaveText *tvsphi_title = new TPaveText(0.0277092,0.89779,0.096428,0.991854,"NDC");
-  tvsphi_title->AddText("t vs #phi"); tvsphi_title->Draw();
-  TPaveText *ptphizero = new TPaveText(0.923951,0.513932,0.993778,0.574551,"NDC");
-  ptphizero->AddText("#phi = 0"); ptphizero->Draw();
-  TLine *phihalfpi = new TLine(0,0,0,0.6); 
-  phihalfpi->SetLineColor(kBlack); phihalfpi->SetLineWidth(2); phihalfpi->Draw();  
-  TPaveText *ptphihalfpi = new TPaveText(0.417855,0.901876,0.486574,0.996358,"NDC");
-  ptphihalfpi->AddText("#phi = #frac{#pi}{2}"); ptphihalfpi->Draw();
-  TLine *phipi = new TLine(0,0,-0.6,0); 
-  phipi->SetLineColor(kBlack); phipi->SetLineWidth(2); phipi->Draw();  
-  TPaveText *ptphipi = new TPaveText(0.0277092,0.514217,0.096428,0.572746,"NDC");
-  ptphipi->AddText("#phi = #pi"); ptphipi->Draw();
-  TLine *phithreepi = new TLine(0,0,0,-0.6); 
-  phithreepi->SetLineColor(kBlack); phithreepi->SetLineWidth(2); phithreepi->Draw();  
-  TPaveText *ptphithreepi = new TPaveText(0.419517,0.00514928,0.487128,0.0996315,"NDC");
-  ptphithreepi->AddText("#phi = #frac{3#pi}{2}"); ptphithreepi->Draw();
-  for (Int_t k = 0; k < 10; k++){
-    Arc[k] = new TArc(); 
-    Arc[k]->SetFillStyle(0);
-    Arc[k]->SetLineWidth(2);
-    Arc[k]->DrawArc(0,0,0.575*(k+1)/(10),0.,360.,"same"); 
-  }
-  //make sure that if you change range on the t-phi you change this tradius aswell. The sixth input is the range on the ruler on the t-phi plot. hienricn 2019/06/29
-  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,0.4,10,"-+"); 
-  tradius->SetLineColor(2);tradius->SetLabelColor(2);tradius->Draw();
-  TLine *phizero = new TLine(0,0,0.6,0); 
-  phizero->SetLineColor(kBlack); phizero->SetLineWidth(2); phizero->Draw();
-  cKine->cd(2); h1epsilon->Draw();
-  h1epsilon->SetTitleOffset(1.0,"Y");
-  cKine->cd(4); h1mmisspi_remove->Draw("hist"); 
-  Neutron_Fit_Full->SetLineColor(kRed); Neutron_Fit_Full->SetLineWidth(2); Neutron_Fit_Full->Draw("same");
-  Gauss_Fit->SetLineColor(kBlack); Gauss_Fit->SetLineWidth(2); Gauss_Fit->SetLineStyle(2); Gauss_Fit->Draw("same"); 
-  cKine->Update();
-  h1mmisspi_remove->SetTitleOffset(1.0,"Y");
-  Double_t BinWidth = h1mmisspi_remove->GetBinWidth(2); 
-  cKine->Update();
-  TLine *NeutronMass_Full = new TLine(0.939565,gPad->GetUymin(),0.939565,gPad->GetUymax()); 
-  NeutronMass_Full->SetLineColor(kBlue); NeutronMass_Full->SetLineWidth(2); NeutronMass_Full->SetLineStyle(2);
-  NeutronMass_Full->Draw();
-  TPaveText *ptNeutronEvt = new TPaveText(0.58934,0.715354,0.95,0.81576,"NDC");
-  TAxis *MMAxis = h1mmisspi_remove->GetXaxis();
-  Int_t BinLow = MMAxis->FindBin(0.92);
-  Int_t BinHigh = MMAxis->FindBin(0.98);
-  Double_t BinIntegral = h1mmisspi_remove->Integral(BinLow, BinHigh);
-  TH1F* h1mmisspi_remove_Colour = (TH1F*) h1mmisspi_remove->Clone(); h1mmisspi_remove_Colour->SetFillColor(2); h1mmisspi_remove_Colour->SetFillStyle(3014); h1mmisspi_remove_Colour->GetXaxis()->SetRange(BinLow, BinHigh);
-  h1mmisspi_remove_Colour->Draw("HISTSAME");
-  ptNeutronEvt->AddText(Form("#Neutron Events: %.0f", BinIntegral)); // New version gets all events between 0.92 and 0.98
-  //ptNeutronEvt->AddText(Form("#Neutron Events: %.0f",Gauss_Fit->Integral(0.89, 1.0) / BinWidth)); // Previous method which grabbed the number of events from integrating the fit
-  ptNeutronEvt->Draw();
-  // Save TCanvas
-  cKine->Print(outputpng);
-  cKine->Print(outputpdf + ')');
   
   //Start output of .root file with all histograms
-  TFile *Histogram_file = new TFile(Form("../HISTOGRAMS/PionLT_Run%i.root",option.Atoi()),"RECREATE");
+  TFile *Histogram_file = new TFile(Form("../HISTOGRAMS/KaonLT_Proton_Run%i.root",option.Atoi()),"RECREATE");
   TDirectory *DCuts = Histogram_file->mkdir("Spectrometer Delta and Calorimeter Cuts"); DCuts->cd();
   h1HMS_delta->Write("HMS Delta Before Cuts"); h1HMS_delta_cut->Write("HMS Delta After Cuts");
   h1SHMS_delta->Write("SHMS Delta Before Cuts"); h1SHMS_delta_cut->Write("SHMS Delta After Cuts");
