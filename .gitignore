@@ -1,0 +1,17 @@
+*~
+#*#
+*#
+*.pcm
+*.so
+*.d
+*.png
+*.pdf
+*.nfs*
+OUTPUT
+
+HISTOGRAMS/
+OUTPUT/
+REPORT_OUTPUT
+HISTOGRAMS
+OUTPUT
+tmp
