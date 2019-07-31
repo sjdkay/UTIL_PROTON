@@ -1,26 +1,4 @@
 #define ProtonYield_cxx
-// The class definition in ProtonYield.h has been generated automatically
-// by the ROOT utility TTree::MakeSelector(). This class is derived
-// from the ROOT class TSelector. For more information on the TSelector
-// framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
-
-// The following methods are defined in this file:
-//    Begin():        called every time a loop on the tree starts,
-//                    a convenient place to create your histograms.
-//    SlaveBegin():   called after Begin(), when on PROOF called only on the
-//                    slave servers.
-//    Process():      called for each event, in this function you decide what
-//                    to read and fill your histograms.
-//    SlaveTerminate: called at the end of the loop on the tree, when on PROOF
-//                    called only on the slave servers.
-//    Terminate():    called at the end of the loop on the tree,
-//                    a convenient place to draw/fit your histograms.
-//
-// To use this file, try the following session on your Tree T:
-//
-// root> T->Process("ProtonYield.C")
-// root> T->Process("ProtonYield.C","some options")
-// root> T->Process("ProtonYield.C+")
 
 #include "ProtonYield.h"
 #include <TStyle.h>
@@ -32,30 +10,27 @@
 
 void ProtonYield::Begin(TTree * /*tree*/)
 {
-  // The Begin() function is called at the start of the query.
-  // When running with PROOF Begin() is only called on the client.
-  // The tree argument is deprecated (on PROOF 0 is passed).
   TString option = GetOption();
 }
 
 void ProtonYield::SlaveBegin(TTree * /*tree*/)
 {
-  // The SlaveBegin() function is called after the Begin() function.
-  // When running with PROOF SlaveBegin() is called on each slave server.
-  // The tree argument is deprecated (on PROOF 0 is passed).
-
   TString option = GetOption();
 
   h2missKcut_CT   = new TH2F("h1missKcut_CT","Kaon Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
   h2misspicut_CT   = new TH2F("h1misspicut_CT","Pion Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
+  h2misspcut_CT   = new TH2F("h1misspcut_CT","Proton Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
 
   h2ROC1_Coin_Beta_noID_kaon = new TH2F("ROC1_Coin_Beta_noCut_kaon","Kaon Coincident Time vs #beta for ROC1 (w/ particle ID);Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_kaon = new TH2F("ROC1_Coin_Beta_kaon","Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
+  h2ROC1_Coin_Beta_randID_kaon = new TH2F("ROC1_Coin_Beta_randID_kaon","Random Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_noID_pion = new TH2F("ROC1_Coin_Beta_noCut_pion","Pion Coincident Time vs #beta for ROC1 (w/ particle ID);Time (ns);#beta",400,-20,20,100,0.0,2.0);
   h2ROC1_Coin_Beta_pion = new TH2F("ROC1_Coin_Beta_pion","Pion Coincident Time vs #beta for ROC1;Time (ns);#beta",400,-20,20,100,0.0,2.0);
+  h2ROC1_Coin_Beta_randID_pion = new TH2F("ROC1_Coin_Beta_randID_pion","Random Pion Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_noID_proton = new TH2F("ROC1_Coin_Beta_noCut_proton","Proton Coincident Time vs #beta for ROC1 (w/ particle ID);Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_proton = new TH2F("ROC1_Coin_Beta_proton","Proton Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
-
+  h2ROC1_Coin_Beta_randID_proton = new TH2F("ROC1_Coin_Beta_randID_proton","Random Proton Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
+  
   h2HMS_electron        = new TH2F("HMS_electron","Normalized HMS Calorimeter Energy vs Cherenkov;Normalized Energy;CER NPE",200,0.01,1.5,60,0.1,30);
   h2HMS_electron_cut    = new TH2F("HMS_electron_cut","Normalized HMS Calorimeter Energy vs Cherenkov, Electrons Selected;Normalized Energy;CER NPE",200,0.01,1.5,60,0.0,30);
 
@@ -104,22 +79,21 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   h1mmissp_cut            = new TH1F("mmissp_cut","Proton Missing mass with Cuts;Mass (GeV/c^{2});Counts",200,0.0,2.0);
   h1mmissp_remove         = new TH1F("mmissp_remove","Proton Missing mass with Cuts (Random Subtracted);Mass (GeV/c^{2});Counts",200,0.0,2.0);
 
-  //  h2WvsQ2                 = new TH2F("WvsQ2","Q2 vs W;Q2;W",200,1.0,1.8,200,1.8,2.4);
-  h2WvsQ2                 = new TH2F("WvsQ2","Q2 vs W;Q2;W",200,1,3,200,1.8,2.4);
-  h2tvsph_q               = new TH2F("tvsph_q",";#phi;t",12,-3.14,3.14,16,0.0,0.4); // Increased Ymax to 0.1 SK 28/6/19
-  h1epsilon               = new TH1F("epsilon","Plot of Epsilon;#epsilon;Counts",100,0.0,1.0);
-
   h1EDTM                  = new TH1F("EDTM","EDTM Time;EDTM TDC Time;Counts",10000,-5000,5000);
   h1TRIG5                 = new TH1F("TRIG5","TRIG5 Time;TRIG5 TDC Time;Counts",10000,-5000,5000);
 
   GetOutputList()->Add(h2missKcut_CT);
   GetOutputList()->Add(h2misspicut_CT);
+  GetOutputList()->Add(h2misspcut_CT);
   GetOutputList()->Add(h2ROC1_Coin_Beta_noID_kaon);
   GetOutputList()->Add(h2ROC1_Coin_Beta_kaon);
+  GetOutputList()->Add(h2ROC1_Coin_Beta_randID_kaon);
   GetOutputList()->Add(h2ROC1_Coin_Beta_noID_pion);
   GetOutputList()->Add(h2ROC1_Coin_Beta_pion);
+  GetOutputList()->Add(h2ROC1_Coin_Beta_randID_pion);
   GetOutputList()->Add(h2ROC1_Coin_Beta_noID_proton);
   GetOutputList()->Add(h2ROC1_Coin_Beta_proton);
+  GetOutputList()->Add(h2ROC1_Coin_Beta_randID_proton);
   GetOutputList()->Add(h2HMS_electron);
   GetOutputList()->Add(h2HMS_electron_cut);
   GetOutputList()->Add(h1SHMS_electron);
@@ -156,9 +130,6 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h1mmissp_rand);
   GetOutputList()->Add(h1mmissp_cut);
   GetOutputList()->Add(h1mmissp_remove);
-  GetOutputList()->Add(h2WvsQ2);
-  GetOutputList()->Add(h2tvsph_q);
-  GetOutputList()->Add(h1epsilon);
   GetOutputList()->Add(h1EDTM);
   GetOutputList()->Add(h1TRIG5);
 }
@@ -179,7 +150,8 @@ Bool_t ProtonYield::Process(Long64_t entry)
   h1SHMS_ph->Fill(P_gtr_ph[0]);
   h1HMS_th->Fill(H_gtr_th[0]);
   h1HMS_ph->Fill(H_gtr_ph[0]);
-  // This analysis operates on runs that have been analysed as though a kaon is going into the SHMS
+ 
+ // This analysis operates on runs that have been analysed as though a kaon is going into the SHMS
   Double_t MMp = sqrt(pow(emiss[0] + sqrt(pow(0.493677,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.93828,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a proton
   Double_t MMPi = sqrt(pow(emiss[0] + sqrt(pow(0.493677,2) + pow(P_gtr_p[0],2)) - sqrt(pow(0.13957018,2) + pow(P_gtr_p[0],2)),2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a kaon 
   Double_t MMK = sqrt(pow(emiss[0],2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a pion
@@ -189,7 +161,7 @@ Bool_t ProtonYield::Process(Long64_t entry)
 
   // Cuts that all particle species share in common
   // if (P_cal_etotnorm[0] > 0.6) return kTRUE; // Check SHMS doesn't see a positron
-  if (H_cal_etotnorm[0] < 0.4 || H_cer_npeSum[0] < 1.5) return kTRUE; // Check HMS sees an electron
+  if (H_cal_etotnorm[0] < 0.7 || H_cer_npeSum[0] < 1.5) return kTRUE; // Check HMS sees an electron
   //  if (H_gtr_dp[0] > 17.0 || H_gtr_dp[0] < -13.0) return kTRUE;
   if (H_gtr_dp[0] > 8.0 || H_gtr_dp[0] < -8.0) return kTRUE; // add HMS delta cuts
   if (P_gtr_dp[0] > 20.0 || P_gtr_dp[0] < -10.0) return kTRUE; // Cut on delta
@@ -209,56 +181,56 @@ Bool_t ProtonYield::Process(Long64_t entry)
   h1HMS_ph_cut->Fill(H_gtr_ph[0]);
 
   //Event identified as Kaon
-  if (P_aero_npeSum[0] > 1.5 && P_hgcer_npeSum[0] < 1.5) {
+  if (P_aero_npeSum[0] > 1.5 && P_hgcer_npeSum[0] < 1.5) { // AERO but no HGC
     h2ROC1_Coin_Beta_noID_kaon->Fill((CTime_eKCoinTime_ROC1[0] - 43),P_gtr_beta[0]); 
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
     h2missKcut_CT->Fill( CTime_eKCoinTime_ROC1[0] - 43, MMK);
-    if ( (CTime_eKCoinTime_ROC1[0] - 43) > -1.0 && (CTime_eKCoinTime_ROC1[0] - 43) < 1.5) {
+    if ( (CTime_eKCoinTime_ROC1[0] - 43) > 0.5 && (CTime_eKCoinTime_ROC1[0] - 43) < 4.5) {
       h2ROC1_Coin_Beta_kaon->Fill((CTime_eKCoinTime_ROC1[0] - 43),P_gtr_beta[0]);
       h2SHMSK_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
       h2SHMSK_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmissK_cut->Fill(MMK);
     }
-    if ((((CTime_eKCoinTime_ROC1[0] - 43) > -21.0 && (CTime_eKCoinTime_ROC1[0] - 43) < -9.0))) {
+    if (abs((CTime_eKCoinTime_ROC1[0] - 44.15)) > 8.5  && abs((CTime_eKCoinTime_ROC1[0] - 44.15)) < 20.5) {
       h1mmissK_rand->Fill(MMK);
       h1mmissK_remove->Fill(MMK);
+      h2ROC1_Coin_Beta_randID_kaon->Fill((CTime_eKCoinTime_ROC1[0] - 43),P_gtr_beta[0]);
     }
   }
 
   //Event identified as Pion
-  if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { 
-    //if (P_aero_npeSum[0] > 1.5) { 
+  if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { // HGC and AERO hit
     h2ROC1_Coin_Beta_noID_pion->Fill((CTime_ePiCoinTime_ROC1[0] - 44.15),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.3) return kTRUE;
     h2misspicut_CT->Fill( CTime_ePiCoinTime_ROC1[0] - 44.15, MMPi);
-    if (abs((CTime_ePiCoinTime_ROC1[0] - 44.15)) < 1) {
+    if ((CTime_ePiCoinTime_ROC1[0] - 44.15) < 2 && (CTime_ePiCoinTime_ROC1[0] - 44.15) > -2) {
       h2ROC1_Coin_Beta_pion->Fill((CTime_ePiCoinTime_ROC1[0] - 44.15),P_gtr_beta[0]);
       h2SHMSpi_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
       h2SHMSpi_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmisspi_cut->Fill(MMPi);
-      h2WvsQ2->Fill(Q2[0],W[0]);
-      h2tvsph_q->Fill(ph_q[0],-MandelT[0]);
-      h1epsilon->Fill(epsilon[0]);
     }
-    if (abs((CTime_ePiCoinTime_ROC1[0] - 44.15)) > 5.0 && abs((CTime_ePiCoinTime_ROC1[0] - 44.15)) < 19.0) {
+    if (abs((CTime_ePiCoinTime_ROC1[0] - 44.15)) > 7 && abs((CTime_ePiCoinTime_ROC1[0] - 44.15)) < 19) {
       h1mmisspi_rand->Fill(MMPi);
       h1mmisspi_remove->Fill(MMPi);
+      h2ROC1_Coin_Beta_randID_pion->Fill((CTime_ePiCoinTime_ROC1[0] - 44.15),P_gtr_beta[0]);    
     }
   }
 
   //Event identified as Proton
-  if (P_aero_npeSum[0] < 1.5 && P_hgcer_npeSum[0] < 1.5) {
+  if (P_aero_npeSum[0] < 1.5 && P_hgcer_npeSum[0] < 1.5) { // No HGC or AERO
     h2ROC1_Coin_Beta_noID_proton->Fill((CTime_epCoinTime_ROC1[0] - 43.5),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
-    if (abs((CTime_epCoinTime_ROC1[0] - 43.5)) < 1.0) {
+    h2misspcut_CT->Fill( CTime_epCoinTime_ROC1[0] - 43.5, MMp);
+    if ((CTime_epCoinTime_ROC1[0] - 43.5) < 3 && (CTime_epCoinTime_ROC1[0] - 43.5) > -1.0) {
       h2ROC1_Coin_Beta_proton->Fill((CTime_epCoinTime_ROC1[0] - 43.5),P_gtr_beta[0]);
       h2SHMSp_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
       h2SHMSp_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmissp_cut->Fill(MMp);
     }
-    if (abs((CTime_epCoinTime_ROC1[0] - 43.5)) > 6.0 && abs((CTime_epCoinTime_ROC1[0] - 43.5)) < 20.0) {
+    if (abs((CTime_epCoinTime_ROC1[0] - 43.5)) > 8 && abs((CTime_epCoinTime_ROC1[0] - 43.5)) < 20) {
       h1mmissp_rand->Fill(MMp);
       h1mmissp_remove->Fill(MMp);
+      h2ROC1_Coin_Beta_randID_proton->Fill((CTime_epCoinTime_ROC1[0] - 43.5),P_gtr_beta[0]);
     }
   }
   return kTRUE;
@@ -266,9 +238,6 @@ Bool_t ProtonYield::Process(Long64_t entry)
 
 void ProtonYield::SlaveTerminate()
 {
-  // The SlaveTerminate() function is called after all entries or objects
-  // have been processed. When running with PROOF SlaveTerminate() is called
-  // on each slave server.
 }
 
 void ProtonYield::Terminate()
@@ -279,9 +248,9 @@ void ProtonYield::Terminate()
   TH2F* HMS_electron_cut = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron_cut"));
 
   //Perform Random Subtraction, these windows will likely need to be adjusted
-  h1mmissK_rand->Scale(1.0/3.0);
-  h1mmisspi_rand->Scale(1.0/7.0); // Are these scales correct? How many buckets do we capture?
-  h1mmissp_rand->Scale(1.25/7.0);
+  h1mmissK_rand->Scale(1.0/6.0);
+  h1mmisspi_rand->Scale(1.0/6.0); // Are these scales correct? How many buckets do we capture?
+  h1mmissp_rand->Scale(1.0/6.0);
   h1mmissK_remove->Add(h1mmissK_cut,h1mmissK_rand,1,-1);
   h1mmisspi_remove->Add(h1mmisspi_cut,h1mmisspi_rand,1,-1);
   h1mmissp_remove->Add(h1mmissp_cut,h1mmissp_rand,1,-1);
@@ -324,10 +293,14 @@ void ProtonYield::Terminate()
   cpiID->cd(4); h2SHMSpi_pion_cut->Draw("Colz");
   cpiID->cd(5); h2ROC1_Coin_Beta_noID_pion->Draw("Colz");
   cpiID->Update();
-  TLine *piLowerRand = new TLine(5.0,gPad->GetUymin(),5.0,gPad->GetUymax()); 
-  piLowerRand->SetLineColor(kRed); piLowerRand->SetLineWidth(1); piLowerRand->Draw();
-  TLine *piUpperRand = new TLine(19.0,gPad->GetUymin(),19.0,gPad->GetUymax());  
-  piUpperRand->SetLineColor(kRed); piUpperRand->SetLineWidth(1); piUpperRand->Draw();
+  TLine *piLowerRand1 = new TLine(7.0,gPad->GetUymin(), 7.0,gPad->GetUymax()); 
+  piLowerRand1->SetLineColor(kRed); piLowerRand1->SetLineWidth(1); piLowerRand1->Draw();
+  TLine *piUpperRand1 = new TLine(19.0,gPad->GetUymin(), 19.0,gPad->GetUymax());  
+  piUpperRand1->SetLineColor(kRed); piUpperRand1->SetLineWidth(1); piUpperRand1->Draw();
+  TLine *piLowerRand2 = new TLine(-19.0,gPad->GetUymin(), -19.0,gPad->GetUymax()); 
+  piLowerRand2->SetLineColor(kRed); piLowerRand2->SetLineWidth(1); piLowerRand2->Draw();
+  TLine *piUpperRand2 = new TLine(-7.0,gPad->GetUymin(),-7.0,gPad->GetUymax());  
+  piUpperRand2->SetLineColor(kRed); piUpperRand2->SetLineWidth(1); piUpperRand2->Draw();
   cpiID->cd(6); h2ROC1_Coin_Beta_pion->Draw("Colz");
   cpiID->cd(7); h1mmisspi->Draw();
   cpiID->cd(8); h1mmisspi_remove->Draw("hist");
@@ -342,10 +315,14 @@ void ProtonYield::Terminate()
   cKID->cd(4); h2SHMSK_pion_cut->Draw("Colz");
   cKID->cd(5); h2ROC1_Coin_Beta_noID_kaon->Draw("Colz");
   cKID->Update();
-  TLine *KLowerRand = new TLine(-21,gPad->GetUymin(),-21,gPad->GetUymax()); 
-  KLowerRand->SetLineColor(kRed); KLowerRand->SetLineWidth(1); KLowerRand->Draw();
-  TLine *KUpperRand = new TLine(-9.0,gPad->GetUymin(),-9.0,gPad->GetUymax());  
-  KUpperRand->SetLineColor(kRed); KUpperRand->SetLineWidth(1); KUpperRand->Draw();
+  TLine *KLowerRand1 = new TLine(8.5,gPad->GetUymin(),8.5,gPad->GetUymax()); 
+  KLowerRand1->SetLineColor(kRed); KLowerRand1->SetLineWidth(1); KLowerRand1->Draw();
+  TLine *KUpperRand1 = new TLine(20.5,gPad->GetUymin(),20.5,gPad->GetUymax());  
+  KUpperRand1->SetLineColor(kRed); KUpperRand1->SetLineWidth(1); KUpperRand1->Draw();
+  TLine *KLowerRand2 = new TLine(-20.5,gPad->GetUymin(),-20.5,gPad->GetUymax()); 
+  KLowerRand2->SetLineColor(kRed); KLowerRand2->SetLineWidth(1); KLowerRand2->Draw();
+  TLine *KUpperRand2 = new TLine(-8.5,gPad->GetUymin(),-8.5,gPad->GetUymax());  
+  KUpperRand2->SetLineColor(kRed); KUpperRand2->SetLineWidth(1); KUpperRand2->Draw();
   cKID->cd(6); h2ROC1_Coin_Beta_kaon->Draw("Colz");
   cKID->cd(7); h1mmissK->Draw();
   cKID->cd(8); h1mmissK_remove->Draw("hist");
@@ -360,31 +337,65 @@ void ProtonYield::Terminate()
   cpID->cd(4); h2SHMSp_pion_cut->Draw("Colz");
   cpID->cd(5); h2ROC1_Coin_Beta_noID_proton->Draw("Colz");
   cpID->Update();
-  TLine *pLowerRand = new TLine(6.0,gPad->GetUymin(),6.0,gPad->GetUymax()); 
-  pLowerRand->SetLineColor(kRed); pLowerRand->SetLineWidth(1); pLowerRand->Draw();
-  TLine *pUpperRand = new TLine(20.0,gPad->GetUymin(),20.0,gPad->GetUymax());  
-  pUpperRand->SetLineColor(kRed); pUpperRand->SetLineWidth(1); pUpperRand->Draw();
+  TLine *pLowerRand1 = new TLine(8.0,gPad->GetUymin(),8.0,gPad->GetUymax()); 
+  pLowerRand1->SetLineColor(kRed); pLowerRand1->SetLineWidth(1); pLowerRand1->Draw();
+  TLine *pUpperRand1 = new TLine(20.0,gPad->GetUymin(),20.0,gPad->GetUymax());  
+  pUpperRand1->SetLineColor(kRed); pUpperRand1->SetLineWidth(1); pUpperRand1->Draw();
+  TLine *pLowerRand2 = new TLine(-20.0,gPad->GetUymin(),-20.0,gPad->GetUymax()); 
+  pLowerRand2->SetLineColor(kRed); pLowerRand2->SetLineWidth(1); pLowerRand2->Draw();
+  TLine *pUpperRand2 = new TLine(-8.0,gPad->GetUymin(),-8.0,gPad->GetUymax());  
+  pUpperRand2->SetLineColor(kRed); pUpperRand2->SetLineWidth(1); pUpperRand2->Draw();  
   cpID->cd(6); h2ROC1_Coin_Beta_proton->Draw("Colz");
   cpID->cd(7); h1mmissp->Draw();
   cpID->cd(8); h1mmissp_remove->Draw("hist");
   cpID->Update();
   cpID->Print(outputpdf);  
   
-  TCanvas *cCoinTime = new TCanvas("cCoinTime","Summary of coincidence time and random",400,150,1000,900);
-  cCoinTime->Divide(2,2);
-  cCoinTime->cd(1);
+  TCanvas *picCoinTime = new TCanvas("picCoinTime","Summary of pion coincidence time and random",400,150,1000,900);
+  picCoinTime->Divide(2,2);
+  picCoinTime->cd(1);
   h1mmisspi_cut->Draw();
   h1mmisspi_rand->Draw("same");
   h1mmisspi_rand->SetLineColor(2);
-  cCoinTime->cd(2);
+  picCoinTime->cd(2);
   h1mmisspi_rand->Draw();
-  cCoinTime->cd(3);
+  picCoinTime->cd(3);
   h1mmisspi_remove->Draw();
-  cCoinTime->cd(4);
+  picCoinTime->cd(4);
   h2misspicut_CT->Draw("Colz");
-  cCoinTime->Print(outputpng_coin);
-  cCoinTime->Print(outputpdf);
+  picCoinTime->Print(outputpng_coin);
+  picCoinTime->Print(outputpdf);
   
+  TCanvas *KcCoinTime = new TCanvas("KcCoinTime","Summary of kaon coincidence time and random",400,150,1000,900);
+  KcCoinTime->Divide(2,2);
+  KcCoinTime->cd(1);
+  h1mmissK_cut->Draw();
+  h1mmissK_rand->Draw("same");
+  h1mmissK_rand->SetLineColor(2);
+  KcCoinTime->cd(2);
+  h1mmissK_rand->Draw();
+  KcCoinTime->cd(3);
+  h1mmissK_remove->Draw();
+  KcCoinTime->cd(4);
+  h2missKcut_CT->Draw("Colz");
+  KcCoinTime->Print(outputpng_coin);
+  KcCoinTime->Print(outputpdf);
+  
+  TCanvas *pcCoinTime = new TCanvas("pcCoinTime","Summary of proton coincidence time and random",400,150,1000,900);
+  pcCoinTime->Divide(2,2);
+  pcCoinTime->cd(1);
+  h1mmissp_cut->Draw();
+  h1mmissp_rand->Draw("same");
+  h1mmissp_rand->SetLineColor(2);
+  pcCoinTime->cd(2);
+  h1mmissp_rand->Draw();
+  pcCoinTime->cd(3);
+  h1mmissp_remove->Draw();
+  pcCoinTime->cd(4);
+  h2misspcut_CT->Draw("Colz");
+  pcCoinTime->Print(outputpng_coin);
+  pcCoinTime->Print(outputpdf);
+
   //Start output of .root file with all histograms
   TFile *Histogram_file = new TFile(Form("../HISTOGRAMS/KaonLT_Proton_Run%i.root",option.Atoi()),"RECREATE");
   TDirectory *DCuts = Histogram_file->mkdir("Spectrometer Delta and Calorimeter Cuts"); DCuts->cd();
@@ -404,7 +415,6 @@ void ProtonYield::Terminate()
   h1mmissK_cut->Write("Kaon Missing Mass, with Randoms");
   h1mmissK_rand->Write("Kaon Missing Mass, only Randoms");
   h1mmissK_remove->Write("Kaon Missing Mass, Randoms Removed");
-
   h1mmisspi_cut->Write("Pion Missing Mass, with Randoms");
   h1mmisspi_rand->Write("Pion Missing Mass, only Randoms");
   h1mmisspi_remove->Write("Pion Missing Mass, Randoms Removed");
@@ -417,6 +427,7 @@ void ProtonYield::Terminate()
   h2SHMSK_pion_cut->Write("SHMS HGC vs CAL, with cuts");
   h2ROC1_Coin_Beta_noID_kaon->Write("Kaon-Electron Coincidence Time, no cuts");
   h2ROC1_Coin_Beta_kaon->Write("Kaon-Electron Coincidence Time, with cuts");
+  h2ROC1_Coin_Beta_randID_kaon->Write("Random Kaon-Electron Coincidence Time, with cuts");
   h2missKcut_CT->Write("Kaon-Electron Coincidence Time vs Missing Mass");
   h1mmissK->Write("Kaon Missing Mass, no cuts");
   h1mmissK_remove->Write("Kaon Missing Mass, with cuts");
@@ -428,6 +439,7 @@ void ProtonYield::Terminate()
   h2SHMSpi_pion_cut->Write("SHMS HGC vs CAL, with cuts");
   h2ROC1_Coin_Beta_noID_pion->Write("Pion-Electron Coincidence Time, no cuts");
   h2ROC1_Coin_Beta_pion->Write("Pion-Electron Coincidence Time, with cuts");
+  h2ROC1_Coin_Beta_randID_pion->Write("Random Pion-Electron Coincidence Time, with cuts");
   h2misspicut_CT->Write("Pion-Electron Coincidence Time vs Missing Mass");
   h1mmisspi->Write("Pion Missing Mass, no cuts");
   h1mmisspi_remove->Write("Pion Missing Mass, with cuts");
@@ -439,14 +451,10 @@ void ProtonYield::Terminate()
   h2SHMSp_pion_cut->Write("SHMS HGC vs CAL, with cuts");
   h2ROC1_Coin_Beta_noID_proton->Write("Proton-Electron Coincidence Time, no cuts");
   h2ROC1_Coin_Beta_proton->Write("Proton-Electron Coincidence Time, with cuts");
+  h2ROC1_Coin_Beta_randID_proton->Write("Random Proton-Electron Coincidence Time, with cuts"); 
+  h2misspcut_CT->Write("Proton-Electron Coincidence Time vs Missing Mass");
   h1mmissp->Write("Proton Missing Mass, no cuts");
   h1mmissp_remove->Write("Proton Missing Mass, with cuts");
-
-  TDirectory *DKine = Histogram_file->mkdir("Higher Order Kinematics Summary"); DKine->cd();
-  h2WvsQ2->Write("W vs Q2");
-  h2tvsph_q->Write("t vs phi");
-  h1epsilon->Write("epsilon");
-  h1mmisspi_remove->Write("Pion Missing Mass, with cuts");
 
   TDirectory *DEDTM = Histogram_file->mkdir("Accepted EDTM Events"); DEDTM->cd();
   EDTM->Write("EDTM TDC Time");
