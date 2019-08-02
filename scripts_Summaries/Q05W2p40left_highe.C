@@ -40,7 +40,7 @@ ch.Add("/home/sjdkay/work/JLab/hallc_replay_lt/UTIL_PROTON/ROOTfiles_KaonOL/Kaon
 ch.Add("/home/sjdkay/work/JLab/hallc_replay_lt/UTIL_PROTON/ROOTfiles_KaonOL/KaonLT_coin_replay_production_6977_-1.root"); // 30 uA 
 ch.Add("/home/sjdkay/work/JLab/hallc_replay_lt/UTIL_PROTON/ROOTfiles_KaonOL/KaonLT_coin_replay_production_6978_-1.root"); // 30 uA 
 
-  TProof *proof = TProof::Open("workers=8");
+  TProof *proof = TProof::Open("workers=2");
   //proof->SetProgressDialog(0);  
   ch.SetProof();
   ch.Process("/home/sjdkay/work/JLab/hallc_replay_lt/UTIL_PROTON/scripts_Yield/ProtonYield.C+","1");
