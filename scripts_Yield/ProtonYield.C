@@ -140,11 +140,11 @@ Bool_t ProtonYield::Process(Long64_t entry)
   fReader.SetEntry(entry);
   // Note, these should be set for ALL entries somewhere else but I had no luck actually getting this to work correctly
   // This a very horrible implementation of this but it works so it's FINE for now. I really hate it though
-  Double_t Offset[3] = {48.15, 47.15, 48.65};  
-  Double_t PromptLow[3] = {-1, -1, -1};
-  Double_t PromptHigh[3] = {1, 1, 1};
-  Double_t RandomLow[3] = {5, 5, 5};
-  Double_t RandomHigh[3] = {11, 11, 11};
+  Double_t Offset[3] = {43.5, 43.6, 43.4};
+  Double_t PromptLow[3] = {-2, -2, -2};
+  Double_t PromptHigh[3] = {2, 2, 2};
+  Double_t RandomLow[3] = {6.5, 6.5, 6.5};
+  Double_t RandomHigh[3] = {18.5, 18.5, 18.5};
   
   // Fill some histograms before applying any cuts
   h1EDTM->Fill(*pEDTM);
@@ -254,9 +254,9 @@ void ProtonYield::Terminate()
   TH1F* EDTM = dynamic_cast<TH1F*> (GetOutputList()->FindObject("EDTM"));
   TH2F* HMS_electron = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron"));
   TH2F* HMS_electron_cut = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron_cut"));
-  Double_t RandomLow[3] = {5, 5, 5};
-  Double_t RandomHigh[3] = {11, 11, 11};
-
+  Double_t RandomLow[3] = {6.5, 6.5, 6.5};
+  Double_t RandomHigh[3] = {18.5, 18.5, 18.5};
+ 
   //Perform Random Subtraction, these windows will likely need to be adjusted
   h1mmissK_rand->Scale(1.0/6.0);
   h1mmisspi_rand->Scale(1.0/6.0); // Are these scales correct? How many buckets do we capture?
