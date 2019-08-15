@@ -22,6 +22,11 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   h2misspicut_CT   = new TH2F("h1misspicut_CT","Pion Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
   h2misspcut_CT   = new TH2F("h1misspcut_CT","Proton Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
 
+  h3XYNPEAll = new TH3F("h3XYNPEAll","NPE Sum vs X vs Y;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+  h3XYNPEPion = new TH3F("h3XYNPEPion","NPE Sum vs X vs Y for Pions;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+  h3XYNPEKaon = new TH3F("h3XYNPEKaon","NPE Sum vs X vs Y for Kaons;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+  h3XYNPEProton = new TH3F("h3XYNPEProton","NPE Sum vs X vs Y for Protons;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+  
   h2ROC1_Coin_Beta_noID_kaon = new TH2F("ROC1_Coin_Beta_noCut_kaon","Kaon Coincident Time vs #beta for ROC1 (w/ particle ID);Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_kaon = new TH2F("ROC1_Coin_Beta_kaon","Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_randID_kaon = new TH2F("ROC1_Coin_Beta_randID_kaon","Random Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
@@ -80,12 +85,25 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   h1mmissp_cut            = new TH1F("mmissp_cut","Proton Missing mass with Cuts;Mass (GeV/c^{2});Counts",200,0.0,2.0);
   h1mmissp_remove         = new TH1F("mmissp_remove","Proton Missing mass with Cuts (Random Subtracted);Mass (GeV/c^{2});Counts",200,0.0,2.0);
 
+  h2WvsQ2                 = new TH2F("WvsQ2","Q2 vs W;Q2;W", 200, 5.0, 6.0, 200, 2.8, 3.8);
+  h2uvsph_q               = new TH2F("uvsph_q",";#phi;u",12,-3.14,3.14,100,0.0,1.5); 
+  h1epsilon               = new TH1F("epsilon","Plot of Epsilon;#epsilon;Counts",100,0.0,1.0);
+
+  h1mmpKMissID             = new TH1F("mmpKMissID","MM_{p} - K Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
+  h1mmKpMissID             = new TH1F("mmKpMissID","MM_{K} - p Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
+  h3XYNPEKMissID           = new TH3F("h3XYNPEKMissID","NPE Sum vs X vs Y for K wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+  h3XYNPEpMissID           = new TH3F("h3XYNPEpMissID","NPE Sum vs X vs Y for p wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
+
   h1EDTM                  = new TH1F("EDTM","EDTM Time;EDTM TDC Time;Counts",10000,-5000,5000);
   h1TRIG5                 = new TH1F("TRIG5","TRIG5 Time;TRIG5 TDC Time;Counts",10000,-5000,5000);
 
   GetOutputList()->Add(h2missKcut_CT);
   GetOutputList()->Add(h2misspicut_CT);
   GetOutputList()->Add(h2misspcut_CT);
+  GetOutputList()->Add(h3XYNPEAll);
+  GetOutputList()->Add(h3XYNPEPion);
+  GetOutputList()->Add(h3XYNPEKaon);
+  GetOutputList()->Add(h3XYNPEProton);
   GetOutputList()->Add(h2ROC1_Coin_Beta_noID_kaon);
   GetOutputList()->Add(h2ROC1_Coin_Beta_kaon);
   GetOutputList()->Add(h2ROC1_Coin_Beta_randID_kaon);
@@ -131,6 +149,13 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h1mmissp_rand);
   GetOutputList()->Add(h1mmissp_cut);
   GetOutputList()->Add(h1mmissp_remove);
+  GetOutputList()->Add(h2WvsQ2);
+  GetOutputList()->Add(h2uvsph_q);
+  GetOutputList()->Add(h1epsilon);
+  GetOutputList()->Add(h1mmpKMissID);
+  GetOutputList()->Add(h1mmKpMissID);
+  GetOutputList()->Add(h3XYNPEKMissID);
+  GetOutputList()->Add(h3XYNPEpMissID);
   GetOutputList()->Add(h1EDTM);
   GetOutputList()->Add(h1TRIG5);
 }
@@ -165,7 +190,7 @@ Bool_t ProtonYield::Process(Long64_t entry)
   Double_t MMK = sqrt(pow(emiss[0],2)-pow(pmiss[0],2)); // Calculate missing mass under condition that hadron is a pion
   h1mmissK->Fill(MMK);
   h1mmisspi->Fill(MMPi);
-  h1mmissp->Fill(MMp);
+  if (MMp > 0) h1mmissp->Fill(MMp);
 
   // Cuts that all particle species share in common
   // if (P_cal_etotnorm[0] > 0.6) return kTRUE; // Check SHMS doesn't see a positron
@@ -187,12 +212,14 @@ Bool_t ProtonYield::Process(Long64_t entry)
   h1SHMS_ph_cut->Fill(P_gtr_ph[0]);
   h1HMS_th_cut->Fill(H_gtr_th[0]);
   h1HMS_ph_cut->Fill(H_gtr_ph[0]);
+  //h3XYNPEAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
 
   //Event identified as Pion
   if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { // HGC and AERO hit
     h2ROC1_Coin_Beta_noID_pion->Fill((CTime_ePiCoinTime_ROC1[0] - Offset[0]),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.3) return kTRUE;
     h2misspicut_CT->Fill( CTime_ePiCoinTime_ROC1[0] - Offset[0], MMPi);
+    //h3XYNPEPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ((CTime_ePiCoinTime_ROC1[0] - Offset[0]) > PromptLow[0] && (CTime_ePiCoinTime_ROC1[0] - Offset[0]) < PromptHigh[0]) {
       h2ROC1_Coin_Beta_pion->Fill((CTime_ePiCoinTime_ROC1[0] - Offset[0]),P_gtr_beta[0]);
       h2SHMSpi_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
@@ -211,11 +238,16 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2ROC1_Coin_Beta_noID_kaon->Fill((CTime_eKCoinTime_ROC1[0] - Offset[1]),P_gtr_beta[0]); 
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
     h2missKcut_CT->Fill( CTime_eKCoinTime_ROC1[0] - Offset[1], MMK);
+    //h3XYNPEKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ( (CTime_eKCoinTime_ROC1[0] - Offset[1]) > PromptLow[1] && (CTime_eKCoinTime_ROC1[0] - Offset[1]) < PromptHigh[1]) {
       h2ROC1_Coin_Beta_kaon->Fill((CTime_eKCoinTime_ROC1[0] - Offset[1]),P_gtr_beta[0]);
       h2SHMSK_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
       h2SHMSK_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmissK_cut->Fill(MMK);
+      if (0.7 < MMK && MMK < 0.9){
+	h1mmpKMissID->Fill(MMp);
+	//h3XYNPEKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+      }
     }
     if (abs((CTime_eKCoinTime_ROC1[0] - Offset[1])) > RandomLow[1]  && abs((CTime_eKCoinTime_ROC1[0] - Offset[1])) < RandomHigh[1]) {
       h1mmissK_rand->Fill(MMK);
@@ -229,11 +261,21 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2ROC1_Coin_Beta_noID_proton->Fill((CTime_epCoinTime_ROC1[0] - Offset[2]),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
     h2misspcut_CT->Fill( CTime_epCoinTime_ROC1[0] - Offset[2], MMp);
+    //h3XYNPEProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ((CTime_epCoinTime_ROC1[0] - Offset[2]) > PromptLow[2] && (CTime_epCoinTime_ROC1[0] - Offset[2]) < PromptHigh[2]) {
       h2ROC1_Coin_Beta_proton->Fill((CTime_epCoinTime_ROC1[0] - Offset[2]),P_gtr_beta[0]);
       h2SHMSp_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
       h2SHMSp_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmissp_cut->Fill(MMp);
+      h2WvsQ2->Fill(Q2[0],W[0]);
+      // Due to the way hcana defines T and U, for the proton case mandelstam t is actually mandelstam u and vice versa
+      // Slightly stupid/confusing but could be corrected at some point
+      h2uvsph_q->Fill(ph_q[0],-MandelT[0]);
+      h1epsilon->Fill(epsilon[0]);
+      if (0.8 < MMK && MMK < 0.9){
+	h1mmKpMissID->Fill(MMK);
+	//h3XYNPEpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+      }
     }
     if (abs((CTime_epCoinTime_ROC1[0] - Offset[2])) > RandomLow[2] && abs((CTime_epCoinTime_ROC1[0] - Offset[2])) < RandomHigh[2]) {
       h1mmissp_rand->Fill(MMp);
@@ -254,12 +296,37 @@ void ProtonYield::Terminate()
   TH1F* EDTM = dynamic_cast<TH1F*> (GetOutputList()->FindObject("EDTM"));
   TH2F* HMS_electron = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron"));
   TH2F* HMS_electron_cut = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron_cut"));
+  //TH3F* XYNPE3DAll;
+  //TH3F* XYNPE3DPion;
+  //TH3F* XYNPE3DKaon;
+  //TH3F* XYNPE3DProton;
+  //TH3F* XYNPE3DKaonMissID;
+  //TH3F* XYNPE3DProtonMissID;
+  //XYNPE3DAll = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEAll"));
+  //XYNPE3DPion = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEPion"));
+  //XYNPE3DKaon = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKaon"));
+  //XYNPE3DProton = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEProton"));
+  //XYNPE3DKaonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKMissID"));
+  //XYNPE3DProtonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEpMissID"));
+
+  //TProfile2D *h3XYNPEAll_pxy = new TProfile2D("h3XYNPEAll_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DAll->Project3DProfile("xy");
+  //TProfile2D *h3XYNPEPion_pxy = new TProfile2D("h3XYNPEPion_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DPion->Project3DProfile("xy");
+  //TProfile2D *h3XYNPEKaon_pxy = new TProfile2D("h3XYNPEKaon_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DKaon->Project3DProfile("xy");
+  //TProfile2D *h3XYNPEProton_pxy = new TProfile2D("h3XYNPEProton_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DProton->Project3DProfile("xy");
+  //TProfile2D *h3XYNPEKMissID_pxy = new TProfile2D("h3XYNPEKMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DKaonMissID->Project3DProfile("xy");
+  //TProfile2D *h3XYNPEpMissID_pxy = new TProfile2D("h3XYNPEpMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  //XYNPE3DProtonMissID->Project3DProfile("xy");
+
   Double_t RandomLow[3] = {6.5, 6.5, 6.5};
   Double_t RandomHigh[3] = {18.5, 18.5, 18.5};
  
-  //Perform Random Subtraction, these windows will likely need to be adjusted
   h1mmissK_rand->Scale(1.0/6.0);
-  h1mmisspi_rand->Scale(1.0/6.0); // Are these scales correct? How many buckets do we capture?
+  h1mmisspi_rand->Scale(1.0/6.0); 
   h1mmissp_rand->Scale(1.0/6.0);
   h1mmissK_remove->Add(h1mmissK_cut,h1mmissK_rand,1,-1);
   h1mmisspi_remove->Add(h1mmisspi_cut,h1mmisspi_rand,1,-1);
@@ -406,6 +473,48 @@ void ProtonYield::Terminate()
   pcCoinTime->Print(outputpng_coin);
   pcCoinTime->Print(outputpdf);
 
+  TCanvas *cKine = new TCanvas("Kine","Summary of Higher Order Kinematics",500,200,1000,900);
+  cKine->Divide(2,2);
+  cKine->cd(1); h2WvsQ2->Draw("Colz"); 
+  h2WvsQ2->SetTitleOffset(1.0,"Y");
+  cKine->cd(3); 
+  h2uvsph_q->Draw("SURF2 POL"); 
+  gPad->SetTheta(90); gPad->SetPhi(180);
+  TPaveText *uvsphi_title = new TPaveText(0.0277092,0.89779,0.096428,0.991854,"NDC");
+  uvsphi_title->AddText("-u vs #phi"); uvsphi_title->Draw();
+  TPaveText *ptphizero = new TPaveText(0.923951,0.513932,0.993778,0.574551,"NDC");
+  ptphizero->AddText("#phi = 0"); ptphizero->Draw();
+  TLine *phihalfpi = new TLine(0,0,0,0.6); 
+  phihalfpi->SetLineColor(kBlack); phihalfpi->SetLineWidth(2); phihalfpi->Draw();  
+  TPaveText *ptphihalfpi = new TPaveText(0.417855,0.901876,0.486574,0.996358,"NDC");
+  ptphihalfpi->AddText("#phi = #frac{#pi}{2}"); ptphihalfpi->Draw();
+  TLine *phipi = new TLine(0,0,-0.6,0); 
+  phipi->SetLineColor(kBlack); phipi->SetLineWidth(2); phipi->Draw();  
+  TPaveText *ptphipi = new TPaveText(0.0277092,0.514217,0.096428,0.572746,"NDC");
+  ptphipi->AddText("#phi = #pi"); ptphipi->Draw();
+  TLine *phithreepi = new TLine(0,0,0,-0.6); 
+  phithreepi->SetLineColor(kBlack); phithreepi->SetLineWidth(2); phithreepi->Draw();  
+  TPaveText *ptphithreepi = new TPaveText(0.419517,0.00514928,0.487128,0.0996315,"NDC");
+  ptphithreepi->AddText("#phi = #frac{3#pi}{2}"); ptphithreepi->Draw();
+  for (Int_t k = 0; k < 10; k++){
+    Arc[k] = new TArc(); 
+    Arc[k]->SetFillStyle(0);
+    Arc[k]->SetLineWidth(2);
+    Arc[k]->DrawArc(0,0,0.575*(k+1)/(10),0.,360.,"same"); 
+  }
+  //make sure that if you change range on the u-phi you change this uradius aswell. The sixth input is the range on the ruler on the t-phi plot. hienricn 2019/06/29
+  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,1.5,10,"-+"); 
+  tradius->SetLineColor(2);tradius->SetLabelColor(2);tradius->Draw();
+  TLine *phizero = new TLine(0,0,0.6,0); 
+  phizero->SetLineColor(kBlack); phizero->SetLineWidth(2); phizero->Draw();
+  cKine->cd(2); h1epsilon->Draw();
+  h1epsilon->SetTitleOffset(1.0,"Y");
+  cKine->cd(4); h1mmissp_remove->Draw("hist");
+  h1mmissp_remove->SetTitleOffset(1.0,"Y");
+  // Save TCanvas
+  cKine->Print(outputpng);
+  cKine->Print(outputpdf + ')');
+
   //Start output of .root file with all histograms
   TFile *Histogram_file = new TFile(Form("../HISTOGRAMS/KaonLT_Proton_Run%i.root",option.Atoi()),"RECREATE");
   TDirectory *DCuts = Histogram_file->mkdir("Spectrometer Delta and Calorimeter Cuts"); DCuts->cd();
@@ -466,8 +575,32 @@ void ProtonYield::Terminate()
   h1mmissp->Write("Proton Missing Mass, no cuts");
   h1mmissp_remove->Write("Proton Missing Mass, with cuts");
 
+  TDirectory *DKine = Histogram_file->mkdir("Proton Higher Order Kinematics Summary"); DKine->cd();
+  h2WvsQ2->Write("W vs Q2");
+  h2uvsph_q->Write("u vs phi");
+  h1epsilon->Write("epsilon");
+  h1mmissp_remove->Write("Proton Missing Mass, with cuts");
+
   TDirectory *DEDTM = Histogram_file->mkdir("Accepted EDTM Events"); DEDTM->cd();
   EDTM->Write("EDTM TDC Time");
-  Histogram_file->Close();
   
+  TDirectory *DXYNPE = Histogram_file->mkdir("NPE Sum vs X vs Y Information"); DXYNPE->cd();
+  //XYNPE3DAll->Write("3D All Events");
+  //h3XYNPEAll_pxy->Write("2D All Events");
+  //XYNPE3DPion->Write("3D Pion Events");
+  //h3XYNPEPion_pxy->Write("2D Pion Events");
+  //XYNPE3DKaon->Write("3D Kaon Events");
+  //h3XYNPEKaon_pxy->Write("2D Kaon Events");
+  //XYNPE3DProton->Write("3D Proton Events");
+  //h3XYNPEProton_pxy->Write("2D Proton Events");
+
+  TDirectory *DMissID = Histogram_file->mkdir("Miss ID'd Events Testing"); DMissID->cd();
+  //XYNPE3DKaonMissID->Write("3D HGC Miss-ID Kaon");  
+  //h3XYNPEKMissID_pxy->Write("2D HGC Miss-ID Kaon");
+  h1mmpKMissID->Write("Proton Missing Mass for Miss-ID Kaons");
+  //XYNPE3DProtonMissID->Write("3D HGC Miss-ID Proton");  
+  //h3XYNPEpMissID_pxy->Write("2D HGC Miss-ID Proton");
+  h1mmKpMissID->Write("Kaon Missing Mass for Miss-ID Protons");
+
+  Histogram_file->Close();
 }

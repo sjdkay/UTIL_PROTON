@@ -21,8 +21,8 @@ while true; do
 		    REPLAYPATH="/home/cdaq/hallc-online/hallc_replay_lt"
 		elif [[ "${HOSTNAME}" = *"phys.uregina.ca"* ]]; then
 		    REPLAYPATH="/home/${USER}/work/JLab/hallc_replay_lt"
-		    OUTPUTPATH="/d8tb3/${USER}/OUTPUT/Proton_Analysis"
-		    HISTOPATH="/d8tb3/${USER}/HISTOGRAMS/Proton_Analysis"
+		    OUTPUTPATH="/dsk3/${USER}/JLab/OUTPUT/Proton_Analysis"
+		    HISTOPATH="/dsk3/${USER}/JLab/HISTOGRAMS/Proton_Analysis"
 		fi
 		cd "$REPLAYPATH/UTIL_PROTON/scripts_Summaries"
 		# Use .* for equivalent of *, need \ for brackets since they're special characters
@@ -31,6 +31,7 @@ while true; do
 		sed -i "s/PromptHigh\[3\] = .*/PromptHigh\[3\] = \{1, 1, 1\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		sed -i "s/RandomLow\[3\] = .*/RandomLow\[3\] = \{5, 5 ,5\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		sed -i "s/RandomHigh\[3\] = .*/RandomHigh\[3\] = \{9, 9, 9\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 0.0, 6.0, 200, 2.0, 3.0);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		
 		root -l -b -q "Q05W2p40left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q05W2p40left_highe_AllPlots.pdf"
@@ -58,6 +59,7 @@ while true; do
 		sed -i "s/PromptHigh\[3\] = .*/PromptHigh\[3\] = \{2, 2, 2\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		sed -i "s/RandomLow\[3\] = .*/RandomLow\[3\] = \{6.5, 6.5, 6.5\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		sed -i "s/RandomHigh\[3\] = .*/RandomHigh\[3\] = \{18.5, 18.5, 18.5\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 1, 4, 200, 2.5, 3.5);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
        
 		root -l -b -q "Q2p115W2p95left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q2p115W2p95left_highe_AllPlots.pdf"
@@ -83,6 +85,7 @@ while true; do
 		mv "$HISTOPATH/KaonLT_Proton_Run1.root" "$HISTOPATH/KaonLT_Proton_Q2p115W2p95center_lowe.root"
 
 		sed -i "s/Offset\[3\] = .*/Offset\[3\] = \{44.55, 44.1, 44.85\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 1.5, 4.5, 200, 1.5, 3.5);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		root -l -b -q "Q3W2p32left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q3W2p32left_highe_AllPlots.pdf"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots_coin.png" "$OUTPUTPATH/Proton_Kinematics_Q3W2p32left_highe.png"
@@ -109,6 +112,7 @@ while true; do
 		mv "$HISTOPATH/KaonLT_Proton_Run1.root" "$HISTOPATH/KaonLT_Proton_Q3W2p32center_lowe.root"
 
 		sed -i "s/Offset\[3\] = .*/Offset\[3\] = \{44.45, 44.55, 44.6\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 1.5, 4.5, 200, 2.8, 3.8);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		root -l -b -q "Q3W3p14left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q3W3p14left_highe_AllPlots.pdf"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots_coin.png" "$OUTPUTPATH/Proton_Kinematics_Q3W3p14left_highe.png"
@@ -133,6 +137,7 @@ while true; do
 		mv "$HISTOPATH/KaonLT_Proton_Run1.root" "$HISTOPATH/KaonLT_Proton_Q3W3p14center_lowe.root"
 	
 		sed -i "s/Offset\[3\] = .*/Offset\[3\] = \{44.4, 44.6, 44.7\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 3.0, 6.0, 200, 2.4, 3.4);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		root -l -b -q "Q4p4W2p74left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q4p4W2p74left_highe_AllPlots.pdf"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots_coin.png" "$OUTPUTPATH/Proton_Kinematics_Q4p4W2p74left_highe.png"
@@ -157,6 +162,7 @@ while true; do
 		mv "$HISTOPATH/KaonLT_Proton_Run1.root" "$HISTOPATH/KaonLT_Proton_Q4p4W2p74center_lowe.root"
 
 		sed -i "s/Offset\[3\] = .*/Offset\[3\] = \{44.2, 44.3, 44.4\};/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
+		sed -i "s/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\",.*/new TH2F(\"WvsQ2\",\"Q2 vs W;Q2;W\", 200, 4.0, 7.0, 200, 2.8, 3.8);/" $REPLAYPATH/UTIL_PROTON/scripts_Yield/ProtonYield.C
 		root -l -b -q "Q5p5W3p02left_highe.C"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots.pdf" "$OUTPUTPATH/Proton_Kinematics_Q5p5W3p02left_highe_AllPlots.pdf"
 		mv "$OUTPUTPATH/Proton_Kinematics_Run1_AllPlots_coin.png" "$OUTPUTPATH/Proton_Kinematics_Q5p5W3p02left_highe.png"
