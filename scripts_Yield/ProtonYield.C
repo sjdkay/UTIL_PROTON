@@ -16,17 +16,22 @@ void ProtonYield::Begin(TTree * /*tree*/)
 void ProtonYield::SlaveBegin(TTree * /*tree*/)
 {
   TString option = GetOption();
-  // Timing Windows, may change to be some 2D array
- 
+
   h2missKcut_CT   = new TH2F("h1missKcut_CT","Kaon Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
   h2misspicut_CT   = new TH2F("h1misspicut_CT","Pion Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
   h2misspcut_CT   = new TH2F("h1misspcut_CT","Proton Missing mass vs Coincidence Time;Time (ns);Mass (GeV/c^{2})^{2}",400,-10,10,200,0.8,1.5);
+
+  h2HGCXYAll = new TH2F("h2HGCXYAll", "X vs Y Position in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
+  h2HGCXYPions = new TH2F("h2HGCXYPions", "X vs Y for Pions Position in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
+  h2HGCXKaons = new TH2F("h2HGCXYKaons", "X vs Y for Kaons Position in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
+  h2HGCXYProtons = new TH2F("h2HGCXYProtons", "X vs Y for Protons Position in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
 
   h3XYNPEAll = new TH3F("h3XYNPEAll","NPE Sum vs X vs Y;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   h3XYNPEPion = new TH3F("h3XYNPEPion","NPE Sum vs X vs Y for Pions;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   h3XYNPEKaon = new TH3F("h3XYNPEKaon","NPE Sum vs X vs Y for Kaons;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   h3XYNPEProton = new TH3F("h3XYNPEProton","NPE Sum vs X vs Y for Protons;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   
+  // Timing Windows, may change to be some 2D array
   h2ROC1_Coin_Beta_noID_kaon = new TH2F("ROC1_Coin_Beta_noCut_kaon","Kaon Coincident Time vs #beta for ROC1 (w/ particle ID);Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_kaon = new TH2F("ROC1_Coin_Beta_kaon","Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
   h2ROC1_Coin_Beta_randID_kaon = new TH2F("ROC1_Coin_Beta_randID_kaon","Random Kaon Coincident Time vs #beta for ROC1;Time (ns);#beta",800,-40,40,200,0.0,2.0);
@@ -91,6 +96,8 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
 
   h1mmpKMissID             = new TH1F("mmpKMissID","MM_{p} - K Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
   h1mmKpMissID             = new TH1F("mmKpMissID","MM_{K} - p Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
+  h2HGCXKMissID = new TH2F("h2HGCXYKMissID", "X vs Y for K wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
+  h2HGCXYpMissID = new TH2F("h2HGCXYpMissID", "X vs Y for p wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);  
   h3XYNPEKMissID           = new TH3F("h3XYNPEKMissID","NPE Sum vs X vs Y for K wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   h3XYNPEpMissID           = new TH3F("h3XYNPEpMissID","NPE Sum vs X vs Y for p wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
 
@@ -100,6 +107,10 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h2missKcut_CT);
   GetOutputList()->Add(h2misspicut_CT);
   GetOutputList()->Add(h2misspcut_CT);
+  GetOutputList()->Add(2HGCXYAll);
+  GetOutputList()->Add(2HGCXYPion);
+  GetOutputList()->Add(2HGCXYKaon);
+  GetOutputList()->Add(2HGCXYProton);
   GetOutputList()->Add(h3XYNPEAll);
   GetOutputList()->Add(h3XYNPEPion);
   GetOutputList()->Add(h3XYNPEKaon);
@@ -154,6 +165,8 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h1epsilon);
   GetOutputList()->Add(h1mmpKMissID);
   GetOutputList()->Add(h1mmKpMissID);
+  GetOutputList()->Add(h2HGCXYKMissID);
+  GetOutputList()->Add(h2HGCXYpMissID);
   GetOutputList()->Add(h3XYNPEKMissID);
   GetOutputList()->Add(h3XYNPEpMissID);
   GetOutputList()->Add(h1EDTM);
@@ -212,14 +225,16 @@ Bool_t ProtonYield::Process(Long64_t entry)
   h1SHMS_ph_cut->Fill(P_gtr_ph[0]);
   h1HMS_th_cut->Fill(H_gtr_th[0]);
   h1HMS_ph_cut->Fill(H_gtr_ph[0]);
-  //h3XYNPEAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+  h2HGCXYAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
+  h3XYNPEAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
 
   //Event identified as Pion
   if (P_hgcer_npeSum[0] > 1.5 && P_aero_npeSum[0] > 1.5) { // HGC and AERO hit
     h2ROC1_Coin_Beta_noID_pion->Fill((CTime_ePiCoinTime_ROC1[0] - Offset[0]),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.3) return kTRUE;
     h2misspicut_CT->Fill( CTime_ePiCoinTime_ROC1[0] - Offset[0], MMPi);
-    //h3XYNPEPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+    h2HGCXYPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);  
+    h3XYNPEPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ((CTime_ePiCoinTime_ROC1[0] - Offset[0]) > PromptLow[0] && (CTime_ePiCoinTime_ROC1[0] - Offset[0]) < PromptHigh[0]) {
       h2ROC1_Coin_Beta_pion->Fill((CTime_ePiCoinTime_ROC1[0] - Offset[0]),P_gtr_beta[0]);
       h2SHMSpi_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
@@ -238,7 +253,8 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2ROC1_Coin_Beta_noID_kaon->Fill((CTime_eKCoinTime_ROC1[0] - Offset[1]),P_gtr_beta[0]); 
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
     h2missKcut_CT->Fill( CTime_eKCoinTime_ROC1[0] - Offset[1], MMK);
-    //h3XYNPEKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+    h2HGCXYKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
+    h3XYNPEKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ( (CTime_eKCoinTime_ROC1[0] - Offset[1]) > PromptLow[1] && (CTime_eKCoinTime_ROC1[0] - Offset[1]) < PromptHigh[1]) {
       h2ROC1_Coin_Beta_kaon->Fill((CTime_eKCoinTime_ROC1[0] - Offset[1]),P_gtr_beta[0]);
       h2SHMSK_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
@@ -246,7 +262,8 @@ Bool_t ProtonYield::Process(Long64_t entry)
       h1mmissK_cut->Fill(MMK);
       if (0.7 < MMK && MMK < 0.9){
 	h1mmpKMissID->Fill(MMp);
-	//h3XYNPEKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+	h2HGCXYKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
+	h3XYNPEKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
       }
     }
     if (abs((CTime_eKCoinTime_ROC1[0] - Offset[1])) > RandomLow[1]  && abs((CTime_eKCoinTime_ROC1[0] - Offset[1])) < RandomHigh[1]) {
@@ -261,7 +278,8 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2ROC1_Coin_Beta_noID_proton->Fill((CTime_epCoinTime_ROC1[0] - Offset[2]),P_gtr_beta[0]);
     if (abs(P_gtr_beta[0]-1.00) > 0.1) return kTRUE;
     h2misspcut_CT->Fill( CTime_epCoinTime_ROC1[0] - Offset[2], MMp);
-    //h3XYNPEProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+    h2HGCXYProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
+    h3XYNPEProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
     if ((CTime_epCoinTime_ROC1[0] - Offset[2]) > PromptLow[2] && (CTime_epCoinTime_ROC1[0] - Offset[2]) < PromptHigh[2]) {
       h2ROC1_Coin_Beta_proton->Fill((CTime_epCoinTime_ROC1[0] - Offset[2]),P_gtr_beta[0]);
       h2SHMSp_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
@@ -274,7 +292,8 @@ Bool_t ProtonYield::Process(Long64_t entry)
       h1epsilon->Fill(epsilon[0]);
       if (0.8 < MMK && MMK < 0.9){
 	h1mmKpMissID->Fill(MMK);
-	//h3XYNPEpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+	h2HGCXYpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
+	h3XYNPEpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
       }
     }
     if (abs((CTime_epCoinTime_ROC1[0] - Offset[2])) > RandomLow[2] && abs((CTime_epCoinTime_ROC1[0] - Offset[2])) < RandomHigh[2]) {
@@ -296,31 +315,31 @@ void ProtonYield::Terminate()
   TH1F* EDTM = dynamic_cast<TH1F*> (GetOutputList()->FindObject("EDTM"));
   TH2F* HMS_electron = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron"));
   TH2F* HMS_electron_cut = dynamic_cast<TH2F*> (GetOutputList()->FindObject("HMS_electron_cut"));
-  //TH3F* XYNPE3DAll;
-  //TH3F* XYNPE3DPion;
-  //TH3F* XYNPE3DKaon;
-  //TH3F* XYNPE3DProton;
-  //TH3F* XYNPE3DKaonMissID;
-  //TH3F* XYNPE3DProtonMissID;
-  //XYNPE3DAll = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEAll"));
-  //XYNPE3DPion = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEPion"));
-  //XYNPE3DKaon = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKaon"));
-  //XYNPE3DProton = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEProton"));
-  //XYNPE3DKaonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKMissID"));
-  //XYNPE3DProtonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEpMissID"));
+  TH3F* XYNPE3DAll;
+  TH3F* XYNPE3DPion;
+  TH3F* XYNPE3DKaon;
+  TH3F* XYNPE3DProton;
+  TH3F* XYNPE3DKaonMissID;
+  TH3F* XYNPE3DProtonMissID;
+  XYNPE3DAll = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEAll"));
+  XYNPE3DPion = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEPion"));
+  XYNPE3DKaon = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKaon"));
+  XYNPE3DProton = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEProton"));
+  XYNPE3DKaonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKMissID"));
+  XYNPE3DProtonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEpMissID"));
 
-  //TProfile2D *h3XYNPEAll_pxy = new TProfile2D("h3XYNPEAll_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DAll->Project3DProfile("xy");
-  //TProfile2D *h3XYNPEPion_pxy = new TProfile2D("h3XYNPEPion_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DPion->Project3DProfile("xy");
-  //TProfile2D *h3XYNPEKaon_pxy = new TProfile2D("h3XYNPEKaon_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DKaon->Project3DProfile("xy");
-  //TProfile2D *h3XYNPEProton_pxy = new TProfile2D("h3XYNPEProton_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DProton->Project3DProfile("xy");
-  //TProfile2D *h3XYNPEKMissID_pxy = new TProfile2D("h3XYNPEKMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DKaonMissID->Project3DProfile("xy");
-  //TProfile2D *h3XYNPEpMissID_pxy = new TProfile2D("h3XYNPEpMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  //XYNPE3DProtonMissID->Project3DProfile("xy");
+  TProfile2D *h3XYNPEAll_pxy = new TProfile2D("h3XYNPEAll_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DAll->Project3DProfile("xy");
+  TProfile2D *h3XYNPEPion_pxy = new TProfile2D("h3XYNPEPion_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DPion->Project3DProfile("xy");
+  TProfile2D *h3XYNPEKaon_pxy = new TProfile2D("h3XYNPEKaon_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DKaon->Project3DProfile("xy");
+  TProfile2D *h3XYNPEProton_pxy = new TProfile2D("h3XYNPEProton_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DProton->Project3DProfile("xy");
+  TProfile2D *h3XYNPEKMissID_pxy = new TProfile2D("h3XYNPEKMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DKaonMissID->Project3DProfile("xy");
+  TProfile2D *h3XYNPEpMissID_pxy = new TProfile2D("h3XYNPEpMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
+  XYNPE3DProtonMissID->Project3DProfile("xy");
 
   Double_t RandomLow[3] = {6.5, 6.5, 6.5};
   Double_t RandomHigh[3] = {18.5, 18.5, 18.5};
@@ -583,23 +602,31 @@ void ProtonYield::Terminate()
 
   TDirectory *DEDTM = Histogram_file->mkdir("Accepted EDTM Events"); DEDTM->cd();
   EDTM->Write("EDTM TDC Time");
+
+  TDirectory *DXYHGC = Histogram_file->mkdir("HGC X vs Y Information"); DXYHGC->cd();
+  h2HGCXYAll->Write("All Events");
+  h2HGCXYPion->Write("Pion Events");
+  h2HGCXYKaon->Write("Kaon Events");
+  h2HGCXYProton->Write("Proton Events");
   
   TDirectory *DXYNPE = Histogram_file->mkdir("NPE Sum vs X vs Y Information"); DXYNPE->cd();
-  //XYNPE3DAll->Write("3D All Events");
-  //h3XYNPEAll_pxy->Write("2D All Events");
-  //XYNPE3DPion->Write("3D Pion Events");
-  //h3XYNPEPion_pxy->Write("2D Pion Events");
-  //XYNPE3DKaon->Write("3D Kaon Events");
-  //h3XYNPEKaon_pxy->Write("2D Kaon Events");
-  //XYNPE3DProton->Write("3D Proton Events");
-  //h3XYNPEProton_pxy->Write("2D Proton Events");
+  XYNPE3DAll->Write("3D All Events");
+  h3XYNPEAll_pxy->Write("2D All Events");
+  XYNPE3DPion->Write("3D Pion Events");
+  h3XYNPEPion_pxy->Write("2D Pion Events");
+  XYNPE3DKaon->Write("3D Kaon Events");
+  h3XYNPEKaon_pxy->Write("2D Kaon Events");
+  XYNPE3DProton->Write("3D Proton Events");
+  h3XYNPEProton_pxy->Write("2D Proton Events");
 
   TDirectory *DMissID = Histogram_file->mkdir("Miss ID'd Events Testing"); DMissID->cd();
-  //XYNPE3DKaonMissID->Write("3D HGC Miss-ID Kaon");  
-  //h3XYNPEKMissID_pxy->Write("2D HGC Miss-ID Kaon");
+  XYNPE3DKaonMissID->Write("3D HGC NPE Miss-ID Kaon");  
+  h3XYNPEKMissID_pxy->Write("2D HGC NPE Miss-ID Kaon");
+  h2HGCXYKMissID->Write("2D HGC Miss-ID Kaon");
   h1mmpKMissID->Write("Proton Missing Mass for Miss-ID Kaons");
-  //XYNPE3DProtonMissID->Write("3D HGC Miss-ID Proton");  
-  //h3XYNPEpMissID_pxy->Write("2D HGC Miss-ID Proton");
+  XYNPE3DProtonMissID->Write("3D HGC NPE Miss-ID Proton");  
+  h3XYNPEpMissID_pxy->Write("2D HGC NPE Miss-ID Proton");
+  h2HGCXYpMissID->Write("2D HGC Miss-ID Proton");  
   h1mmKpMissID->Write("Kaon Missing Mass for Miss-ID Protons");
 
   Histogram_file->Close();

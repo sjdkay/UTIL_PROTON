@@ -32,6 +32,11 @@ class ProtonYield : public TSelector {
   TH2F           *h2misspicut_CT;
   TH2F           *h2misspcut_CT;
 
+  TH2F           *h2HGCXYAll;
+  TH2F           *h2HGCXYPion;
+  TH2F           *h2HGCXYKaon;
+  TH2F           *h2HGCXYProton;
+    
   TH3F           *h3XYNPEAll;   
   TH3F           *h3XYNPEPion;
   TH3F           *h3XYNPEKaon;
@@ -103,6 +108,8 @@ class ProtonYield : public TSelector {
 
   TH1F           *h1mmpKMissID;
   TH1F           *h1mmKpMissID;
+  TH2F           *h2HGCXYKMissID;
+  TH2F           *h2HGCXYpMissID;
   TH3F           *h3XYNPEKMissID;
   TH3F           *h3XYNPEpMissID;
 
@@ -126,8 +133,8 @@ class ProtonYield : public TSelector {
   TTreeReaderArray<Double_t> P_cal_etotnorm     = {fReader, "P.cal.etotnorm"};
   TTreeReaderArray<Double_t> P_aero_npeSum      = {fReader, "P.aero.npeSum"};
   TTreeReaderArray<Double_t> P_hgcer_npeSum     = {fReader, "P.hgcer.npeSum"};
-  //TTreeReaderArray<Double_t> P_hgcer_xAtCer     = {fReader, "P.hgcer.xAtCer"};
-  //TTreeReaderArray<Double_t> P_hgcer_yAtCer     = {fReader, "P.hgcer.yAtCer"};
+  TTreeReaderArray<Double_t> P_hgcer_xAtCer     = {fReader, "P.hgcer.xAtCer"};
+  TTreeReaderArray<Double_t> P_hgcer_yAtCer     = {fReader, "P.hgcer.yAtCer"};
   TTreeReaderArray<Double_t> H_gtr_dp           = {fReader, "H.gtr.dp"};
   TTreeReaderArray<Double_t> P_gtr_dp           = {fReader, "P.gtr.dp"};
   TTreeReaderArray<Double_t> P_gtr_p            = {fReader, "P.gtr.p"};
