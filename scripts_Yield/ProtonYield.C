@@ -96,8 +96,8 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
 
   h1mmpKMissID             = new TH1F("mmpKMissID","MM_{p} - K Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
   h1mmKpMissID             = new TH1F("mmKpMissID","MM_{K} - p Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
-  h2HGCXKMissID = new TH2F("h2HGCXYKMissID", "X vs Y for K wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
-  h2HGCXYpMissID = new TH2F("h2HGCXYpMissID", "X vs Y for p wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);  
+  h2HGCXKMissID            = new TH2F("h2HGCXYKMissID", "X vs Y for K wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
+  h2HGCXYpMissID           = new TH2F("h2HGCXYpMissID", "X vs Y for p wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);  
   h3XYNPEKMissID           = new TH3F("h3XYNPEKMissID","NPE Sum vs X vs Y for K wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
   h3XYNPEpMissID           = new TH3F("h3XYNPEpMissID","NPE Sum vs X vs Y for p wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
 
