@@ -13,6 +13,7 @@ block P.cal.etotnorm
 block P.aero.npeSum
 block P.hgcer.npeSum
 block P.hod.starttime
+block P.hod.fpHitsTime
 block H.gtr.dp
 block P.gtr.dp
 block P.gtr.p
@@ -29,6 +30,8 @@ block T.coin.pEDTM_tdcTime
 block T.helicity.hel
 block T.coin.pRF*
 block T.coin.hRF*
+block H.dc.InsideDipoleExit
+block P.dc.InsideDipoleExit
 
 begin epics
 IBC3H00CRCUR4
@@ -38,4 +41,6 @@ ibcm2
 iunser
 itov3out
 itov4out
+MOFC1DELTA
+MOFC1FREQ
 end epics
