@@ -106,29 +106,42 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   h2uvsph_q               = new TH2F("uvsph_q",";#phi;u",12,-3.14,3.14,100,0.0,1.5); 
   h1epsilon               = new TH1F("epsilon","Plot of Epsilon;#epsilon;Counts",100,0.0,1.0);
 
-  h1mmpKMissID             = new TH1F("mmpKMissID","MM_{p} - K Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
-  h1mmKpMissID             = new TH1F("mmKpMissID","MM_{K} - p Wrong PID;Mass (GeV/c^{2});Counts",200,0.0,2.0);
-  h2HGCXYKMissID            = new TH2F("h2HGCXYKMissID", "X vs Y for K wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);
-  h2HGCXYpMissID           = new TH2F("h2HGCXYpMissID", "X vs Y for p wrong PID in HGC; X Dimension (cm);Y Dimension (cm)", 100, -50, 50, 100, -50, 50);  
-  h3XYNPEKMissID           = new TH3F("h3XYNPEKMissID","NPE Sum vs X vs Y for K wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
-  h3XYNPEpMissID           = new TH3F("h3XYNPEpMissID","NPE Sum vs X vs Y for p wrong PID;X Dimension (cm);Y Dimension (cm);NPE",100,-50,50,100,-50,50,100,0.0,50);
-
   h1EDTM                  = new TH1F("EDTM","EDTM Time;EDTM TDC Time;Counts",10000,-5000,5000);
   h1TRIG5                 = new TH1F("TRIG5","TRIG5 Time;TRIG5 TDC Time;Counts",10000,-5000,5000);
 
   h1pRFTime               = new TH1F("pRFTime", "pRF Time", 500, -1000, 1000);
   h1pHodFpTime            = new TH1F("pHodFpTime", "pHodFpTime", 150, 0, 150);
   h1RFHodFpDiff           = new TH1F("RFHodFpDiff", "pRFTime - pHodFpTime", 500, -1000, 1000);
-  h1RFHodFpDiffMod        = new TH1F("RFHodFpDiffMod", "mod((pRFTime - pHodFpTime), 4.004)", 1000, -5, 5); // Name and modulo taken should vary depending upon bunch spacing
-  h1RFHodFpDiffMod_pi     = new TH1F("RFHodFpDiffMod_pi", "mod((pRFTime - pHodFpTime), 4.004) #pi PID", 1000, -5, 5);
-  h1RFHodFpDiffMod_piReal = new TH1F("RFHodFpDiffMod_piReal", "mod((pRFTime - pHodFpTime), 4.004) #pi PID, reals", 1000, -5, 5);
-  h1RFHodFpDiffMod_piRand = new TH1F("RFHodFpDiffMod_piRand", "mod((pRFTime - pHodFpTime), 4.004) #pi PID, randoms", 1000, -5, 5);
-  h2RFDiffBeta             = new TH2F("RFDiffBeta", "mod((pRFTime - pHodFpTime), 4.004) vs #beta; (RF-FP)/ns; #beta", 400, -5, 5, 400, 0, 2);
-  h2RFDiffBeta_pi          = new TH2F("RFDiffBeta_pi", "mod((pRFTime - pHodFpTime), 4.004) vs #beta, #pi PID; (RF-FP)/ns; #beta", 400, -5, 5, 400, 0, 2);
-  h2RFDiffDelta             = new TH2F("RFDiffDelta", "mod((pRFTime - pHodFpTime), 4.004) vs #delta; (RF-FP)/ns; #delta", 400, -5, 5, 400, -20, 20);
-  h2RFDiffDelta_pi          = new TH2F("RFDiffDelta_pi", "mod((pRFTime - pHodFpTime), 4.004) vs #delta, #pi PID; (RF-FP)/ns; #delta", 400, -5, 5, 400, -20, 20);
-  h2RFDiffAero              = new TH2F("RFDiffAero", "mod((pRFTime - pHodFpTime), 4.004) vs Aerogel NPE; (RF-FP)/ns; Aerogel NPE", 400, -5, 5, 400, 0, 50);
-  h2RFDiffHGC              = new TH2F("RFDiffHGC", "mod((pRFTime - pHodFpTime), 4.004) vs HGC NPE; (RF-FP)/ns; HGC NPE", 400, -5, 5, 400, 0, 50);
+  h1RFHodFpDiffMod        = new TH1F("RFHodFpDiffMod", "mod((pRFTime - pHodFpTime + 801), 4.008)", 1000, 0, 5); // Name and modulo taken should vary depending upon bunch spacing
+  h1RFHodFpDiffMod_pi     = new TH1F("RFHodFpDiffMod_pi", "mod((pRFTime - pHodFpTime + 801), 4.008) #pi PID", 1000, 0, 5);
+  h1RFHodFpDiffMod_K      = new TH1F("RFHodFpDiffMod_K", "mod((pRFTime - pHodFpTime + 801), 4.008) kaon PID", 1000, 0, 5);
+  h1RFHodFpDiffMod_p      = new TH1F("RFHodFpDiffMod_p", "mod((pRFTime - pHodFpTime + 801), 4.008) proton PID", 1000, 0, 5);
+  h1RFHodFpDiffMod_piReal = new TH1F("RFHodFpDiffMod_piReal", "mod((pRFTime - pHodFpTime + 801), 4.008) #pi PID, reals", 1000, 0, 5);
+  h1RFHodFpDiffMod_piRand = new TH1F("RFHodFpDiffMod_piRand", "mod((pRFTime - pHodFpTime + 801), 4.008) #pi PID, randoms", 1000, 0, 5);
+  h2RFDiffBeta             = new TH2F("RFDiffBeta", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #beta; (RF-FP)/ns; #beta", 400, 0, 5, 400, 0.6, 1.4);
+  h2RFDiffBeta_pi          = new TH2F("RFDiffBeta_pi", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #beta, #pi PID; (RF-FP)/ns; #beta", 400, 0, 5, 400, 0.6, 1.4);
+  h2RFDiffBeta_K           = new TH2F("RFDiffBeta_K", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #beta, kaon PID; (RF-FP)/ns; #beta", 400, 0, 5, 400, 0.6, 1.4);
+  h2RFDiffBeta_p           = new TH2F("RFDiffBeta_p", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #beta, proton PID; (RF-FP)/ns; #beta", 400, 0, 5, 400, 0.6, 1.4);
+  h2RFDiffDelta            = new TH2F("RFDiffDelta", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #delta; (RF-FP)/ns; #delta", 400, 0, 5, 300, -10, 20);
+  h2RFDiffDelta_pi         = new TH2F("RFDiffDelta_pi", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #delta, #pi PID; (RF-FP)/ns; #delta", 400, 0, 5, 300, -10, 20);
+  h2RFDiffDelta_K          = new TH2F("RFDiffDelta_K", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #delta, kaon PID; (RF-FP)/ns; #delta", 400, 0, 5, 300, -10, 20);
+  h2RFDiffDelta_p          = new TH2F("RFDiffDelta_p", "mod((pRFTime - pHodFpTime + 801), 4.008) vs #delta, proton PID; (RF-FP)/ns; #delta", 400, 0, 5, 300, -10, 20); 
+  h2RFDiffAero             = new TH2F("RFDiffAero", "mod((pRFTime - pHodFpTime + 801), 4.008) vs Aerogel NPE; (RF-FP)/ns; Aerogel NPE", 400, 0, 5, 400, 0, 50);
+  h2RFDiffHGC              = new TH2F("RFDiffHGC", "mod((pRFTime - pHodFpTime + 801), 4.008) vs HGC NPE; (RF-FP)/ns; HGC NPE", 400, 0, 5, 400, 0, 50);
+
+  // Plots for Kaon events with proton RF timing
+  h1RFHodFpDiffMod_K_MissID = new TH1F("h1RFHodFpDiffMod_K_MissID", "mod((pRFTime - pHodFpTime + 801), 4.008) kaon PID, Proton RF timing", 1000, 0, 5);
+  h2MMAeroKaon_MissID       = new TH2F("h2MMAeroKaon_MissID","Kaon Missing mass vs Aerogel NPE, Proton RF time; Aerogel NPE;Mass (GeV/c^{2})",40,0,40,200,0.8,1.5);
+  // Plot MMK, use Kaon timing cuts
+  h1mmissK_MissID           = new TH1F("h1mmissK_MissID","Kaon Missing mass, Proton RF timing, ;Mass (GeV/c^{2});Counts",200,0.8,2.0);
+  h1mmissK_rand_MissID      = new TH1F("h1mmissK_rand_MissID","Kaon Missing mass, Proton RF timing, from Random Coincidence;Mass (GeV/c^{2});Counts",200,0.8,1.8);
+  h1mmissK_cut_MissID       = new TH1F("h1mmissK_cut_MissID","Kaon Missing mass, Proton RF timing, with Cuts;Mass (GeV/c^{2});Counts",200,0.8,1.8);
+  h1mmissK_remove_MissID    = new TH1F("h1mmissK_remove_MissID","Kaon Missing mass, Proton RF timing, with Cuts (Random Subtracted);Mass (GeV/c^{2});Counts",200,0.8,1.8);
+  // Plot MMp, use proton timing cuts
+  h1mmissp_MissID           = new TH1F("h1mmissp_MissID","Proton MM, Kaon PID, Proton RF timing ;Mass (GeV/c^{2});Counts",200,0.0,2.0);
+  h1mmissp_rand_MissID      = new TH1F("h1mmissp_rand_MissID","Proton MM, Kaon PID, Proton RF timing, from Random Coincidence;Mass (GeV/c^{2});Counts",200,0.0, 2.0);
+  h1mmissp_cut_MissID       = new TH1F("h1mmissp_cut_MissID","Proton MM, Kaon PID, Proton RF timing, with Cuts;Mass (GeV/c^{2});Counts",200,0.0,2.0);
+  h1mmissp_remove_MissID    = new TH1F("h1mmissp_remove_MissID","Proton MM, Kaon PID, Proton RF timing, with Cuts (Random Subtracted);Mass (GeV/c^{2});Counts",200,0.0,2.0);
 
   GetOutputList()->Add(h1_KaonCT);
   GetOutputList()->Add(h1_PionCT);
@@ -202,12 +215,6 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h2WvsQ2);
   GetOutputList()->Add(h2uvsph_q);
   GetOutputList()->Add(h1epsilon);
-  GetOutputList()->Add(h1mmpKMissID);
-  GetOutputList()->Add(h1mmKpMissID);
-  GetOutputList()->Add(h2HGCXYKMissID);
-  GetOutputList()->Add(h2HGCXYpMissID);
-  GetOutputList()->Add(h3XYNPEKMissID);
-  GetOutputList()->Add(h3XYNPEpMissID);
   GetOutputList()->Add(h1EDTM);
   GetOutputList()->Add(h1TRIG5);
   GetOutputList()->Add(h1pRFTime);
@@ -215,14 +222,31 @@ void ProtonYield::SlaveBegin(TTree * /*tree*/)
   GetOutputList()->Add(h1RFHodFpDiff);
   GetOutputList()->Add(h1RFHodFpDiffMod);
   GetOutputList()->Add(h1RFHodFpDiffMod_pi);
+  GetOutputList()->Add(h1RFHodFpDiffMod_K);
+  GetOutputList()->Add(h1RFHodFpDiffMod_p);
   GetOutputList()->Add(h1RFHodFpDiffMod_piReal);
   GetOutputList()->Add(h1RFHodFpDiffMod_piRand);
   GetOutputList()->Add(h2RFDiffBeta);
   GetOutputList()->Add(h2RFDiffBeta_pi);
+  GetOutputList()->Add(h2RFDiffBeta_K);
+  GetOutputList()->Add(h2RFDiffBeta_p);
   GetOutputList()->Add(h2RFDiffDelta);
   GetOutputList()->Add(h2RFDiffDelta_pi);
+  GetOutputList()->Add(h2RFDiffDelta_K);
+  GetOutputList()->Add(h2RFDiffDelta_p);
   GetOutputList()->Add(h2RFDiffAero);
   GetOutputList()->Add(h2RFDiffHGC);
+
+  GetOutputList()->Add(h1RFHodFpDiffMod_K_MissID);
+  GetOutputList()->Add(h2MMAeroKaon_MissID);
+  GetOutputList()->Add(h1mmissK_MissID);
+  GetOutputList()->Add(h1mmissK_rand_MissID);
+  GetOutputList()->Add(h1mmissK_cut_MissID);
+  GetOutputList()->Add(h1mmissK_remove_MissID);
+  GetOutputList()->Add(h1mmissp_MissID);
+  GetOutputList()->Add(h1mmissp_rand_MissID);
+  GetOutputList()->Add(h1mmissp_cut_MissID);
+  GetOutputList()->Add(h1mmissp_remove_MissID);
 }
 
 Bool_t ProtonYield::Process(Long64_t entry)
@@ -236,7 +260,7 @@ Bool_t ProtonYield::Process(Long64_t entry)
   Double_t nWindows = 6; 
   Double_t RandomLow[2][3];
   Double_t RandomHigh[2][3];
-  cout << RFFreq[0] << endl;
+  //cout << RFFreq[0] << endl;
   for (Int_t i=0; i < 3; i++){ // Set random windows (low/high) for each particle species
     RandomLow[0][i]=PromptPeak[i]-(BunchSpacing/2)-0.25-((nWindows)*BunchSpacing);
     RandomLow[1][i]=PromptPeak[i]-(BunchSpacing/2)-0.25-((nWindows/2)*BunchSpacing);
@@ -293,13 +317,16 @@ Bool_t ProtonYield::Process(Long64_t entry)
   h2HGCXYAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
   h3XYNPEAll->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
 
+  Double_t RF_Diff = P_RF_tdcTime[0] - P_hod_fpHitsTime[0] + 801; // PB used 401 offset, Hem added 1001, 801 seems to be best for setting being tested
+  Double_t RF_DiffMod = fmod(RF_Diff, 4.008);
+
   // RF time testing
   h1RFHodFpDiff->Fill((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]));
-  h1RFHodFpDiffMod->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004));
-  h2RFDiffBeta->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_gtr_beta[0]);
-  h2RFDiffDelta->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_gtr_dp[0]);
-  h2RFDiffAero->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_aero_npeSum[0]);
-  h2RFDiffHGC->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_hgcer_npeSum[0]);
+  h1RFHodFpDiffMod->Fill(RF_DiffMod); //mod 4.008 due to bunch spacing
+  h2RFDiffBeta->Fill(RF_DiffMod, P_gtr_beta[0]);
+  h2RFDiffDelta->Fill(RF_DiffMod, P_gtr_dp[0]);
+  h2RFDiffAero->Fill(RF_DiffMod, P_aero_npeSum[0]);
+  h2RFDiffHGC->Fill(RF_DiffMod, P_hgcer_npeSum[0]);
 
   //Event identified as Pion
   h2ROC1_Coin_Beta_noID_pion->Fill((CTime_ePiCoinTime_ROC1[0]),P_gtr_beta[0]);
@@ -313,9 +340,9 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2HGCXYPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);  
     h3XYNPEPion->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
 
-    h1RFHodFpDiffMod_pi->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004));
-    h2RFDiffBeta_pi->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_gtr_beta[0]);
-    h2RFDiffDelta_pi->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004), P_gtr_dp[0]);
+    h1RFHodFpDiffMod_pi->Fill(RF_DiffMod); 
+    h2RFDiffBeta_pi->Fill(RF_DiffMod, P_gtr_beta[0]);
+    h2RFDiffDelta_pi->Fill(RF_DiffMod, P_gtr_dp[0]);
 
     if ((CTime_ePiCoinTime_ROC1[0]) > (PromptPeak[0]-((BunchSpacing/2)+0.25)) && (CTime_ePiCoinTime_ROC1[0]) < (PromptPeak[0]+((BunchSpacing/2)+0.25))) {
       h2ROC1_Coin_Beta_pion->Fill((CTime_ePiCoinTime_ROC1[0]),P_gtr_beta[0]);
@@ -323,14 +350,14 @@ Bool_t ProtonYield::Process(Long64_t entry)
       h2SHMSpi_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
       h1mmisspi_cut->Fill(MMPi);
 
-      h1RFHodFpDiffMod_piReal->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004));
+      h1RFHodFpDiffMod_piReal->Fill(RF_DiffMod);
     }
     if (((CTime_ePiCoinTime_ROC1[0] > RandomLow[0][0]) && ((CTime_ePiCoinTime_ROC1[0] < RandomLow[1][0]))) || ((CTime_ePiCoinTime_ROC1[0] > RandomHigh[0][0]) && ((CTime_ePiCoinTime_ROC1[0] < RandomHigh[1][0])))) {
       h1mmisspi_rand->Fill(MMPi);
       h1mmisspi_remove->Fill(MMPi);
       h2ROC1_Coin_Beta_randID_pion->Fill((CTime_ePiCoinTime_ROC1[0]),P_gtr_beta[0]);
 
-      h1RFHodFpDiffMod_piRand->Fill(fmod((P_RF_tdcTime[0] - P_hod_fpHitsTime[0]),4.004));
+      h1RFHodFpDiffMod_piRand->Fill(RF_DiffMod);
     }
   }
 
@@ -344,22 +371,48 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2MMHGCXKaon->Fill(P_hgcer_xAtCer[0], MMK);
     h2HGCXYKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
     h3XYNPEKaon->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
-    if ((CTime_eKCoinTime_ROC1[0]) > (PromptPeak[1]-((BunchSpacing/2)+0.25)) && (CTime_eKCoinTime_ROC1[0]) < (PromptPeak[1]+((BunchSpacing/2)+0.25))) {
-      h2ROC1_Coin_Beta_kaon->Fill((CTime_eKCoinTime_ROC1[0]),P_gtr_beta[0]);
-      h2SHMSK_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
-      h2SHMSK_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
-      h1mmissK_cut->Fill(MMK);
-      if (0.7 < MMK && MMK < 0.9){
-	h1mmpKMissID->Fill(MMp);
-	h2HGCXYKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
-	h3XYNPEKMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+    
+    h1RFHodFpDiffMod_K->Fill(RF_DiffMod); 
+    h2RFDiffBeta_K->Fill(RF_DiffMod, P_gtr_beta[0]);
+    h2RFDiffDelta_K->Fill(RF_DiffMod, P_gtr_dp[0]);
+
+    // Apply a cut based on RF time diff, select out proton events and treat differently
+    if ( ((RF_DiffMod < 0.8) || (RF_DiffMod > 3.8)) || (1.8 < RF_DiffMod && RF_DiffMod < 2.8)){
+	h1RFHodFpDiffMod_K_MissID->Fill(RF_DiffMod);
+	h2MMAeroKaon_MissID->Fill(P_aero_npeSum[0] , MMK);
+	h1mmissK_MissID->Fill(MMK);
+	h1mmissp_MissID->Fill(MMp);
+	// Check kaon timing, fill kaon plots as normal (for comparison)
+	if ((CTime_eKCoinTime_ROC1[0]) > (PromptPeak[1]-((BunchSpacing/2)+0.25)) && (CTime_eKCoinTime_ROC1[0]) < (PromptPeak[1]+((BunchSpacing/2)+0.25))) {
+	  h1mmissK_cut_MissID->Fill(MMK);
+	}
+	if (((CTime_eKCoinTime_ROC1[0] > RandomLow[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomLow[1][1]))) || ((CTime_eKCoinTime_ROC1[0] > RandomHigh[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomHigh[1][1])))) {
+	  h1mmissK_rand_MissID->Fill(MMK);
+	  h1mmissK_remove_MissID->Fill(MMK);
+	}
+	if ((CTime_epCoinTime_ROC1[0]) > (PromptPeak[2]-((BunchSpacing/2)+0.25)) && (CTime_epCoinTime_ROC1[0]) < (PromptPeak[2]+((BunchSpacing/2)+0.25))) {
+	  h1mmissp_cut_MissID->Fill(MMp);
+	}
+	if (((CTime_epCoinTime_ROC1[0] > RandomLow[0][2]) && ((CTime_epCoinTime_ROC1[0] < RandomLow[1][2]))) || ((CTime_epCoinTime_ROC1[0] > RandomHigh[0][2]) && ((CTime_epCoinTime_ROC1[0] < RandomHigh[1][2])))) {
+	  h1mmissp_rand_MissID->Fill(MMp);
+	  h1mmissp_remove_MissID->Fill(MMp); 
+	}
       }
-    }
-    if (((CTime_eKCoinTime_ROC1[0] > RandomLow[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomLow[1][1]))) || ((CTime_eKCoinTime_ROC1[0] > RandomHigh[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomHigh[1][1])))) {
-      h1mmissK_rand->Fill(MMK);
-      h1mmissK_remove->Fill(MMK);
-      h2ROC1_Coin_Beta_randID_kaon->Fill((CTime_eKCoinTime_ROC1[0]),P_gtr_beta[0]);
-    }
+    
+    // Testing, this is a hard cut on any "kaon" events that have proton like RF timing
+    if ( ((RF_DiffMod > 2.8) && (RF_DiffMod < 3.8)) || (0.8 < RF_DiffMod && RF_DiffMod < 1.8)){
+      if ((CTime_eKCoinTime_ROC1[0]) > (PromptPeak[1]-((BunchSpacing/2)+0.25)) && (CTime_eKCoinTime_ROC1[0]) < (PromptPeak[1]+((BunchSpacing/2)+0.25))) {
+	h2ROC1_Coin_Beta_kaon->Fill((CTime_eKCoinTime_ROC1[0]),P_gtr_beta[0]);
+	h2SHMSK_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
+	h2SHMSK_pion_cut->Fill(P_cal_etotnorm[0],P_hgcer_npeSum[0]);
+	h1mmissK_cut->Fill(MMK);
+      }
+      if (((CTime_eKCoinTime_ROC1[0] > RandomLow[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomLow[1][1]))) || ((CTime_eKCoinTime_ROC1[0] > RandomHigh[0][1]) && ((CTime_eKCoinTime_ROC1[0] < RandomHigh[1][1])))) {
+	h1mmissK_rand->Fill(MMK);
+	h1mmissK_remove->Fill(MMK);
+	h2ROC1_Coin_Beta_randID_kaon->Fill((CTime_eKCoinTime_ROC1[0]),P_gtr_beta[0]);
+      }
+    }// Close of hard cut test loop
   }
 
   //Event identified as Proton
@@ -371,6 +424,11 @@ Bool_t ProtonYield::Process(Long64_t entry)
     h2MMHGCXProton->Fill(P_hgcer_xAtCer[0], MMp); 
     h2HGCXYProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
     h3XYNPEProton->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
+    
+    h1RFHodFpDiffMod_p->Fill(RF_DiffMod); 
+    h2RFDiffBeta_p->Fill(RF_DiffMod, P_gtr_beta[0]);
+    h2RFDiffDelta_p->Fill(RF_DiffMod, P_gtr_dp[0]);
+    
     if ((CTime_epCoinTime_ROC1[0]) > (PromptPeak[2]-((BunchSpacing/2)+0.25)) && (CTime_epCoinTime_ROC1[0]) < (PromptPeak[2]+((BunchSpacing/2)+0.25))) {
       h2ROC1_Coin_Beta_proton->Fill((CTime_epCoinTime_ROC1[0]),P_gtr_beta[0]);
       h2SHMSp_kaon_cut->Fill(P_aero_npeSum[0],P_hgcer_npeSum[0]);
@@ -381,11 +439,6 @@ Bool_t ProtonYield::Process(Long64_t entry)
       // Slightly stupid/confusing but could be corrected at some point
       h2uvsph_q->Fill(ph_q[0],-MandelT[0]);
       h1epsilon->Fill(epsilon[0]);
-      if (0.8 < MMK && MMK < 0.9){
-	h1mmKpMissID->Fill(MMK);
-	h2HGCXYpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0]);
-	h3XYNPEpMissID->Fill(P_hgcer_xAtCer[0],P_hgcer_yAtCer[0],P_hgcer_npeSum[0]);
-      }
     }
     if (((CTime_epCoinTime_ROC1[0] > RandomLow[0][2]) && ((CTime_epCoinTime_ROC1[0] < RandomLow[1][2]))) || ((CTime_epCoinTime_ROC1[0] > RandomHigh[0][2]) && ((CTime_epCoinTime_ROC1[0] < RandomHigh[1][2])))) {
       h1mmissp_rand->Fill(MMp);
@@ -416,8 +469,6 @@ void ProtonYield::Terminate()
   XYNPE3DPion = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEPion"));
   XYNPE3DKaon = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKaon"));
   XYNPE3DProton = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEProton"));
-  XYNPE3DKaonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEKMissID"));
-  XYNPE3DProtonMissID = dynamic_cast<TH3F*> (GetOutputList()->FindObject("h3XYNPEpMissID"));
 
   TProfile2D *h3XYNPEAll_pxy = new TProfile2D("h3XYNPEAll_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
   XYNPE3DAll->Project3DProfile("xy");
@@ -427,10 +478,6 @@ void ProtonYield::Terminate()
   XYNPE3DKaon->Project3DProfile("xy");
   TProfile2D *h3XYNPEProton_pxy = new TProfile2D("h3XYNPEProton_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
   XYNPE3DProton->Project3DProfile("xy");
-  TProfile2D *h3XYNPEKMissID_pxy = new TProfile2D("h3XYNPEKMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  XYNPE3DKaonMissID->Project3DProfile("xy");
-  TProfile2D *h3XYNPEpMissID_pxy = new TProfile2D("h3XYNPEpMissID_pxy","NPE vs X vs Y; Y Dimension (cm);X Dimension (cm)",100,-50,50,100,-50,50,0.0,50);
-  XYNPE3DProtonMissID->Project3DProfile("xy");
 
   Double_t BunchSpacing = 4; // On iterating over kinematics, should only need to change bunch spacing and peak numbers
   Double_t PromptPeak[3] = {43.84, 43.75, 44};
@@ -450,6 +497,12 @@ void ProtonYield::Terminate()
   h1mmissK_remove->Add(h1mmissK_cut,h1mmissK_rand,1,-1);
   h1mmisspi_remove->Add(h1mmisspi_cut,h1mmisspi_rand,1,-1);
   h1mmissp_remove->Add(h1mmissp_cut,h1mmissp_rand,1,-1);
+
+  // Background sub for "proton" events that pass Kaon PID
+  h1mmissK_rand_MissID->Scale(1.0/nWindows);
+  h1mmissp_rand_MissID->Scale(1.0/nWindows);
+  h1mmissK_remove_MissID->Add(h1mmissK_cut_MissID, h1mmissK_rand_MissID, 1, -1);
+  h1mmissp_remove_MissID->Add(h1mmissp_cut_MissID, h1mmissp_rand_MissID, 1, -1);
   
   // Provide a full path?
   TString foutname = Form("../OUTPUT/Proton_Kinematics_Run%i_AllPlots", option.Atoi());
@@ -731,30 +784,38 @@ void ProtonYield::Terminate()
   XYNPE3DProton->Write("3D Proton Events");
   h3XYNPEProton_pxy->Write("2D Proton Events");
 
-  TDirectory *DMissID = Histogram_file->mkdir("Miss ID'd Events Testing"); DMissID->cd();
-  XYNPE3DKaonMissID->Write("3D HGC NPE Miss-ID Kaon");  
-  h3XYNPEKMissID_pxy->Write("2D HGC NPE Miss-ID Kaon");
-  h2HGCXYKMissID->Write("2D HGC Miss-ID Kaon");
-  h1mmpKMissID->Write("Proton Missing Mass for Miss-ID Kaons");
-  XYNPE3DProtonMissID->Write("3D HGC NPE Miss-ID Proton");  
-  h3XYNPEpMissID_pxy->Write("2D HGC NPE Miss-ID Proton");
-  h2HGCXYpMissID->Write("2D HGC Miss-ID Proton");  
-  h1mmKpMissID->Write("Kaon Missing Mass for Miss-ID Protons");
-
   TDirectory *DRFTime = Histogram_file->mkdir("RF Time Testing"); DRFTime->cd();
   h1pRFTime->Write("SHMS RF Time w/o Cuts");
   h1pHodFpTime->Write("SHMS Hodo FpHits Time w/o Cuts"); 
   h1RFHodFpDiff->Write("SHMS RF - HodFp");
   h1RFHodFpDiffMod->Write("Mod4(SHMS RF - HodFp)");
   h1RFHodFpDiffMod_pi->Write("Mod4(SHMS RF - HodFp) Pions");
+  h1RFHodFpDiffMod_K->Write("Mod4(SHMS RF - HodFp) Kaons");
+  h1RFHodFpDiffMod_p->Write("Mod4(SHMS RF - HodFp) Protons");
   h1RFHodFpDiffMod_piReal->Write("Mod4(SHMS RF - HodFp) Pions, reals");
   h1RFHodFpDiffMod_piRand->Write("Mod4(SHMS RF - HodFp) Pions, randoms");
   h2RFDiffBeta->Write("Mod4(RF-HodFp) vs Beta");
   h2RFDiffBeta_pi->Write("Mod4(RF-HodFp) vs Beta, Pion PID");
+  h2RFDiffBeta_K->Write("Mod4(RF-HodFp) vs Beta, Kaon PID");
+  h2RFDiffBeta_p->Write("Mod4(RF-HodFp) vs Beta, Proton PID");
   h2RFDiffDelta->Write("Mod4(RF-HodFp) vs Delta");
   h2RFDiffDelta_pi->Write("Mod4(RF-HodFp) vs Delta, Pion PID");
+  h2RFDiffDelta_K->Write("Mod4(RF-HodFp) vs Delta, Kaon PID");
+  h2RFDiffDelta_p->Write("Mod4(RF-HodFp) vs Delta, Proton PID");
   h2RFDiffAero->Write("Mod4(RF-HodFp) vs Aerogel NPE");
   h2RFDiffHGC->Write("Mod4(RF-HodFp) vs HGC NPE");
+
+  TDirectory *DKaonMissID = Histogram_file->mkdir("Kaon PID with Proton RF Timing"); DKaonMissID->cd();
+  h1RFHodFpDiffMod_K_MissID->Write("Mod4(SHMS RF - HodFp) MissID Kaons");
+  h2MMAeroKaon_MissID->Write("Kaon Aerogel vs Missing Mass, MissID Kaons");
+  h1mmissK_MissID->Write("Kaon missing mass, K PID, p RF");
+  h1mmissK_rand_MissID->Write("Kaon missing mass, K PID, p RF, Rand KCT");
+  h1mmissK_cut_MissID->Write("Kaon missing mass, K PID, p RF, Prompt KCT");
+  h1mmissK_remove_MissID->Write("Kaon missing mass, K PID, p RF, BG Sub");
+  h1mmissp_MissID->Write("Proton missing mass, K PID, p RF");
+  h1mmissp_rand_MissID->Write("Proton missing mass, K PID, p RF, Rand pCT");
+  h1mmissp_cut_MissID->Write("Proton missing mass, K PID, p RF, Prompt pCT");
+  h1mmissp_remove_MissID->Write("Proton missing mass, K PID, p RF, BG Sub");
 
   Histogram_file->Close();
 }
