@@ -43,15 +43,15 @@ P_RF_tdcTime = e_tree.array("T.coin.pRF_tdcTime")
 P_hod_fpHitsTime = e_tree.array("P.hod.fpHitsTime")
 # HMS info
 H_gtr_beta = e_tree.array("H.gtr.beta")
-H_gtr_xp = e_tree.array("H.gtr.th")
-H_gtr_yp = e_tree.array("H.gtr.ph")
+H_gtr_xp = e_tree.array("H.gtr.th") # xpfp -> Theta
+H_gtr_yp = e_tree.array("H.gtr.ph") # ypfp -> Phi
 H_gtr_dp = e_tree.array("H.gtr.dp")
 H_cal_etotnorm = e_tree.array("H.cal.etotnorm")
 H_cer_npesum = e_tree.array("H.cer.npeSum")
 # SHMS info
 P_gtr_beta = e_tree.array("P.gtr.beta")
-P_gtr_xp = e_tree.array("P.gtr.th")
-P_gtr_yp = e_tree.array("P.gtr.ph")
+P_gtr_xp = e_tree.array("P.gtr.th") # xpfp -> Theta
+P_gtr_yp = e_tree.array("P.gtr.ph") # ypfp -> Phi
 P_gtr_p = e_tree.array("P.gtr.p")
 P_gtr_dp = e_tree.array("P.gtr.dp")
 P_cal_etotnorm = e_tree.array("P.cal.etotnorm")
@@ -86,15 +86,16 @@ MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss
 MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
 
 # Info for prompt/random cuts, currently hard coded but need to read in from database in future
-PromptPeak = [43.84, 43.75, 44] # Need to read from DB
+PromptPeak = [43.84, 43.75, 44] # Need to read from DB, values are position of prompt peak for pions/kaons/protons
 nWindows = 6 # Number of random windows
 BunchSpacing = 4 # Bunch spacing in ns, should also be read from DB
+CT_Offset = 0.25 # Offset to add to width of prompt window, should read from DB
 RandomWindows = np.zeros((2, 2, 3)) # Low/high, 1st/2nd value, particle
 for x in range (0,3):
-    RandomWindows[0][0][x] = PromptPeak[x]-(BunchSpacing/2)-0.25-((nWindows)*BunchSpacing) #Random Low 1
-    RandomWindows[0][1][x] = PromptPeak[x]-(BunchSpacing/2)-0.25-((nWindows/2)*BunchSpacing) #Random low 2
-    RandomWindows[1][0][x] = PromptPeak[x]+(BunchSpacing/2)+0.25+((nWindows/2)*BunchSpacing) #Random high 1
-    RandomWindows[1][1][x] = PromptPeak[x]+(BunchSpacing/2)+0.25+((nWindows)*BunchSpacing) #Random high 2
+    RandomWindows[0][0][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-((nWindows)*BunchSpacing) #Random Low 1
+    RandomWindows[0][1][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-((nWindows/2)*BunchSpacing) #Random low 2
+    RandomWindows[1][0][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+((nWindows/2)*BunchSpacing) #Random high 1
+    RandomWindows[1][1][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+((nWindows)*BunchSpacing) #Random high 2
 
 def hms_elec():
     # Define the array of arrays containing the relevant HMS info
@@ -143,7 +144,7 @@ def shms_pions():
                     if abs(PiBeta -1.0) < 0.3
                     if PiAero > 1.5
                     if PiHGC > 1.5
-                    if CTPi > (PromptPeak[0]-((BunchSpacing/2)+0.25)) and CTPi < (PromptPeak[0]+((BunchSpacing/2)+0.25))]
+                    if CTPi > (PromptPeak[0]-((BunchSpacing/2)+CT_Offset)) and CTPi < (PromptPeak[0]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Pions_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Pions)
                     if abs(Hdel) < 8
@@ -196,7 +197,7 @@ def shms_kaons():
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
                     if KHGC > 1.5
-                    if CTK > (PromptPeak[1]-((BunchSpacing/2)+0.25)) and CTK < (PromptPeak[1]+((BunchSpacing/2)+0.25))]
+                    if CTK > (PromptPeak[1]-((BunchSpacing/2)+CT_Offset)) and CTK < (PromptPeak[1]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Kaons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Kaons)
                     if abs(Hdel) < 8
@@ -249,7 +250,7 @@ def shms_protons():
                     if abs(pBeta -1.0) < 0.3
                     if pAero > 1.5
                     if pHGC > 1.5
-                    if CTp > (PromptPeak[2]-((BunchSpacing/2)+0.25)) and CTp < (PromptPeak[2]+((BunchSpacing/2)+0.25))]
+                    if CTp > (PromptPeak[2]-((BunchSpacing/2)+CT_Offset)) and CTp < (PromptPeak[2]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Protons)
                     if abs(Hdel) < 8
@@ -278,5 +279,6 @@ def main():
     SHMS_Pion_Data = shms_pions()
     SHMS_Kaon_Data = shms_kaons()
     SHMS_Proton_Data = shms_protons()
+
 if __name__ == '__main__':
     main()    
