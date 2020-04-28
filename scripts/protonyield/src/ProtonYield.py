@@ -17,10 +17,14 @@ import matplotlib.pyplot as plt
 import sys, math, os, subprocess
 
 sys.path.insert(0, 'python/')
-
+if len(sys.argv)-1!=3:
+    print("Error, expect 3 arguments")
+    print("Usage is with -  RunNumber MaxEvents CutFileName")
+    sys.exit(1)
 # Input params - run number and max number of events
 runNum = sys.argv[1]
-MaxEvent=sys.argv[2]
+MaxEvent = sys.argv[2]
+CutFileName = sys.argv[3]
 
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
@@ -30,8 +34,46 @@ elif ("lark.phys.uregina" in HOST[1]):
     REPLAYPATH = "/home/%s/work/JLab/hallc_replay_lt" % USER[1]
 # Add more path setting as needed in a similar manner
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
-
 rootName = "%s/UTIL_PROTON/ROOTfilesProton/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
+CutFile = "%s/UTIL_PROTON/config/cuts/%s.csv" % (REPLAYPATH,  CutFileName)
+print("Using cuts defined in %s" % CutFile)
+
+Cutf = open(CutFile)
+PromptPeak = [0, 0, 0]
+linenum = 0
+TempPar = -1
+for line in Cutf:
+    linenum += 1
+    if(linenum > 1):
+        line = line.partition('#')[0] # Treat anything after a # as a comment and ignore it
+        line = line.rstrip()
+        array = line.split(",")
+        if(int(runNum) in range (int(array[0]), int(array[1])+1)):
+            TempPar = 1
+            BunchSpacing = float(array[2]) # Bunch spacing in ns
+            CT_Offset = float(array[3]) # Offset to add to width of prompt peak
+            PromptPeak[0] = float(array[4]) # Pion CT prompt peak positon
+            PromptPeak[1] = float(array[5]) # Kaon CT prompt peak positon
+            PromptPeak[2] = float(array[6]) # Proton CT prompt peak positon
+            RF_Offset = float(array[7]) # Offset for RF timing cut
+Cutf.close()
+
+if(TempPar == -1):
+    print("Error, run number specified does not fall within a set of runs for which cuts are defined")
+    sys.exit(2)
+
+RandomWindows = np.zeros((2, 2, 3)) # Low/high, 1st/2nd value, particle
+nWindows = 6 # Number of random windows (total, not per side!), should be an even number
+nSkip = 2 # Number of random buckets to skip (per side left/right), should not be too high
+
+for x in range (0,3):
+    # Take prompt peak - Spacing/2 - Offset, this is the end point of the prompt window, next take nSkip*BunchSpacing-> skip n buckets,
+    # window is then (nWindows/2)*BunchSpacing wide, so use the subtraction/addition of this to provide the lower/upper end of the random window
+    RandomWindows[0][0][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-(nSkip*BunchSpacing)-((nWindows/2)*BunchSpacing) #Random Low 1
+    RandomWindows[0][1][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-(nSkip*BunchSpacing) #Random low 2
+    RandomWindows[1][0][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+(nSkip*BunchSpacing) #Random high 1
+    RandomWindows[1][1][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+(nSkip*BunchSpacing)+((nWindows/2)*BunchSpacing) #Random high 2
+
 # Read stuff from the main event tree
 e_tree = up.open(rootName)["T"]
 
@@ -84,18 +126,6 @@ MK = 0.493677
 MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
 MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
 MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
-
-# Info for prompt/random cuts, currently hard coded but need to read in from database in future
-PromptPeak = [43.84, 43.75, 44] # Need to read from DB, values are position of prompt peak for pions/kaons/protons
-nWindows = 6 # Number of random windows
-BunchSpacing = 4 # Bunch spacing in ns, should also be read from DB
-CT_Offset = 0.25 # Offset to add to width of prompt window, should read from DB
-RandomWindows = np.zeros((2, 2, 3)) # Low/high, 1st/2nd value, particle
-for x in range (0,3):
-    RandomWindows[0][0][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-((nWindows)*BunchSpacing) #Random Low 1
-    RandomWindows[0][1][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-((nWindows/2)*BunchSpacing) #Random low 2
-    RandomWindows[1][0][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+((nWindows/2)*BunchSpacing) #Random high 1
-    RandomWindows[1][1][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+((nWindows)*BunchSpacing) #Random high 2
 
 def hms_elec():
     # Define the array of arrays containing the relevant HMS info
