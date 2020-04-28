@@ -24,7 +24,7 @@ if len(sys.argv)-1!=3:
 # Input params - run number and max number of events
 runNum = sys.argv[1]
 MaxEvent = sys.argv[2]
-CutFileName = sys.argv[3]
+ConfigFileName = sys.argv[3]
 
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
@@ -35,33 +35,59 @@ elif ("lark.phys.uregina" in HOST[1]):
 # Add more path setting as needed in a similar manner
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
 rootName = "%s/UTIL_PROTON/ROOTfilesProton/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
-CutFile = "%s/UTIL_PROTON/config/cuts/%s.csv" % (REPLAYPATH,  CutFileName)
-print("Using cuts defined in %s" % CutFile)
+ConfigFile = "%s/UTIL_PROTON/config/%s" % (REPLAYPATH,  ConfigFileName)
+print("Using cuts defined in %s" % ConfigFile)
 
-Cutf = open(CutFile)
+Configf = open(ConfigFile)
+for line in Configf:
+    line = line.rstrip()
+    array = line.split("= ")
+    if ("Timing_Cuts" in array[0]):
+        TimingTmp = array[1]
+        TimingCutFile = "%s/UTIL_PROTON/config/%s" % (REPLAYPATH,TimingTmp)
+    if ("PID_Cuts" in array[0]):
+        PIDTmp = array[1]
+        PIDCutFile = "%s/UTIL_PROTON/config/%s" % (REPLAYPATH,PIDTmp)
+    if ("Acceptance_Cuts" in array[0]):
+        AcceptTmp = array[1]
+        AcceptCutFile = "%s/UTIL_PROTON/config/%s" % (REPLAYPATH,AcceptTmp)
+Configf.close()
+try:
+    TimingCutFile
+    PIDCutFile
+    AcceptCutFile
+except NameError:
+    print("Error, one (or more) of the cut files is not defined in the config file provided")
+    sys.exit(2)
+print("Reading timing cuts from %s" % TimingCutFile)
+print("Reading PID cuts from %s" % PIDCutFile)
+print("Reading acceptance cuts from %s" % AcceptCutFile)
+
+TimingCutf = open(TimingCutFile)
 PromptPeak = [0, 0, 0]
-linenum = 0
-TempPar = -1
-for line in Cutf:
-    linenum += 1
-    if(linenum > 1):
+linenum = 0 # Count line number we're on
+TempPar = -1 # To check later
+for line in TimingCutf: # Read all lines in the cut file
+    linenum += 1 # Add one to line number at start of loop
+    if(linenum > 1): # Skip first line
         line = line.partition('#')[0] # Treat anything after a # as a comment and ignore it
         line = line.rstrip()
-        array = line.split(",")
-        if(int(runNum) in range (int(array[0]), int(array[1])+1)):
-            TempPar = 1
+        array = line.split(",") # Convert line into an array, anything after a comma is a new entry
+        if(int(runNum) in range (int(array[0]), int(array[1])+1)): # Check if run number for file is within any of the ranges specified in the cut file
+            TempPar = 1 # If run number is in range, set to non -1 value
             BunchSpacing = float(array[2]) # Bunch spacing in ns
             CT_Offset = float(array[3]) # Offset to add to width of prompt peak
             PromptPeak[0] = float(array[4]) # Pion CT prompt peak positon
             PromptPeak[1] = float(array[5]) # Kaon CT prompt peak positon
             PromptPeak[2] = float(array[6]) # Proton CT prompt peak positon
             RF_Offset = float(array[7]) # Offset for RF timing cut
-Cutf.close()
+TimingCutf.close() # After scanning all lines in file, close file
 
-if(TempPar == -1):
-    print("Error, run number specified does not fall within a set of runs for which cuts are defined")
-    sys.exit(2)
+if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
+    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % AcceptCutFile)
+    sys.exit(3)
 
+# Using parameteres read in from DB file, calculate relevant time windows
 RandomWindows = np.zeros((2, 2, 3)) # Low/high, 1st/2nd value, particle
 nWindows = 6 # Number of random windows (total, not per side!), should be an even number
 nSkip = 2 # Number of random buckets to skip (per side left/right), should not be too high
@@ -73,6 +99,26 @@ for x in range (0,3):
     RandomWindows[0][1][x] = PromptPeak[x]-(BunchSpacing/2)-CT_Offset-(nSkip*BunchSpacing) #Random low 2
     RandomWindows[1][0][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+(nSkip*BunchSpacing) #Random high 1
     RandomWindows[1][1][x] = PromptPeak[x]+(BunchSpacing/2)+CT_Offset+(nSkip*BunchSpacing)+((nWindows/2)*BunchSpacing) #Random high 2
+
+AcceptCutf = open(AcceptCutFile)
+linenum = 0 # Count line number we're on
+TempPar = -1 # To check later
+AcceptCutArray=[0,0,0,0,0,0,0,0,0,0,0,0] # Hdelta low/high, Hxpfp low/high, Hypfp low/high, Pdelta low/high, Pxpfp low/high, Pypfp low/high
+for line in AcceptCutf: # Read all lines in the cut file
+    linenum += 1 # Add one to line number at start of loop
+    if(linenum > 1): # Skip first line
+        line = line.partition('#')[0] # Treat anything after a # as a comment and ignore it
+        line = line.rstrip()
+        array = line.split(",") # Convert line into an array, anything after a comma is a new entry
+        if(int(runNum) in range (int(array[0]), int(array[1])+1)): # Check if run number for file is within any of the ranges specified in the cut file
+            TempPar = 1 # If run number is in range, set to non -1 value
+            for x in range (0, (len(array)-2)): # Loop over the 12 elements of the array that do NOT specify run number group
+                AcceptCutArray[x] = float(array[x+2]) # Set values of cut array to be equal to values from cut file
+AcceptCutf.close() # After scanning all lines in file, close file
+
+if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
+    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % AcceptCutFile)
+    sys.exit(4)
 
 # Read stuff from the main event tree
 e_tree = up.open(rootName)["T"]
@@ -133,9 +179,9 @@ def hms_elec():
     # Create array of arrays of variables after cuts
     Cut_HMS_Elec = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer)
                     for (HBeta, Hxp, Hyp, Hdel, HCal, HCer) in zip(*NoCut_HMS_Elec)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5]
 
     HMS_Electrons = {
@@ -150,13 +196,13 @@ def shms_pions():
     NoCut_SHMS_Pions = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_ePiCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp]
     # Create array of arrays of pions after cuts, all events, prompt and random
     Cut_SHMS_Pions_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Pions)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if PiDel > -10 and PiDel < 20
-                    if abs(Pixp) < 0.06
-                    if abs(Piyp) < 0.04
+                    if PiDel > AcceptCutArray[6] and PiDel < AcceptCutArray[7]
+                    if Pixp > AcceptCutArray[8] and Pixp < AcceptCutArray[9]
+                    if Piyp > AcceptCutArray[10] and Piyp <  AcceptCutArray[11]
                     if abs(PiBeta -1.0) < 0.3
                     if PiAero > 1.5
                     if PiHGC > 1.5]
@@ -164,26 +210,26 @@ def shms_pions():
     # Create array of arrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
     Cut_SHMS_Pions_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Pions)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if PiDel > -10 and PiDel < 20
-                    if abs(Pixp) < 0.06
-                    if abs(Piyp) < 0.04
+                    if PiDel > AcceptCutArray[6] and PiDel < AcceptCutArray[7]
+                    if Pixp > AcceptCutArray[8] and Pixp < AcceptCutArray[9]
+                    if Piyp > AcceptCutArray[10] and Piyp < AcceptCutArray[11]
                     if abs(PiBeta -1.0) < 0.3
                     if PiAero > 1.5
                     if PiHGC > 1.5
                     if CTPi > (PromptPeak[0]-((BunchSpacing/2)+CT_Offset)) and CTPi < (PromptPeak[0]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Pions_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Pions)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if PiDel > -10 and PiDel < 20
-                    if abs(Pixp) < 0.06
-                    if abs(Piyp) < 0.04
+                    if PiDel > AcceptCutArray[6] and PiDel < AcceptCutArray[7]
+                    if Pixp > AcceptCutArray[8] and Pixp < AcceptCutArray[9]
+                    if Piyp > AcceptCutArray[10] and Piyp < AcceptCutArray[11]
                     if abs(PiBeta -1.0) < 0.3
                     if PiAero > 1.5
                     if PiHGC > 1.5
@@ -203,13 +249,13 @@ def shms_kaons():
     NoCut_SHMS_Kaons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_eKCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp]
     # Create array of arrays of pions after cuts, all events, prompt and random
     Cut_SHMS_Kaons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Kaons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if KDel > -10 and KDel < 20
-                    if abs(Kxp) < 0.06
-                    if abs(Kyp) < 0.04
+                    if KDel > AcceptCutArray[6] and KDel < AcceptCutArray[7]
+                    if Kxp > AcceptCutArray[8] and Kxp < AcceptCutArray[9]
+                    if Kyp > AcceptCutArray[10] and Kyp < AcceptCutArray[11]
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
                     if KHGC > 1.5]
@@ -217,9 +263,9 @@ def shms_kaons():
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
     Cut_SHMS_Kaons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Kaons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
                     if KDel > -10 and KDel < 20
                     if abs(Kxp) < 0.06
@@ -230,13 +276,13 @@ def shms_kaons():
                     if CTK > (PromptPeak[1]-((BunchSpacing/2)+CT_Offset)) and CTK < (PromptPeak[1]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Kaons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Kaons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if KDel > -10 and KDel < 20
-                    if abs(Kxp) < 0.06
-                    if abs(Kyp) < 0.04
+                    if KDel > AcceptCutArray[6] and KDel < AcceptCutArray[7]
+                    if Kxp > AcceptCutArray[8] and Kxp < AcceptCutArray[9]
+                    if Kyp > AcceptCutArray[10] and Kyp < AcceptCutArray[11]
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
                     if KHGC > 1.5
@@ -256,13 +302,13 @@ def shms_protons():
     NoCut_SHMS_Protons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_epCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp]
     # Create array of arrays of pions after cuts, all events, prompt and random
     Cut_SHMS_Protons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Protons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if pDel > -10 and pDel < 20
-                    if abs(pxp) < 0.06
-                    if abs(pyp) < 0.04
+                    if pDel > AcceptCutArray[6] and pDel < AcceptCutArray[7]
+                    if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
+                    if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
                     if pAero > 1.5
                     if pHGC > 1.5]
@@ -270,26 +316,26 @@ def shms_protons():
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
     Cut_SHMS_Protons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Protons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if pDel > -10 and pDel < 20
-                    if abs(pxp) < 0.06
-                    if abs(pyp) < 0.04
+                    if pDel > AcceptCutArray[6] and pDel < AcceptCutArray[7]
+                    if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
+                    if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
                     if pAero > 1.5
                     if pHGC > 1.5
                     if CTp > (PromptPeak[2]-((BunchSpacing/2)+CT_Offset)) and CTp < (PromptPeak[2]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Protons)
-                    if abs(Hdel) < 8
-                    if abs(Hxp) < 0.08
-                    if abs(Hyp) < 0.045
+                    if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
+                    if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
+                    if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5
-                    if pDel > -10 and pDel < 20
-                    if abs(pxp) < 0.06
-                    if abs(pyp) < 0.04
+                    if pDel > AcceptCutArray[6] and pDel < AcceptCutArray[7]
+                    if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
+                    if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
                     if pAero > 1.5
                     if pHGC > 1.5
