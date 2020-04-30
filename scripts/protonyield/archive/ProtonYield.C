@@ -505,7 +505,7 @@ void ProtonYield::Terminate()
   h1mmissp_remove_MissID->Add(h1mmissp_cut_MissID, h1mmissp_rand_MissID, 1, -1);
   
   // Provide a full path?
-  TString foutname = Form("../OUTPUT/Proton_Kinematics_Run%i_AllPlots", option.Atoi());
+  TString foutname = Form("../../../OUTPUT/Proton_Kinematics_Run%i_AllPlots", option.Atoi());
   TString outputpng = foutname + ".png";
   TString outputpng_coin = foutname + "_coin.png";
   TString outputpdf = foutname + ".pdf";
@@ -688,7 +688,7 @@ void ProtonYield::Terminate()
   cKine->Print(outputpdf + ')');
 
   //Start output of .root file with all histograms
-  TFile *Histogram_file = new TFile(Form("../HISTOGRAMS/KaonLT_Proton_Run%i.root",option.Atoi()),"RECREATE");
+  TFile *Histogram_file = new TFile(Form("../../..//HISTOGRAMS/KaonLT_Proton_Run%i.root",option.Atoi()),"RECREATE");
   TDirectory *DCuts = Histogram_file->mkdir("Spectrometer Delta and Calorimeter Cuts"); DCuts->cd();
   h1HMS_delta->Write("HMS Delta Before Cuts"); h1HMS_delta_cut->Write("HMS Delta After Cuts");
   h1SHMS_delta->Write("SHMS Delta Before Cuts"); h1SHMS_delta_cut->Write("SHMS Delta After Cuts");
