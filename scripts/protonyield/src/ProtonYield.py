@@ -9,7 +9,9 @@
 # Import relevant packages
 import uproot as up
 import numpy as np
+import root_numpy as rnp
 import pandas as pd
+import root_pandas as rpd
 import ROOT
 import scipy
 import scipy.integrate as integrate
@@ -19,7 +21,7 @@ import sys, math, os, subprocess
 sys.path.insert(0, 'python/')
 if len(sys.argv)-1!=3:
     print("Error, expect 3 arguments")
-    print("Usage is with -  RunNumber MaxEvents CutFileName")
+    print("Usage is with - RunNumber MaxEvents CutFileName")
     sys.exit(1)
 # Input params - run number and max number of events
 runNum = sys.argv[1]
@@ -76,7 +78,7 @@ for line in TimingCutf: # Read all lines in the cut file
         line = line.rstrip()
         array = line.split(",") # Convert line into an array, anything after a comma is a new entry
         if(int(runNum) in range (int(array[0]), int(array[1])+1)): # Check if run number for file is within any of the ranges specified in the cut file
-            TempPar = 1 # If run number is in range, set to non -1 value
+            TempPar += 2 # If run number is in range, set to non -1 value
             BunchSpacing = float(array[2]) # Bunch spacing in ns
             CT_Offset = float(array[3]) # Offset to add to width of prompt peak
             PromptPeak[0] = float(array[4]) # Pion CT prompt peak positon
@@ -86,8 +88,11 @@ for line in TimingCutf: # Read all lines in the cut file
 TimingCutf.close() # After scanning all lines in file, close file
 
 if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
-    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % AcceptCutFile)
+    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % TimingCutFile)
     sys.exit(3)
+elif(TempPar > 1):
+    print("!!! WARNING!!! Run number was found within the range of two (or more) line entries of %s !!! WARNING !!!" % TimingCutFile)
+    print("The last matching entry will be treated as the input, you should ensure this is what you want")
 
 # Using parameteres read in from DB file, calculate relevant time windows
 RandomWindows = np.zeros((2, 2, 3)) # Low/high, 1st/2nd value, particle
@@ -113,7 +118,7 @@ for line in AcceptCutf: # Read all lines in the cut file
         line = line.rstrip()
         array = line.split(",") # Convert line into an array, anything after a comma is a new entry
         if(int(runNum) in range (int(array[0]), int(array[1])+1)): # Check if run number for file is within any of the ranges specified in the cut file
-            TempPar = 1 # If run number is in range, set to non -1 value
+            TempPar += 2 # If run number is in range, set to non -1 value
             for x in range (0, (len(array)-2)): # Loop over the 12 elements of the array that do NOT specify run number group
                 AcceptCutArray[x] = float(array[x+2]) # Set values of cut array to be equal to values from cut file
 AcceptCutf.close() # After scanning all lines in file, close file
@@ -121,6 +126,9 @@ AcceptCutf.close() # After scanning all lines in file, close file
 if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
     print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % AcceptCutFile)
     sys.exit(4)
+elif(TempPar > 1):
+    print("!!! WARNING!!! Run number was found within the range of two (or more) line entries of %s !!! WARNING !!!" % AcceptCutFile)
+    print("The last matching entry will be treated as the input, you should ensure this is what you want")
 
 # Read stuff from the main event tree
 e_tree = up.open(rootName)["T"]
@@ -187,7 +195,6 @@ def hms_elec():
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
                     if HCal > 0.7 and HCal <1.5]
-
     HMS_Electrons = {
         "Uncut_HMSelec_Events" : Uncut_HMS_Elec,
         "Cut_HMSelec_Events" : Cut_HMS_Elec,
@@ -366,10 +373,12 @@ def main():
     # This is just the list of branches we use from the initial root file for each dict
     # I don't like re-defining this here as it's very prone to errors if you included (or removed something) earlier but didn't modify it here
     # Should base the branches to include based on some list and just repeat the list here (or call it again directly below)
-    HMS_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum"]
+    HMS_Data_Header = list(["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum"])
     SHMS_Pion_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_ePiCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp"]
     SHMS_Kaon_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_eKCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp"]
     SHMS_Proton_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_epCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp"]
+
+    # Need to create a dict for all the branches we grab
 
     data = {}
     for d in (HMS_Elec_Data, SHMS_Pion_Data, SHMS_Kaon_Data, SHMS_Proton_Data): # Convert individual dictionaries into a "dict of dicts"
@@ -384,9 +393,17 @@ def main():
             DFHeader=list(SHMS_Kaon_Data_Header)
         elif("Proton" in data_keys[i]):
             DFHeader=list(SHMS_Proton_Data_Header)
-        else: 
+        else:
             continue
-        pd.DataFrame(data.get(data_keys[i])).to_csv("%s/%s_%s.csv" % (OUTPATH, data_keys[i], runNum), header=DFHeader, index=False) # Convery array to panda dataframe and write to csv with correct header
+        if (i == 0):
+            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s_Analysed_Data.root" % runNum, key ="%s" % data_keys[i])
+        elif (i != 0):
+            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s_Analysed_Data.root" % runNum, key ="%s" % data_keys[i], mode ='a') 
+            #pd.DataFrame(data.get(data_keys[i])).to_csv("%s/%s_%s.csv" % (OUTPATH, data_keys[i], runNum), header=DFHeader, index=False) # Convert array to panda dataframe and write to csv with correct header
+    
+    #TmpPDdf = pd.DataFrame(data.get(data_keys[0]), index=None, columns=SHMS_Pion_Data_Header)
+    #print(TmpPDdf)
+    #TmpPDdf.to_root('out.root', key='mytree')
 
 if __name__ == '__main__':
     main()    
