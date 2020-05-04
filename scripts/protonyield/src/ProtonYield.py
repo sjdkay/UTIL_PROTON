@@ -271,7 +271,7 @@ def shms_kaons():
                     if Kyp > AcceptCutArray[10] and Kyp < AcceptCutArray[11]
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
-                    if KHGC > 1.5]
+                    if KHGC < 1.5]
                     # need to add RF timing cut, need to implement database idea
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
@@ -285,7 +285,7 @@ def shms_kaons():
                     if abs(Kyp) < 0.04
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
-                    if KHGC > 1.5
+                    if KHGC < 1.5
                     if CTK > (PromptPeak[1]-((BunchSpacing/2)+CT_Offset)) and CTK < (PromptPeak[1]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Kaons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Kaons)
@@ -298,7 +298,7 @@ def shms_kaons():
                     if Kyp > AcceptCutArray[10] and Kyp < AcceptCutArray[11]
                     if abs(KBeta -1.0) < 0.3
                     if KAero > 1.5
-                    if KHGC > 1.5
+                    if KHGC < 1.5
                     if (CTK > RandomWindows[0][0][1] and CTK < RandomWindows[0][1][1]) or (CTK > RandomWindows[1][0][1] and CTK < RandomWindows[1][1][1])]
 
     SHMS_Kaons = {
@@ -324,8 +324,8 @@ def shms_protons():
                     if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
                     if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
-                    if pAero > 1.5
-                    if pHGC > 1.5]
+                    if pAero < 1.5
+                    if pHGC < 1.5]
                     # need to add RF timing cut, need to implement database idea
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
@@ -338,8 +338,8 @@ def shms_protons():
                     if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
                     if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
-                    if pAero > 1.5
-                    if pHGC > 1.5
+                    if pAero < 1.5
+                    if pHGC < 1.5
                     if CTp > (PromptPeak[2]-((BunchSpacing/2)+CT_Offset)) and CTp < (PromptPeak[2]+((BunchSpacing/2)+CT_Offset))]
     # Create array of arrays of pions after cuts, random events    
     Cut_SHMS_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3) in zip(*NoCut_SHMS_Protons)
@@ -351,8 +351,8 @@ def shms_protons():
                     if pxp > AcceptCutArray[8] and pxp < AcceptCutArray[9]
                     if pyp > AcceptCutArray[10] and pyp < AcceptCutArray[11]
                     if abs(pBeta -1.0) < 0.3
-                    if pAero > 1.5
-                    if pHGC > 1.5
+                    if pAero < 1.5
+                    if pHGC < 1.5
                     if (CTp > RandomWindows[0][0][2] and CTp < RandomWindows[0][1][2]) or (CTp > RandomWindows[1][0][2] and CTp < RandomWindows[1][1][2])]
 
     SHMS_Protons = {
@@ -396,14 +396,9 @@ def main():
         else:
             continue
         if (i == 0):
-            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s_Analysed_Data.root" % runNum, key ="%s" % data_keys[i])
+            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s/%s_Analysed_Data.root" % (Outpath, runNum), key ="%s" % data_keys[i])
         elif (i != 0):
-            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s_Analysed_Data.root" % runNum, key ="%s" % data_keys[i], mode ='a') 
-            #pd.DataFrame(data.get(data_keys[i])).to_csv("%s/%s_%s.csv" % (OUTPATH, data_keys[i], runNum), header=DFHeader, index=False) # Convert array to panda dataframe and write to csv with correct header
-    
-    #TmpPDdf = pd.DataFrame(data.get(data_keys[0]), index=None, columns=SHMS_Pion_Data_Header)
-    #print(TmpPDdf)
-    #TmpPDdf.to_root('out.root', key='mytree')
+            pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s/%s_Analysed_Data.root" % (Outpath, runNum), key ="%s" % data_keys[i], mode ='a') 
 
 if __name__ == '__main__':
     main()    
