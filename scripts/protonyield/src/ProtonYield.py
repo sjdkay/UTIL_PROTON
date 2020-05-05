@@ -20,8 +20,7 @@ import sys, math, os, subprocess
 
 sys.path.insert(0, 'python/')
 if len(sys.argv)-1!=3:
-    print("Error, expect 3 arguments")
-    print("Usage is with - RunNumber MaxEvents CutFileName")
+    print("!!!!! ERROR !!!!!\n Expected 3 arguments\n Usage is with - RunNumber MaxEvents CutFileName\n!!!!! ERROR !!!!!")
     sys.exit(1)
 # Input params - run number and max number of events
 runNum = sys.argv[1]
@@ -64,7 +63,7 @@ try:
     PIDCutFile
     AcceptCutFile
 except NameError:
-    print("Error, one (or more) of the cut files is not defined in the config file provided")
+    print("!!!!! ERRROR !!!!!\n One (or more) of the cut files is not defined in the config file provided\n!!!!! ERRORR !!!!!")
     sys.exit(2)
 print("Reading timing cuts from %s" % TimingCutFile)
 print("Reading PID cuts from %s" % PIDCutFile)
@@ -91,7 +90,7 @@ for line in TimingCutf: # Read all lines in the cut file
 TimingCutf.close() # After scanning all lines in file, close file
 
 if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
-    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % TimingCutFile)
+    print("!!!!! ERROR !!!!!\n Run number specified does not fall within a set of runs for which cuts are defined in %s\n!!!!! ERROR !!!!!" % TimingCutFile)
     sys.exit(3)
 elif(TempPar > 1):
     print("!!! WARNING!!! Run number was found within the range of two (or more) line entries of %s !!! WARNING !!!" % TimingCutFile)
@@ -127,7 +126,7 @@ for line in AcceptCutf: # Read all lines in the cut file
 AcceptCutf.close() # After scanning all lines in file, close file
 
 if(TempPar == -1): # If value is still -1, run number provided din't match any ranges specified so exit
-    print("Error, run number specified does not fall within a set of runs for which cuts are defined in %s" % AcceptCutFile)
+    print("!!!!! ERROR !!!!!\n Run number specified does not fall within a set of runs for which cuts are defined in %s\n!!!!! ERROR !!!!!" % AcceptCutFile)
     sys.exit(4)
 elif(TempPar > 1):
     print("!!! WARNING!!! Run number was found within the range of two (or more) line entries of %s !!! WARNING !!!" % AcceptCutFile)
@@ -208,12 +207,12 @@ def hms_elec():
 
     return HMS_Electrons
 
-def shms_pions(): 
-    # Define the array of arrays containing the relevant SHMS info
-    NoCut_SHMS_Pions = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_ePiCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist]
-    Uncut_SHMS_Pions = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Pions)]
+def coin_pions(): 
+    # Define the array of arrays containing the relevant HMS and SHMS info
+    NoCut_COIN_Pions = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_ePiCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist, Q2, W, epsilon, MandelT, MandelU]
+    Uncut_COIN_Pions = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Pions)]
     # Create array of arrays of pions after cuts, all events, prompt and random
-    Cut_SHMS_Pions_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Pions)
+    Cut_COIN_Pions_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Pions)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -228,7 +227,7 @@ def shms_pions():
 
     # Create array of arrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
-    Cut_SHMS_Pions_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Pions)
+    Cut_COIN_Pions_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Pions)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -243,7 +242,7 @@ def shms_pions():
                     if RFCutDist > 1.4 and RFCutDist < 3]
 
     # Create array of arrays of pions after cuts, random events    
-    Cut_SHMS_Pions_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Pions)
+    Cut_COIN_Pions_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTPi, RF, HodStart, PiBeta, Pixp, Piyp, PiP, PiDel, PiCal, PiAero, PiHGC, PiHGCX, PiHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Pions)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -257,21 +256,21 @@ def shms_pions():
                     if (CTPi > RandomWindows[0][0][0] and CTPi < RandomWindows[0][1][0]) or (CTPi > RandomWindows[1][0][0] and CTPi < RandomWindows[1][1][0])
                     if RFCutDist > 1.4 and RFCutDist < 3]
 
-    SHMS_Pions = {
-        "Uncut_Pion_Events" : Uncut_SHMS_Pions,
-        "Cut_Pion_Events_All" : Cut_SHMS_Pions_all,
-        "Cut_Pion_Events_Prompt" : Cut_SHMS_Pions_prompt,
-        "Cut_Pion_Events_Random" : Cut_SHMS_Pions_random,
+    COIN_Pions = {
+        "Uncut_Pion_Events" : Uncut_COIN_Pions,
+        "Cut_Pion_Events_All" : Cut_COIN_Pions_all,
+        "Cut_Pion_Events_Prompt" : Cut_COIN_Pions_prompt,
+        "Cut_Pion_Events_Random" : Cut_COIN_Pions_random,
     }
 
-    return SHMS_Pions
+    return COIN_Pions
 
-def shms_kaons(): 
-    # Define the array of arrays containing the relevant SHMS info
-    NoCut_SHMS_Kaons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_eKCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist]
-    Uncut_SHMS_Kaons = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Kaons)]
+def coin_kaons(): 
+    # Define the array of arrays containing the relevant HMS and SHMS info
+    NoCut_COIN_Kaons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_eKCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist, Q2, W, epsilon, MandelT, MandelU]
+    Uncut_COIN_Kaons = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Kaons)]
     # Create array of arrays of pions after cuts, all events, prompt and random
-    Cut_SHMS_Kaons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Kaons)
+    Cut_COIN_Kaons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Kaons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -285,7 +284,7 @@ def shms_kaons():
                     if RFCutDist > 1.3 and RFCutDist < 3]
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
-    Cut_SHMS_Kaons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Kaons)
+    Cut_COIN_Kaons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Kaons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -299,7 +298,7 @@ def shms_kaons():
                     if CTK > (PromptPeak[1]-((BunchSpacing/2)+CT_Offset)) and CTK < (PromptPeak[1]+((BunchSpacing/2)+CT_Offset))
                     if RFCutDist > 1.3 and RFCutDist < 3]
     # Create array of arrays of pions after cuts, random events    
-    Cut_SHMS_Kaons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Kaons)
+    Cut_COIN_Kaons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTK, RF, HodStart, KBeta, Kxp, Kyp, KP, KDel, KCal, KAero, KHGC, KHGCX, KHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Kaons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -313,21 +312,21 @@ def shms_kaons():
                     if (CTK > RandomWindows[0][0][1] and CTK < RandomWindows[0][1][1]) or (CTK > RandomWindows[1][0][1] and CTK < RandomWindows[1][1][1])
                     if RFCutDist > 1.3 and RFCutDist < 3]
 
-    SHMS_Kaons = {
-        "Uncut_Kaon_Events" : Uncut_SHMS_Kaons,
-        "Cut_Kaon_Events_All" : Cut_SHMS_Kaons_all,
-        "Cut_Kaon_Events_Prompt" : Cut_SHMS_Kaons_prompt,
-        "Cut_Kaon_Events_Random" : Cut_SHMS_Kaons_random,
+    COIN_Kaons = {
+        "Uncut_Kaon_Events" : Uncut_COIN_Kaons,
+        "Cut_Kaon_Events_All" : Cut_COIN_Kaons_all,
+        "Cut_Kaon_Events_Prompt" : Cut_COIN_Kaons_prompt,
+        "Cut_Kaon_Events_Random" : Cut_COIN_Kaons_random,
     }
 
-    return SHMS_Kaons
+    return COIN_Kaons
 
-def shms_protons(): 
-    # Define the array of arrays containing the relevant SHMS info
-    NoCut_SHMS_Protons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_epCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist]
-    Uncut_SHMS_Protons = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Protons)]
+def coin_protons(): 
+    # Define the array of arrays containing the relevant HMS and SHMS info
+    NoCut_COIN_Protons = [H_gtr_beta, H_gtr_xp, H_gtr_yp, H_gtr_dp, H_cal_etotnorm, H_cer_npesum, CTime_epCoinTime_ROC1, P_RF_tdcTime, P_hod_fpHitsTime, P_gtr_beta, P_gtr_xp, P_gtr_yp, P_gtr_p, P_gtr_dp, P_cal_etotnorm, P_aero_npeSum, P_hgcer_npeSum, P_hgcer_xAtCer, P_hgcer_yAtCer, MMpi, MMK, MMp, RF_CutDist, Q2, W, epsilon, MandelT, MandelU]
+    Uncut_COIN_Protons = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Protons)]
     # Create array of arrays of pions after cuts, all events, prompt and random
-    Cut_SHMS_Protons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Protons)
+    Cut_COIN_Protons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Protons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -341,7 +340,7 @@ def shms_protons():
                     if RFCutDist < 1.5]
     # Create array of a/rrays of pions after cuts, prompt events
     # NOTE - Should just be able to feed all events array into this somehow? Should investigate
-    Cut_SHMS_Protons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Protons)
+    Cut_COIN_Protons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Protons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -355,7 +354,7 @@ def shms_protons():
                     if CTp > (PromptPeak[2]-((BunchSpacing/2)+CT_Offset)) and CTp < (PromptPeak[2]+((BunchSpacing/2)+CT_Offset))
                     if RFCutDist < 1.5]
     # Create array of arrays of pions after cuts, random events    
-    Cut_SHMS_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist) in zip(*NoCut_SHMS_Protons)
+    Cut_COIN_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u) in zip(*NoCut_COIN_Protons)
                     if Hdel > AcceptCutArray[0] and Hdel < AcceptCutArray[1]
                     if Hxp > AcceptCutArray[2] and Hxp < AcceptCutArray[3]
                     if Hyp > AcceptCutArray[4] and Hyp < AcceptCutArray[5]
@@ -369,48 +368,50 @@ def shms_protons():
                     if (CTp > RandomWindows[0][0][2] and CTp < RandomWindows[0][1][2]) or (CTp > RandomWindows[1][0][2] and CTp < RandomWindows[1][1][2])
                     if RFCutDist < 1.5]
 
-    SHMS_Protons = {
-        "Uncut_Proton_Events" : Uncut_SHMS_Protons,
-        "Cut_Proton_Events_All" : Cut_SHMS_Protons_all,
-        "Cut_Proton_Events_Prompt" : Cut_SHMS_Protons_prompt,
-        "Cut_Proton_Events_Random" : Cut_SHMS_Protons_random,
+    COIN_Protons = {
+        "Uncut_Proton_Events" : Uncut_COIN_Protons,
+        "Cut_Proton_Events_All" : Cut_COIN_Protons_all,
+        "Cut_Proton_Events_Prompt" : Cut_COIN_Protons_prompt,
+        "Cut_Proton_Events_Random" : Cut_COIN_Protons_random,
     }
 
-    return SHMS_Protons
+    return COIN_Protons
 
 
 
 def main():
     HMS_Elec_Data = hms_elec()
-    SHMS_Pion_Data = shms_pions()
-    SHMS_Kaon_Data = shms_kaons()
-    SHMS_Proton_Data = shms_protons()
+    COIN_Pion_Data = coin_pions()
+    COIN_Kaon_Data = coin_kaons()
+    COIN_Proton_Data = coin_protons()
     
     # This is just the list of branches we use from the initial root file for each dict
     # I don't like re-defining this here as it's very prone to errors if you included (or removed something) earlier but didn't modify it here
     # Should base the branches to include based on some list and just repeat the list here (or call it again directly below)
     HMS_Data_Header = list(["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum", "RF_CutDist"])
-    SHMS_Pion_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_ePiCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp", "RF_CutDist"]
-    SHMS_Kaon_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_eKCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp", "RF_CutDist"]
-    SHMS_Proton_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_epCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp", "RF_CutDist"]
+    COIN_Pion_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_ePiCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp","RF_CutDist", "Q2", "W", "epsilon", "MandelT", "MandelU"]
+    COIN_Kaon_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_eKCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp","RF_CutDist", "Q2", "W", "epsilon", "MandelT", "MandelU"]
+    COIN_Proton_Data_Header = ["H_gtr_beta","H_gtr_xp","H_gtr_yp","H_gtr_dp","H_cal_etotnorm","H_cer_npesum","CTime_epCoinTime_ROC1","P_RF_tdcTime","P_hod_fpHitsTime","P_gtr_beta","P_gtr_xp","P_gtr_yp","P_gtr_p","P_gtr_dp","P_cal_etotnorm","P_aero_npeSum","P_hgcer_npeSum","P_hgcer_xAtCer","P_hgcer_yAtCer","MMpi","MMK","MMp","RF_CutDist", "Q2", "W", "epsilon", "MandelT", "MandelU"]
 
     # Need to create a dict for all the branches we grab
 
     data = {}
-    for d in (HMS_Elec_Data, SHMS_Pion_Data, SHMS_Kaon_Data, SHMS_Proton_Data): # Convert individual dictionaries into a "dict of dicts"
+    for d in (HMS_Elec_Data, COIN_Pion_Data, COIN_Kaon_Data, COIN_Proton_Data): # Convert individual dictionaries into a "dict of dicts"
         data.update(d)
     data_keys = list(data.keys()) # Create a list of all the keys in all dicts added above, each is an array of data
     for i in range (0, len(data_keys)):
         if("HMSelec" in data_keys[i]):
             DFHeader=list(HMS_Data_Header)
         elif("Pion" in data_keys[i]):
-            DFHeader=list(SHMS_Pion_Data_Header)
+            DFHeader=list(COIN_Pion_Data_Header)
         elif("Kaon" in data_keys[i]):
-            DFHeader=list(SHMS_Kaon_Data_Header)
+            DFHeader=list(COIN_Kaon_Data_Header)
         elif("Proton" in data_keys[i]):
-            DFHeader=list(SHMS_Proton_Data_Header)
+            DFHeader=list(COIN_Proton_Data_Header)
         else:
             continue
+        # Uncomment the line below if you want .csv file output, WARNING the files can be very large and take a long time to process!
+        #pd.DataFrame(data.get(data_keys[i])).to_csv("%s/%s_%s.csv" % (OUTPATH, data_keys[i], runNum), header=DFHeader, index=False) # Convert array to panda dataframe and write to csv with correct header
         if (i == 0):
             pd.DataFrame(data.get(data_keys[i]), columns = DFHeader, index = None).to_root("%s/%s_Analysed_Data.root" % (OUTPATH, runNum), key ="%s" % data_keys[i])
         elif (i != 0):
