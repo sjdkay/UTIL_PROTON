@@ -84,7 +84,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
   Double_t W_pr; Cut_Pr->SetBranchAddress("W", &W_pr);
   Double_t Q2_pr; Cut_Pr->SetBranchAddress("Q2", &Q2_pr);
   Double_t t_pr; Cut_Pr->SetBranchAddress("MandelT", &t_pr);
-  Double_t phi_pr; Cut_Pr->SetBranchAddress("P_gtr_yp", &phi_pr);
+  Double_t phi_q_pr; Cut_Pr->SetBranchAddress("ph_q", &phi_q_pr);
 
   // Define Histograms
   TH1D *h1_MMK_All = new TH1D("h1_MMK_All", "MM_{K} - All events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
@@ -98,7 +98,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_Epsilon = new TH1D("h1_Epsilon", "#epsilon - Prompt events after cuts; #epsilon", 200, 0, 1);
 
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 3.5, 5.5, 200, 2.2, 3.2);
-  TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,50,0.0,0.5); 
+  TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,50,0.0,1.0); 
 
   TH2D *h2_CT_Beta_All = new TH2D("h2_CT_Beta_All","Kaon CT vs #beta - All events after cuts;Time (ns);#beta",400,0,100,80,0.6,1.4);
   TH2D *h2_CT_Beta_Prompt = new TH2D("h2_CT_Beta_Prompt","Kaon CT vs #beta - Prompt events after cuts;Time (ns);#beta",400,0,100,80,0.6,1.4);
@@ -132,7 +132,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_Prompt->Fill(CT_pr, Beta_pr);
     h2_CT_MMK_Prompt->Fill(CT_pr, MMK_pr);
     h2_Q2vsW->Fill(Q2_pr, W_pr);
-    h2_phiqvst->Fill(phi_pr, t_pr);
+    h2_phiqvst->Fill(phi_q_pr, t_pr);
   }
   for(Long64_t i = 0; i < nEntries_Rn; i++){
     Cut_Rn->GetEntry(i);
@@ -211,7 +211,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
     Arc[k]->SetLineWidth(2);
     Arc[k]->DrawArc(0,0,0.575*(k+1)/(10),0.,360.,"same"); 
   }
-  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,0.5,10,"-+"); 
+  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,1.0,10,"-+"); 
   tradius->SetLineColor(2);tradius->SetLabelColor(2);tradius->Draw();
   TLine *phizero = new TLine(0,0,0.6,0); 
   phizero->SetLineColor(kBlack); phizero->SetLineWidth(2); phizero->Draw();
