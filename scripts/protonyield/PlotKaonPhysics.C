@@ -28,7 +28,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
   TString Outpath;
   TString rootFile;
   Double_t nWindows = 6;
-
+  gStyle->SetPalette(55);
   // Set paths depending on system you're running on
   if(Hostname.Contains("farm")){
     Replaypath = "/group/c-kaonlt/USERS/"+User+"/hallc_replay_lt";
@@ -92,21 +92,21 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_MMK_Random = new TH1D("h1_MMK_Random", "MM_{K} - Random events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
   TH1D *h1_MMK_Random_Scaled = new TH1D("h1_MMK_Random_Scaled", "MM_{K} - Random events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
   TH1D *h1_MMK_BGSub = new TH1D("h1_MMK_BGSub", "MM_{K} - BGSub events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
-  TH1D *h1_CT_All = new TH1D("h1_CT_All", "Kaon CT - All events after cuts; Time (ns)", 400, 0, 100); 
-  TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Kaon CT - Prompt events after cuts; Time (ns)", 400, 0, 100);
-  TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Kaon CT - Random events after cuts; Time (ns)", 400, 0, 100);
+  TH1D *h1_CT_All = new TH1D("h1_CT_All", "Kaon CT - All events after cuts; Time (ns)", 240, 10, 70); 
+  TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Kaon CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
+  TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Kaon CT - Random events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_Epsilon = new TH1D("h1_Epsilon", "#epsilon - Prompt events after cuts; #epsilon", 200, 0, 1);
 
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 3.5, 5.5, 200, 2.2, 3.2);
-  TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,50,0.0,1.0); 
+  TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
 
-  TH2D *h2_CT_Beta_All = new TH2D("h2_CT_Beta_All","Kaon CT vs #beta - All events after cuts;Time (ns);#beta",400,0,100,80,0.6,1.4);
-  TH2D *h2_CT_Beta_Prompt = new TH2D("h2_CT_Beta_Prompt","Kaon CT vs #beta - Prompt events after cuts;Time (ns);#beta",400,0,100,80,0.6,1.4);
-  TH2D *h2_CT_Beta_Random = new TH2D("h2_CT_Beta_Random","Kaon CT vs #beta - Random events after cuts;Time (ns);#beta",400,0,100,80,0.6,1.4);
+  TH2D *h2_CT_Beta_All = new TH2D("h2_CT_Beta_All","Kaon CT vs #beta - All events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
+  TH2D *h2_CT_Beta_Prompt = new TH2D("h2_CT_Beta_Prompt","Kaon CT vs #beta - Prompt events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
+  TH2D *h2_CT_Beta_Random = new TH2D("h2_CT_Beta_Random","Kaon CT vs #beta - Random events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
 
-  TH2D *h2_CT_MMK_All = new TH2D("h2_CT_MMK_All","Kaon CT vs MM_{K} - All events after cuts;Time (ns);Mass (GeV/c^{2})",400,0,100,220,0.5,1.6);
-  TH2D *h2_CT_MMK_Prompt = new TH2D("h2_CT_MMK_Prompt","Kaon CT vs MM_{K} - Prompt events after cuts;Time (ns);Mass (GeV/c^{2})",400,0,100,220,0.5,1.6);
-  TH2D *h2_CT_MMK_Random = new TH2D("h2_CT_MMK_Random","Kaon CT vs MM_{K} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",400,0,100,220,0.5,1.6);
+  TH2D *h2_CT_MMK_All = new TH2D("h2_CT_MMK_All","Kaon CT vs MM_{K} - All events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,220,0.5,1.6);
+  TH2D *h2_CT_MMK_Prompt = new TH2D("h2_CT_MMK_Prompt","Kaon CT vs MM_{K} - Prompt events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,220,0.5,1.6);
+  TH2D *h2_CT_MMK_Random = new TH2D("h2_CT_MMK_Random","Kaon CT vs MM_{K} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,220,0.5,1.6);
 
   // For 1D histos, can easily create directly from the corresponding branch
   Cut_All->Draw("MMK >> h1_MMK_All", "", "goff");
@@ -132,7 +132,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_Prompt->Fill(CT_pr, Beta_pr);
     h2_CT_MMK_Prompt->Fill(CT_pr, MMK_pr);
     h2_Q2vsW->Fill(Q2_pr, W_pr);
-    h2_phiqvst->Fill(phi_q_pr, t_pr);
+    h2_phiqvst->Fill(phi_q_pr, -t_pr);
   }
   for(Long64_t i = 0; i < nEntries_Rn; i++){
     Cut_Rn->GetEntry(i);
@@ -211,7 +211,7 @@ void PlotKaonPhysics(string InFilename = "", string OutFilename = "")
     Arc[k]->SetLineWidth(2);
     Arc[k]->DrawArc(0,0,0.575*(k+1)/(10),0.,360.,"same"); 
   }
-  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,1.0,10,"-+"); 
+  TGaxis *tradius = new TGaxis(0,0,0.575,0,0,2.0,10,"-+"); 
   tradius->SetLineColor(2);tradius->SetLabelColor(2);tradius->Draw();
   TLine *phizero = new TLine(0,0,0.6,0); 
   phizero->SetLineColor(kBlack); phizero->SetLineWidth(2); phizero->Draw();
