@@ -11,6 +11,7 @@ sys.path.insert(0, 'path_to/bin/python/')
 import kaonlt as klt
 
 # Convert root leaf to array with uproot
+# Array name must match what is defined in DB/CUTS/general/
 array  = tree.array("leaf")
 
 # Not required for applying cuts, but required for converting back to root files
@@ -44,7 +45,11 @@ def make_cutDict(cut,inputDict=None):
     # Evaluate strings to cut values. Creates a dictionary in a dictionary...dict-ception!
     for i,val in enumerate(x):
         tmp = x[i]
-        inputDict[cut].update(eval(tmp))
+        # Checks for removed leaves
+        if tmp == "":
+            continue
+        else:
+            inputDict[cut].update(eval(tmp))
         
     return inputDict
 
@@ -86,11 +91,25 @@ import matplotlib.pyplot as plt
 from matplotlib import interactive
 from matplotlib import colors
 import uproot as up
-import time, math, sys
+import pandas as pd
+from csv import DictReader
+import time, math, sys, subprocess
 
 # garbage collector
 import gc
 gc.collect()
+
+# Add this to all files for more dynamic pathing
+USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
+HOST = subprocess.getstatusoutput("hostname")
+
+if ("farm" in HOST[1]):
+    REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
+elif ("lark" in HOST[1]):
+    REPLAYPATH = "/home/%s/work/JLab/hallc_replay_lt" % USER[1]
+elif ("trottar" in HOST[1]):
+    REPLAYPATH = "/home/trottar/Analysis/hallc_replay_lt"
+
 
 '''
 When calling kaonlt package, you may define a dictionary in the script. This dictionary will contain
@@ -104,9 +123,10 @@ class pyDict(dict):
         self.inputTree = inputTree
         
 '''
-This class, with its findBranch method, will grab the leaves in a branch using uproot package
+This class, with its findBranch method, will grab the leaves in a branch using uproot package. This
+takes the tree as an input.
 '''
-class pyBranch():
+class pyBranch(pyDict):
 
     def findBranch(self,inputBranch, inputLeaf):
         tree = self.inputTree
@@ -151,7 +171,7 @@ class pyRoot():
             f.Write()
             f.Close()
         except TypeError:
-            print("\nERROR: Only current accepting 1D array/list values\n")
+            print("\nERROR 1: Only current accepting 1D array/list values\n")
 
 '''            
 This class stores a variety of equations often used in the KaonLT analysis procedure
@@ -198,7 +218,7 @@ class pyPlot(pyDict):
         return arrPlot
 
     # This method reads in the CUTS and converts them to a dictionary. 
-    def read_dict(self,fout):
+    def read_dict(self,fout,runNum):
 
         # Open run type cuts of interest
         f = open(fout)
@@ -207,7 +227,8 @@ class pyPlot(pyDict):
             if "#" in line:
                 continue
             else:
-                line = line.split("=")
+                
+                line = line.split("=",1)
                 # Grab run type cut name
                 typName = line[0].rstrip()
                 typName = typName.lstrip()
@@ -216,63 +237,36 @@ class pyPlot(pyDict):
                 typCuts = line[1].split("+")
                 print("Type ", typName)
                 print("Cuts ", typCuts)
+                
                 # Loop over run type cuts
-                for evt in typCuts:
+                for i,evt in enumerate(typCuts):
                     # Split any cuts to be removed
                     minusCuts = evt.split("-")
+                    # Ignore first element, since it will always be an added cut
+                    minus = minusCuts[1:]
                     # Define first cut to be added, any other cuts to be added will be done in future
                     # iteration over run type cuts
                     cutplus = minusCuts[0].rstrip()
                     cutplus = cutplus.lstrip()
-                    # Checks if there are multiple cuts to be removed
-                    if len(minusCuts) == 2:
-                        cutminus = minusCuts[1].lstrip()
-                    elif len(minusCuts) > 2:
-                        for minus in cutminus:
-                            cutminus = minus.lstrip()
-                    else:
-                        cutminus = "none"
                     print("+ ",cutplus)
-                    print("- ",cutminus)
+
+                    ##############
+                    # Added cuts #
+                    ##############
+                    
                     # Matches run type cuts with the general cuts (e.g pid, track, etc.)
                     if "pid" in cutplus:
-                        plusfout = "../../../../DB/CUTS/general/pid.cuts"
+                        plusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/pid.cuts"
                     elif "track" in cutplus:
-                        plusfout = "../../../../DB/CUTS/general/track.cuts"
+                        plusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/track.cuts"
                     elif "accept" in cutplus:
-                        plusfout = "../../../../DB/CUTS/general/accept.cuts"
+                        plusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/accept.cuts"
                     elif "coin_time" in cutplus:
-                        plusfout = "../../../../DB/CUTS/general/coin_time.cuts"
+                        plusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/coin_time.cuts"
                     elif "current" in cutplus:
-                        plusfout = "../../../../DB/CUTS/general/current.cuts"
+                        plusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/current.cuts"
                     else:
-                        print("ERROR: Cut %s not found" % cutplus)
-                        continue
-                    if "pid" in cutminus:
-                        minusfout = "../../../../DB/CUTS/general/pid.cuts"
-                    elif "track" in cutminus:
-                        minusfout = "../../../../DB/CUTS/general/track.cuts"
-                    elif "accept" in cutminus:
-                        minusfout = "../../../../DB/CUTS/general/accept.cuts"
-                    elif "coin_time" in cutminus:
-                        minusfout = "../../../../DB/CUTS/general/coin_time.cuts"
-                    elif "current" in cutminus:
-                        minusfout = "../../../../DB/CUTS/general/current.cuts"
-                    elif "none" in cutminus:
-                        minusfout = "none"
-                    else:
-                        print("ERROR: Cut %s not found" % cutminus)
-                        continue
-                    # Break down the cut to be removed to find specific leaf to be subtracted from
-                    # dictionary
-                    minuscut = cutminus.split(".")
-                    if len(minuscut) == 3:
-                        cutminus = minuscut[1]
-                        leafminus = minuscut[2].rstrip()
-                    elif minuscut == ['none']:
-                        cutminus = "none"
-                    else:
-                        print("ERROR: Invalid syntax for removing cut %s " % (minuscut))
+                        print("ERROR 2: Cut %s not found" % cutplus)
                         continue
                     cutplus = cutplus.split(".")
                     if len(cutplus) == 2:
@@ -282,23 +276,16 @@ class pyPlot(pyDict):
                         cutplus = str(cutplus[2])
                         print("cutplus ", cutplus)
                     else:
-                        print("ERROR: %s cut not found in %s" % (cutplus,plusfout))
+                        print("ERROR 5: %s cut not found in %s" % (cutplus,plusfout))
                         continue
 
                     # Open general cuts file of interest to be added to dictionary
                     fplus = open(plusfout)
-                    # Open general cuts file of interest to be removed from dictionary. If there are no
-                    # cuts to be removed then this step is skipped
-                    if minusfout == "none":
-                        fminus = fplus             
-                    else:
-                        fminus = open(minusfout)
-                        
                     for lplus in fplus:
                         if "#" in lplus:
                             continue
                         else:
-                            lplus  = lplus.split("=")
+                            lplus  = lplus.split("=",1)
                             cuts = lplus[1]
                             print(cutplus, " ++ ", lplus[0])
                             # Check if cut is in file
@@ -307,43 +294,201 @@ class pyPlot(pyDict):
                                 if typName in cutDict.keys():
                                     if cuts not in cutDict.items():
                                         # If run type already defined, then append dictionary key
+                                        print("cuts",cuts)
+                                        # Grabs parameters from DB (see below)
+                                        db_cut = self.search_DB(cuts,runNum)
                                         print(typName, " already found!!!!")
-                                        cutDict[typName] += ","+cuts
+                                        cutDict[typName] += ","+db_cut
+                                        print(lplus[0],"++>",cutDict[typName])
                                 else:
                                     # If run type not defined, then add key to dictionary
-                                    cutName = {typName : cuts}
+                                    print("cuts",cuts)
+                                    # Grabs parameters from DB (see below)
+                                    db_cut = self.search_DB(cuts,runNum)
+                                    cutName = {typName : db_cut}
                                     cutDict.update(cutName)
-                                print(lplus[0],"++>",cutDict[typName])
+                                    print(lplus[0],"++>",cutDict[typName])
                             else:
-                                print("ERROR: %s cut does not match %s" % (cutplus,lplus[0]))
+                                print("ERROR 6: %s cut does not match %s" % (cutplus,lplus[0]))
                                 continue
-                    
-                    for lminus in fminus:
-                        if "#" in lminus:
-                            continue
+
+                    ###################
+                    # Subtracted cuts #
+                    ###################
+
+                    # Loop over cuts that need to be subtracted
+                    for cutminus in minus:
+                        print("- ",cutminus)
+                        # Matches run type cuts with the general cuts (e.g pid, track, etc.)
+                        if "pid" in cutminus:
+                            minusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/pid.cuts"
+                        elif "track" in cutminus:
+                            minusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/track.cuts"
+                        elif "accept" in cutminus:
+                            minusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/accept.cuts"
+                        elif "coin_time" in cutminus:
+                            minusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/coin_time.cuts"
+                        elif "current" in cutminus:
+                            minusfout = REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/current.cuts"
+                        elif "none" in cutminus:
+                            minusfout = "none"
                         else:
-                            lminus  = lminus.split("=")
-                            cuts = lminus[1]
-                            # Split cuts to check for the one to be removed.
-                            arr_cuts = cuts.split(",")
-                            print(leafminus,": ",cutminus, " -- ", lminus[0])
-                            # Check if cut is in file
-                            if cutminus in lminus[0]:
-                                for remove in arr_cuts:
-                                    # Check which cut matches the one wanted to be removed
-                                    if leafminus in remove:
-                                        print("```````````````",remove)
-                                        # Replace unwanted cut with blank string
-                                        cutDict[typName] = cutDict[typName].replace(remove,"")
-                                print(lminus[0],"-->",cutDict[typName])
-                            else:
-                                print("ERROR: %s cut does not match %s" % (cutminus,lminus[0]))
+                            print("ERROR 3: Cut %s not found" % cutminus)
+                            continue
+                        # Break down the cut to be removed to find specific leaf to be subtracted from
+                        # dictionary
+                        minuscut = cutminus.split(".")
+                        if len(minuscut) == 3:
+                            cutminus = minuscut[1]
+                            leafminus = minuscut[2].rstrip()
+                        elif minuscut == ['none']:
+                            cutminus = "none"
+                        else:
+                            print("ERROR 4: Invalid syntax for removing cut %s " % (minuscut))
+                            continue
+
+                        # Open general cuts file of interest to be removed from dictionary.
+                        fminus = open(minusfout)
+                            
+                        for lminus in fminus:
+                            if "#" in lminus:
                                 continue
+                            else:
+                                lminus  = lminus.split("=",1)
+                                cuts = lminus[1]
+                                # Split cuts to check for the one to be removed.
+                                arr_cuts = cuts.split(",")
+                                print(leafminus,": ",cutminus, " -- ", lminus[0])
+                                # Check if cut is in file
+                                if cutminus in lminus[0]:
+                                    for remove in arr_cuts:
+                                        # Check which cut matches the one wanted to be removed
+                                        if leafminus in remove:
+                                            # Grabs parameters from DB (see below)
+                                            remove = self.search_DB(remove,runNum)
+                                            print("Removing... ",remove)
+                                            # Replace unwanted cut with blank string
+                                            cutDict[typName] = cutDict[typName].replace(remove,"")
+                                            print(lminus[0],"-->",cutDict[typName])
+                                else:
+                                    print("ERROR 7: %s cut does not match %s" % (cutminus,lminus[0]))
+                                    continue
+                        fplus.close()
+                        fminus.close()
                 print("\n\n")
-        fplus.close()
         f.close()
         print(cutDict.keys())
         return cutDict
+
+    # Grabs the cut parameters from the database. In essence this method simply replaces one string
+    # with another
+    def search_DB(self,cuts,runNum):
+
+        # Split all cuts into a list
+        cuts = cuts.split(",")
+        db_cuts = []
+        for cut in cuts:
+            # Find which cut is being called
+            if "accept" in cut:
+                tmp = cut.split("accept")
+                for val in tmp:
+                    if "." in val:
+                        tmp = val.split(")")[0]
+                        tmp = tmp.split(".")[1]
+                        fout = REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Acceptance_Parameters.csv"
+                        try:
+                            data = dict(pd.read_csv(fout))
+                        except IOError:
+                            print("ERROR 9: %s not found in %s" % (tmp,fout))
+                        for i,evt in enumerate(data['Run_Start']):
+                            if data['Run_Start'][i] <= np.int64(runNum) <= data['Run_End'][i]:
+                                print("xxxx",tmp,str(data[tmp][i]))
+                                cut  = cut.replace("accept."+tmp,str(data[tmp][i]))
+                                pass
+                            else:
+                                print("ERROR 10: %s not found in range %s-%s" % (np.int64(runNum),data['Run_Start'][i],data['Run_End'][i]))
+                                continue
+                    else:
+                        continue
+                db_cuts.append(cut.rstrip())
+            elif "track" in cut:
+                tmp = cut.split("track")
+                for val in tmp:
+                    if "." in val:
+                        tmp = val.split(")")[0]
+                        tmp = tmp.split(".")[1]
+                        fout = REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Tracking_Parameters.csv"
+                        try:
+                            data = dict(pd.read_csv(fout))
+                        except IOError:
+                            print("ERROR 9: %s not found in %s" % (tmp,fout))
+                        for i,evt in enumerate(data['Run_Start']):
+                            if data['Run_Start'][i] <= np.int64(runNum) <= data['Run_End'][i]:
+                                cut  = cut.replace("track."+tmp,str(data[tmp][i]))
+                                pass
+                            else:
+                                print("ERROR 10: %s not found in range %s-%s" % (np.int64(runNum),data['Run_Start'][i],data['Run_End'][i]))
+                                continue
+                    else:
+                        continue
+                db_cuts.append(cut.rstrip())
+            elif "CT" in cut:
+                tmp = cut.split("CT")
+                for val in tmp:
+                    if "." in val:
+                        tmp = val.split(")")[0]
+                        tmp = tmp.split(".")[1]
+                        fout = REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Timing_Parameters.csv"
+                        try:
+                            data = dict(pd.read_csv(fout))
+                        except IOError:
+                            print("ERROR 9: %s not found in %s" % (tmp,fout))
+                        for i,evt in enumerate(data['Run_Start']):
+                            if data['Run_Start'][i] <= np.int64(runNum) <= data['Run_End'][i]:
+                                cut  = cut.replace("CT."+tmp,str(data[tmp][i]))
+                                pass
+                            else:
+                                print("ERROR 10: %s not found in range %s-%s" % (np.int64(runNum),data['Run_Start'][i],data['Run_End'][i]))
+                                continue
+                    else:
+                        continue
+                db_cuts.append(cut.rstrip())
+            elif "pid" in cut:
+                tmp = cut.split("pid")
+                for val in tmp:
+                    if "." in val:
+                        tmp = val.split(")")[0]
+                        tmp = tmp.split(".")[1]
+                        fout = REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/PID_Parameters.csv"
+                        try:
+                            data = dict(pd.read_csv(fout))
+                        except IOError:
+                            print("ERROR 9: %s not found in %s" % (tmp,fout))
+                        for i,evt in enumerate(data['Run_Start']):
+                            if data['Run_Start'][i] <= np.int64(runNum) <= data['Run_End'][i]:
+                                cut  = cut.replace("pid."+tmp,str(data[tmp][i]))
+                                pass
+                            else:
+                                print("ERROR 10: %s not found in range %s-%s" % (np.int64(runNum),data['Run_Start'][i],data['Run_End'][i]))
+                                continue
+                    else:
+                        continue
+                db_cuts.append(cut.rstrip())
+            # Find which cut is being called. This elif statement is a little different since it only
+            # grabs a threshold current value. This is hardcoded for now, eventually need to change.
+            elif "current" in cut:
+                tmp = cut.split(".")
+                tmp = tmp[1].split(")")[0]
+                cut  = cut.replace("current."+tmp,"2.5")
+                db_cuts.append(cut.rstrip())
+                print("!!!!",cut)
+            else:
+                print("ERROR 11: %s not defined" % cut)
+                continue
+            
+        # Rejoins list of cuts to a string separated by commas
+        db_cuts  = ','.join(db_cuts)
+        return db_cuts
 
     # Create a working dictionary for cuts by converting string to array of cuts.
     def w_dict(self,cuts):

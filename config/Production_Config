@@ -1,3 +1,0 @@
-Timing_Cuts = cuts/Timing_Parameters.csv
-PID_Cuts = cuts/PID_Parameters.csv
-Acceptance_Cuts = cuts/Acceptance_Parameters.csv
