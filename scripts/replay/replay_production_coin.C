@@ -191,9 +191,14 @@ void replay_production_coin (Int_t RunNumber = 0, Int_t MaxEvent = 0) {
   coin->AddEvtType(2);
   TRG->AddDetector(coin); 
 
+  THcHelicityScaler *helscaler = new THcHelicityScaler("HS", "Hall C helicity scalers"); 
+  helscaler->SetROC(8);
+  helscaler->SetUseFirstEvent(kTRUE);
+  gHaEvtHandlers->Add(helscaler);
   // Add helicity detector to trigger apparatus
   THcHelicity* helicity = new THcHelicity("helicity","Helicity Detector");
   TRG->AddDetector(helicity);
+  helicity->SetHelicityScaler(helscaler);
   
   //Add coin physics module THcCoinTime::THcCoinTime (const char *name, const char* description, const char* hadArmName, 
   // const char* elecArmName, const char* coinname) :
@@ -246,14 +251,13 @@ void replay_production_coin (Int_t RunNumber = 0, Int_t MaxEvent = 0) {
   // Define output ROOT file
   analyzer->SetOutFile(ROOTFileName.Data());
   // Define DEF-file+
-  analyzer->SetOdefFile("UTIL_PROTON/DEF-files/coin_production.def");
+  analyzer->SetOdefFile("UTIL_PROTON/config/DEF-files/coin_production.def");
   // Define cuts file
-  analyzer->SetCutFile("UTIL_PROTON/DEF-files/coin_production_cuts.def");  // optional
-  //analyzer->SetCutFile("UTIL_KAONLT/DEF-files/coin_production_cuts.def");  // optional
+  analyzer->SetCutFile("UTIL_PROTON/config/DEF-files/coin_production_cuts.def");  // optional
   // File to record accounting information for cuts
-  analyzer->SetSummaryFile(Form("UTIL_PROTON/REPORT_OUTPUT/summary_production_%d_%d.report", RunNumber, MaxEvent)); // optional
+  analyzer->SetSummaryFile(Form("UTIL_PROTON/config/REPORT_OUTPUT/summary_production_%d_%d.report", RunNumber, MaxEvent)); // optional
   // Start the actual analysis.
   analyzer->Process(run);
   // Create report file from template	       
-  analyzer->PrintReport("UTIL_PROTON/TEMPLATES/COIN/coin_production.template", Form("UTIL_PROTON/REPORT_OUTPUT/Proton_replay_coin_production_%d_%d.report", RunNumber, MaxEvent)); // optional}
+  analyzer->PrintReport("UTIL_PROTON/config/TEMPLATES/COIN/coin_production.template", Form("UTIL_PROTON/REPORT_OUTPUT/Proton_replay_coin_production_%d_%d.report", RunNumber, MaxEvent)); // optional}
 }

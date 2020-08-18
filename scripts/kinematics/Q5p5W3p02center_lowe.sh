@@ -30,7 +30,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     RootName+="${runNum}_-1_Analysed_Data.root "
     eval '"$SCRIPTPATH" $runNum -1'
 done < "$RunListFile"
-sleep 5
+sleep 1
 cd "${UTILPATH}/scripts/protonyield/OUTPUT"
 KINFILE="Q5p5W3p02center_lowe.root"
 hadd ${KINFILE} ${RootName}

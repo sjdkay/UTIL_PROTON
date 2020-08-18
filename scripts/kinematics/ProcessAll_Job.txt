@@ -1,0 +1,7 @@
+PROJECT: c-kaonlt
+TRACK: analysis
+JOBNAME: ProcessAll_ProtonLTKin
+OS: centos7
+CPU: 1
+COMMAND:/group/c-kaonlt/USERS/sjdkay/hallc_replay_lt/UTIL_PROTON/scripts/kinematics/Process_All.sh
+MAIL: sjdkay@jlab.org
