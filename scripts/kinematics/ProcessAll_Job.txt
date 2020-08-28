@@ -1,7 +1,7 @@
 PROJECT: c-kaonlt
 TRACK: analysis
 JOBNAME: ProcessAll_ProtonLTKin
-OS: centos7
+MEMORY: 4000 MB
 CPU: 1
-COMMAND:/group/c-kaonlt/USERS/sjdkay/hallc_replay_lt/UTIL_PROTON/scripts/kinematics/Process_All.sh
+COMMAND:/group/c-kaonlt/USERS/sjdkay/hallc_replay_lt/UTIL_PROTON/scripts/kinematics/Process_AllKin.sh Kinematics_List
 MAIL: sjdkay@jlab.org

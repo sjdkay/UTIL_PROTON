@@ -1,10 +1,11 @@
 #! /usr/bin/python
 
-# 16/06/20 - Stephen Kay, University of Regina
+# 28/08/20 - Stephen Kay, University of Regina
 
 # Python version of the proton analysis script. Now utilises uproot to select event of each type and writes them to a root file
 # Intention is to apply PID/selection cutting here and plot in a separate script
 # Python should allow for easier reading of databases storing timing offsets e.t.c.
+# This version is specificially for running the proton analysis on data taken during summer 2019 (low energy PionLT data)
 
 # Import relevant packages
 import uproot as up
@@ -118,9 +119,9 @@ MPi = 0.13957018
 MK = 0.493677
 # Calculate missing mass under different particle assumptions
 # NOTE, this should be modified for NON different particle assumptions in hcana, this assumes a "kaon" is specified in the kinematics file
-MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
-MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
-MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+MMpi = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
+MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MPi*MPi) + (gtrp*gtrp))) - math.sqrt(abs((MK*MK) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MPi*MPi) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
 # Create array of mod(BunchSpacing)(RFTime - StartTime + Offset) for all events. Offset is chosen to centre the pion peak in the distribution (need to test 2ns runs)
 RF_CutDist = np.array([ ((RFTime-StartTime + RF_Offset)%(BunchSpacing)) for (RFTime, StartTime) in zip(P_RF_tdcTime, P_hod_fpHitsTime)]) # In python x % y is taking the modulo y of x
 

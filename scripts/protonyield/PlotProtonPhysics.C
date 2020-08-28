@@ -70,6 +70,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   
   TTree* Uncut = (TTree*)InFile->Get("Uncut_Proton_Events"); Long64_t nEntries_Uncut = (Long64_t)Uncut->GetEntries();
   TTree* Cut_All = (TTree*)InFile->Get("Cut_Proton_Events_All"); Long64_t nEntries_All = (Long64_t)Cut_All->GetEntries();
+  TTree* Cut_All_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_All_NoRF"); Long64_t nEntries_All_NoRF = (Long64_t)Cut_All_NoRF->GetEntries();
   TTree* Cut_Pr = (TTree*)InFile->Get("Cut_Proton_Events_Prompt"); Long64_t nEntries_Pr = (Long64_t)Cut_Pr->GetEntries();
   TTree* Cut_Rn = (TTree*)InFile->Get("Cut_Proton_Events_Random"); Long64_t nEntries_Rn = (Long64_t)Cut_Rn->GetEntries();
   // Set branch address -> Need this to ensure event info is entangled correctly for 2D plots
@@ -98,6 +99,10 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_Epsilon = new TH1D("h1_Epsilon", "#epsilon - Prompt events after cuts; #epsilon", 200, 0, 1);
 
+  TH1D *h1_RFCutDist = new TH1D("h1_RFCutDist", "RFCutDist - No RF or PID Cut applied", 200, 0, 4);
+  TH1D *h1_RFCutDist_woCut = new TH1D("h1_RFCutDist_woCut", "Proton RFCutDist - No RF Cut applied", 200, 0, 4);
+  TH1D *h1_RFCutDist_wCut = new TH1D("h1_RFCutDist_wCut", "Proton RFCutDist - RF Cut applied", 200, 0, 4);
+
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 2.5, 4.5, 200, 2.7, 3.7);
   TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
 
@@ -119,6 +124,10 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_Rn->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Random", "", "goff");
   Cut_Pr->Draw("epsilon >> h1_Epsilon", "", "goff");
  
+  Uncut->Draw("RF_CutDist >> h1_RFCutDist", "", "goff");
+  Cut_All_NoRF->Draw("RF_CutDist >> h1_RFCutDist_woCut", "", "goff");
+  Cut_All->Draw("RF_CutDist >> h1_RFCutDist_wCut", "", "goff");
+
   h1_MMp_Random_Scaled->Scale(1.0/nWindows);
   h1_MMp_BGSub->Add(h1_MMp_Prompt, h1_MMp_Random_Scaled, 1, -1);
 
@@ -179,6 +188,24 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h2_CT_MMp_Random->Draw("COLZ");
   c_CT2->Print(foutpdf);
 
+  TCanvas *c_RFCut = new TCanvas("c_RFCut", "Proton RFCut distributions", 100, 0, 1000, 900);
+  c_RFCut->Divide(2,2);
+  c_RFCut->cd(1);
+  h1_RFCutDist_woCut->Draw();
+  c_RFCut->cd(2);
+  h1_RFCutDist_woCut->SetLineColor(2);
+  h1_RFCutDist_woCut->Draw();
+  h1_RFCutDist_wCut->SetLineColor(4);
+  h1_RFCutDist_wCut->Draw("SAME");
+  c_RFCut->cd(3);
+  h1_RFCutDist->SetLineColor(6);
+  h1_RFCutDist->Draw();
+  c_RFCut->cd(4);
+  h1_RFCutDist->Draw();
+  h1_RFCutDist_woCut->Draw("SAME");
+  h1_RFCutDist_wCut->Draw("SAME");
+  c_RFCut->Print(foutpdf);
+   
   TCanvas *c_Kine = new TCanvas("c_Kine", "Kinematics info", 100, 0, 1000, 900);
   c_Kine->Divide(2,2);
   c_Kine->cd(1);
@@ -224,6 +251,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TDirectory *d_ProtonAll = OutHisto_file->mkdir("All Proton events, after cuts");
   TDirectory *d_ProtonPr = OutHisto_file->mkdir("Prompt Proton events, after cuts");
   TDirectory *d_ProtonRn = OutHisto_file->mkdir("Random Proton events, after cuts");
+  TDirectory *d_ProtonRF = OutHisto_file->mkdir("Proton RF Info");
   TDirectory *d_Kine = OutHisto_file->mkdir("Proton kinematics info");
   
   d_ProtonAll->cd();
@@ -243,6 +271,11 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_CT_Random->Write();
   h2_CT_Beta_Random->Write();
   h2_CT_MMp_Random->Write();
+
+  d_ProtonRF->cd();
+  h1_RFCutDist->Write();
+  h1_RFCutDist_woCut->Write();
+  h1_RFCutDist_wCut->Write();
 
   d_Kine->cd();
   h2_Q2vsW->Write();
