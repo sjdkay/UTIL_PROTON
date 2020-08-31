@@ -8,9 +8,9 @@ if [[ -z "$1" ]]; then
     exit 2
 fi
 
-echo "#################################"
-echo "Processing all kinematic settings"
-echo "#################################"
+echo "######################################################################"
+echo "Processing all kinematic settings provided in list - ${KINEMATIC_LIST}"
+echo "######################################################################"
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
@@ -32,9 +32,28 @@ elif [[ "${HOSTNAME}" = *"phys.uregina.ca"* ]]; then
 fi
 UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 KINEMATIC_LIST_FILE="${UTILPATH}/scripts/kinematics/$KINEMATIC_LIST"
+if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays" ]; then
+    rm "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays"
+    else touch "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays"
+fi
+if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis" ]; then
+    rm "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis"
+else touch "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis"
+fi
+
 while IFS='' read -r line || [[ -n "$line" ]]; do
     Kinematic=$line
     eval "${UTILPATH}/scripts/kinematics/Process_Kinematic.sh ${Kinematic}"
-    sleep 15
+    echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays"
+    echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis"
+    if [[ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_MissingProtonAnalysis" ]]; then
+     	cat "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_MissingProtonAnalysis" >> "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays"  
+     	rm "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_MissingProtonAnalysis"
+    fi
+    if [[ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_BrokenProtonAnalysis" ]]; then
+     	cat "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_BrokenProtonAnalysis" >> "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis"
+     	rm "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_BrokenProtonAnalysis"
+    fi
+    sleep 5
 done < "$KINEMATIC_LIST_FILE"
 

@@ -9,9 +9,9 @@ if [[ -z "$1" ]]; then
     exit 2
 fi
 
-echo "#########################################"
+echo "######################################################"
 echo "### Processing kinematic ${KINEMATIC} ###"
-echo "#########################################"
+echo "######################################################"
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
@@ -97,15 +97,18 @@ if [ $TestingVar == 1 ]; then
 	fi
     done < "$RunListFile"
 
-    if [ $TestingVar2 == 1 ]; then   
-	cd "${UTILPATH}/scripts/protonyield/OUTPUT"
-	KINFILE="${KINEMATIC}.root"
-	hadd ${KINFILE} ${RootName}
-	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root" ]; then
-	    root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
-	elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.pdf" ]; then
-	    root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
-	else echo "Proton plots already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root and .pdf - Plotting macro skipped"
+    if [ $TestingVar2 == 1 ]; then 
+	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}.root" ]; then
+	    cd "${UTILPATH}/scripts/protonyield/OUTPUT"
+	    KINFILE="${KINEMATIC}.root"
+	    hadd ${KINFILE} ${RootName}
+	    if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root" ]; then
+		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
+	    elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.pdf" ]; then
+		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
+	    else echo "Proton plots already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root and .pdf - Plotting macro skipped"
+	    fi
+	else echo "${KINEMATIC} already analysed, skipping"
 	fi
     fi
 fi
