@@ -118,9 +118,13 @@ MPi = 0.13957018
 MK = 0.493677
 # Calculate missing mass under different particle assumptions
 # NOTE, this should be modified for NON different particle assumptions in hcana, this assumes a "kaon" is specified in the kinematics file
-MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
-MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
-MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+#MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
+#MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
+#MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+# This is under the assumption that a "proton" is specified in standard.kinematics
+MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
+MMK = np.array([math.sqrt(abs((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MK*MK) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+MMp = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
 # Create array of mod(BunchSpacing)(RFTime - StartTime + Offset) for all events. Offset is chosen to centre the pion peak in the distribution (need to test 2ns runs)
 RF_CutDist = np.array([ ((RFTime-StartTime + RF_Offset)%(BunchSpacing)) for (RFTime, StartTime) in zip(P_RF_tdcTime, P_hod_fpHitsTime)]) # In python x % y is taking the modulo y of x
 
@@ -225,6 +229,8 @@ def coin_protons():
     # Create array of arrays of pions after cuts, all events, prompt and random
     Cut_COIN_Protons_tmp = NoCut_COIN_Protons
     Cut_COIN_Protons_all_noRF_tmp = []
+    Cut_COIN_Protons_prompt_noRF_tmp =[]
+    Cut_COIN_Protons_rand_noRF_tmp =[]
     Cut_COIN_Protons_all_tmp = []
     Cut_COIN_Protons_prompt_tmp =[]
     Cut_COIN_Protons_rand_tmp =[]
@@ -233,7 +239,9 @@ def coin_protons():
         Cut_COIN_Protons_all_tmp.append(c.add_cut(arr, "coin_ep_cut_all"))
         Cut_COIN_Protons_all_noRF_tmp.append(c.add_cut(arr, "coin_ep_cut_all"))
         Cut_COIN_Protons_prompt_tmp.append(c.add_cut(arr, "coin_ep_cut_prompt"))
+        Cut_COIN_Protons_prompt_noRF_tmp.append(c.add_cut(arr, "coin_ep_cut_prompt"))
         Cut_COIN_Protons_rand_tmp.append(c.add_cut(arr, "coin_ep_cut_rand"))
+        Cut_COIN_Protons_rand_noRF_tmp.append(c.add_cut(arr, "coin_ep_cut_rand"))
 
     Cut_COIN_Protons_all = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) in zip(*Cut_COIN_Protons_all_tmp)
                 if RFCutDist < 1.65]
@@ -243,15 +251,21 @@ def coin_protons():
     Cut_COIN_Protons_prompt = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) in zip(*Cut_COIN_Protons_prompt_tmp)
                     if RFCutDist < 1.65]
 
+    Cut_COIN_Protons_prompt_noRF = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) in zip(*Cut_COIN_Protons_prompt_noRF_tmp)]
+
     Cut_COIN_Protons_random = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) in zip(*Cut_COIN_Protons_rand_tmp)
                     if RFCutDist < 1.65]
+
+    Cut_COIN_Protons_random_noRF = [(HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) for (HBeta, Hxp, Hyp, Hdel, HCal, HCer, CTp, RF, HodStart, pBeta, pxp, pyp, pP, pDel, pCal, pAero, pHGC, pHGCX, pHGCY, mm1, mm2, mm3, RFCutDist, Kin_Q2, Kin_W, Kin_eps, Kin_t, Kin_u, phq) in zip(*Cut_COIN_Protons_rand_noRF_tmp)]
 
     COIN_Protons = {
         "Uncut_Proton_Events" : Uncut_COIN_Protons,
         "Cut_Proton_Events_All" : Cut_COIN_Protons_all,
         "Cut_Proton_Events_All_NoRF" : Cut_COIN_Protons_all_noRF,
         "Cut_Proton_Events_Prompt" : Cut_COIN_Protons_prompt,
+        "Cut_Proton_Events_Prompt_NoRF" : Cut_COIN_Protons_prompt_noRF,
         "Cut_Proton_Events_Random" : Cut_COIN_Protons_random,
+        "Cut_Proton_Events_Random_NoRF" : Cut_COIN_Protons_random_noRF,
         }
 
     return COIN_Protons

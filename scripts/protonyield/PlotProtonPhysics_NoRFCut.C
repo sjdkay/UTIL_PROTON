@@ -1,8 +1,9 @@
-// 16/6/20 - Stephen Kay, University of Regina
+// 31/08/20 - Stephen Kay, University of Regina
 
 // root .c macro plotting script, reads in desired trees from analysed root file and plots some stuff
+// This version uses the tree WITHOUT the RF cut to plot the final histograms
 // Saves  pdf file with plots and a .root file
-#define PlotProtonPhysics_cxx
+#define PlotProtonPhysics_NoRFCut_cxx
 
 // Include relevant stuff
 #include <TStyle.h>
@@ -20,7 +21,7 @@
 #include <TArc.h>
 
 // Input should be the input root file name (including suffix) and an output file name string (without any suffix)
-void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
+void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
 {
   TString Hostname = gSystem->HostName();
   TString User = (gSystem->GetUserInfo())->fUser;
@@ -71,16 +72,16 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TTree* Uncut = (TTree*)InFile->Get("Uncut_Proton_Events"); Long64_t nEntries_Uncut = (Long64_t)Uncut->GetEntries();
   TTree* Cut_All = (TTree*)InFile->Get("Cut_Proton_Events_All"); Long64_t nEntries_All = (Long64_t)Cut_All->GetEntries();
   TTree* Cut_All_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_All_NoRF"); Long64_t nEntries_All_NoRF = (Long64_t)Cut_All_NoRF->GetEntries();
-  TTree* Cut_Pr = (TTree*)InFile->Get("Cut_Proton_Events_Prompt"); Long64_t nEntries_Pr = (Long64_t)Cut_Pr->GetEntries();
-  TTree* Cut_Rn = (TTree*)InFile->Get("Cut_Proton_Events_Random"); Long64_t nEntries_Rn = (Long64_t)Cut_Rn->GetEntries();
+  TTree* Cut_Pr = (TTree*)InFile->Get("Cut_Proton_Events_Prompt_NoRF"); Long64_t nEntries_Pr = (Long64_t)Cut_Pr->GetEntries();
+  TTree* Cut_Rn = (TTree*)InFile->Get("Cut_Proton_Events_Random_NoRF"); Long64_t nEntries_Rn = (Long64_t)Cut_Rn->GetEntries();
   // Set branch address -> Need this to ensure event info is entangled correctly for 2D plots
-  Double_t CT_all; Cut_All->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_all);
+  Double_t CT_all; Cut_All_NoRF->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_all);
   Double_t CT_pr; Cut_Pr->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_pr);
   Double_t CT_rn; Cut_Rn->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_rn);
-  Double_t Beta_all; Cut_All->SetBranchAddress("P_gtr_beta", &Beta_all);
+  Double_t Beta_all; Cut_All_NoRF->SetBranchAddress("P_gtr_beta", &Beta_all);
   Double_t Beta_pr; Cut_Pr->SetBranchAddress("P_gtr_beta", &Beta_pr);
   Double_t Beta_rn; Cut_Rn->SetBranchAddress("P_gtr_beta", &Beta_rn);
-  Double_t MMp_all; Cut_All->SetBranchAddress("MMp", &MMp_all);
+  Double_t MMp_all; Cut_All_NoRF->SetBranchAddress("MMp", &MMp_all);
   Double_t MMp_pr; Cut_Pr->SetBranchAddress("MMp", &MMp_pr);
   Double_t MMp_rn; Cut_Rn->SetBranchAddress("MMp", &MMp_rn);
   Double_t W_pr; Cut_Pr->SetBranchAddress("W", &W_pr);
@@ -90,9 +91,9 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   // Quantities for PID cuts/comparisons
   Double_t AeroNPE_uncut; Uncut->SetBranchAddress("P_aero_npeSum", &AeroNPE_uncut);
   Double_t HGCNPE_uncut; Uncut->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_uncut);
-  Double_t AeroNPE_all; Cut_All->SetBranchAddress("P_aero_npeSum", &AeroNPE_all);
-  Double_t HGCNPE_all; Cut_All->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_all);
-
+  Double_t AeroNPE_all; Cut_All_NoRF->SetBranchAddress("P_aero_npeSum", &AeroNPE_all);
+  Double_t HGCNPE_all; Cut_All_NoRF->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_all);
+  
   // Define Histograms
   TH1D *h1_MMp_All = new TH1D("h1_MMp_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
   TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
@@ -131,8 +132,8 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_Pyp_Cut = new TH1D("h1_Pyp_Cut", "SHMS y' - all events after cuts", 200, -0.1, 0.1);
 
   TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50); 
-  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50);
-
+  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50); 
+  
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 2.5, 4.5, 200, 2.7, 3.7);
   TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
 
@@ -145,15 +146,15 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH2D *h2_CT_MMp_Random = new TH2D("h2_CT_MMp_Random","Proton CT vs MM_{p} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
 
   // For 1D histos, can easily create directly from the corresponding branch
-  Cut_All->Draw("MMp >> h1_MMp_All", "", "goff");
+  Cut_All_NoRF->Draw("MMp >> h1_MMp_All", "", "goff");
   Cut_Pr->Draw("MMp >> h1_MMp_Prompt", "", "goff");
   Cut_Rn->Draw("MMp >> h1_MMp_Random", "", "goff");
   Cut_Rn->Draw("MMp  >> h1_MMp_Random_Scaled", "", "goff");
-  Cut_All->Draw("CTime_epCoinTime_ROC1 >> h1_CT_All", "", "goff");
+  Cut_All_NoRF->Draw("CTime_epCoinTime_ROC1 >> h1_CT_All", "", "goff");
   Cut_Pr->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Prompt", "", "goff");
   Cut_Rn->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Random", "", "goff");
   Cut_Pr->Draw("epsilon >> h1_Epsilon", "", "goff");
- 
+
   Uncut->Draw("P_aero_npeSum >> h1_Aero_Uncut", "", "goff");
   Uncut->Draw("P_hgcer_npeSum >> h1_HGC_Uncut", "", "goff");
   Uncut->Draw("H_cal_etotnorm >> h1_HCal_Uncut", "", "goff");
@@ -164,17 +165,17 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Uncut->Draw("P_gtr_dp >> h1_PDelta_Uncut", "", "goff");
   Uncut->Draw("P_gtr_xp >> h1_Pxp_Uncut", "", "goff");
   Uncut->Draw("P_gtr_yp >> h1_Pyp_Uncut", "", "goff");
-  Cut_All->Draw("P_aero_npeSum >> h1_Aero_Cut", "", "goff");
-  Cut_All->Draw("P_hgcer_npeSum >> h1_HGC_Cut", "", "goff");
-  Cut_All->Draw("H_cal_etotnorm >> h1_HCal_Cut", "", "goff");
-  Cut_All->Draw("P_cal_etotnorm >> h1_PCal_Cut", "", "goff");
-  Cut_All->Draw("H_gtr_dp >> h1_HDelta_Cut", "", "goff");
-  Cut_All->Draw("H_gtr_xp >> h1_Hxp_Cut", "", "goff");
-  Cut_All->Draw("H_gtr_yp >> h1_Hyp_Cut", "", "goff");
-  Cut_All->Draw("P_gtr_dp >> h1_PDelta_Cut", "", "goff");
-  Cut_All->Draw("P_gtr_xp >> h1_Pxp_Cut", "", "goff");
-  Cut_All->Draw("P_gtr_yp >> h1_Pyp_Cut", "", "goff");
-
+  Cut_All_NoRF->Draw("P_aero_npeSum >> h1_Aero_Cut", "", "goff");
+  Cut_All_NoRF->Draw("P_hgcer_npeSum >> h1_HGC_Cut", "", "goff");
+  Cut_All_NoRF->Draw("H_cal_etotnorm >> h1_HCal_Cut", "", "goff");
+  Cut_All_NoRF->Draw("P_cal_etotnorm >> h1_PCal_Cut", "", "goff");
+  Cut_All_NoRF->Draw("H_gtr_dp >> h1_HDelta_Cut", "", "goff");
+  Cut_All_NoRF->Draw("H_gtr_xp >> h1_Hxp_Cut", "", "goff");
+  Cut_All_NoRF->Draw("H_gtr_yp >> h1_Hyp_Cut", "", "goff");
+  Cut_All_NoRF->Draw("P_gtr_dp >> h1_PDelta_Cut", "", "goff");
+  Cut_All_NoRF->Draw("P_gtr_xp >> h1_Pxp_Cut", "", "goff");
+  Cut_All_NoRF->Draw("P_gtr_yp >> h1_Pyp_Cut", "", "goff");
+  
   Uncut->Draw("RF_CutDist >> h1_RFCutDist", "", "goff");
   Cut_All_NoRF->Draw("RF_CutDist >> h1_RFCutDist_woCut", "", "goff");
   Cut_All->Draw("RF_CutDist >> h1_RFCutDist_wCut", "", "goff");
@@ -187,8 +188,8 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
     Uncut->GetEntry(i);
     h2_AeroHGC_Uncut->Fill(AeroNPE_uncut, HGCNPE_uncut);
   } 
-  for(Long64_t i = 0; i < nEntries_All; i++){
-    Cut_All->GetEntry(i);
+  for(Long64_t i = 0; i < nEntries_All_NoRF; i++){
+    Cut_All_NoRF->GetEntry(i);
     h2_CT_Beta_All->Fill(CT_all, Beta_all);
     h2_CT_MMp_All->Fill(CT_all, MMp_all);
     h2_AeroHGC_Cut->Fill(AeroNPE_all, HGCNPE_all);
@@ -217,7 +218,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   c_MM->cd(4);
   h1_MMp_BGSub->Draw("HIST");
   c_MM->Print(foutpdf + '(');
-  
+
   TCanvas *c_Track = new TCanvas("c_Track", "Tracking cut distributions", 100, 0, 1000, 900);  
   c_Track->Divide(3,2);
   c_Track->cd(1);
