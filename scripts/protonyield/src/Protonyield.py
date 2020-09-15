@@ -118,13 +118,13 @@ MPi = 0.13957018
 MK = 0.493677
 # Calculate missing mass under different particle assumptions
 # NOTE, this should be modified for NON different particle assumptions in hcana, this assumes a "kaon" is specified in the kinematics file
-#MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
-#MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
-#MMp = np.array([math.sqrt(abs((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
+MMpi = np.array([math.sqrt(abs(((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) ))))**2) - (pm*pm)) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
+MMK = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
+MMp = np.array([math.sqrt(abs(((em + math.sqrt(abs((MK*MK) + (gtrp*gtrp))) - math.sqrt(abs((Mp*Mp) + (gtrp*gtrp) ))))**2) - (pm*pm)) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
 # This is under the assumption that a "proton" is specified in standard.kinematics
-MMpi = np.array([math.sqrt(abs((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
-MMK = np.array([math.sqrt(abs((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MK*MK) + (gtrp*gtrp) - (pm*pm))) ))**2) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)])
-MMp = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
+#MMpi = np.array([math.sqrt(abs(((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MPi*MPi) + (gtrp*gtrp) ))))**2) - (pm*pm)) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
+#MMK = np.array([math.sqrt(abs(((em + math.sqrt(abs((Mp*Mp) + (gtrp*gtrp))) - math.sqrt(abs((MK*MK) + (gtrp*gtrp) ))))**2) - (pm*pm)) for (em, pm, gtrp) in zip(emiss, pmiss, P_gtr_p)]) 
+#MMp = np.array([math.sqrt(abs((em*em)-(pm*pm))) for (em, pm) in zip(emiss, pmiss)])
 # Create array of mod(BunchSpacing)(RFTime - StartTime + Offset) for all events. Offset is chosen to centre the pion peak in the distribution (need to test 2ns runs)
 RF_CutDist = np.array([ ((RFTime-StartTime + RF_Offset)%(BunchSpacing)) for (RFTime, StartTime) in zip(P_RF_tdcTime, P_hod_fpHitsTime)]) # In python x % y is taking the modulo y of x
 

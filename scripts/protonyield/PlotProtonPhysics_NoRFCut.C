@@ -44,7 +44,11 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
     Replaypath = "/home/"+User+"/work/JLab/hallc_replay_lt";
     Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
   }
-  // Add more as needed for your own environment
+  // Add more as needed for your own envrionment
+  else{
+    Replaypath="/ExtDsk/sjdkay/JLab/Proton_Analysis/OUTPUT/Pass2_3";
+    Outpath = Replaypath;
+  }
 
   if(InFilename == "") {
     cout << "Enter a Filename to analyse: ";
@@ -95,11 +99,11 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   Double_t HGCNPE_all; Cut_All_NoRF->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_all);
   
   // Define Histograms
-  TH1D *h1_MMp_All = new TH1D("h1_MMp_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
-  TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
-  TH1D *h1_MMp_Random = new TH1D("h1_MMp_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
-  TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
-  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
+  TH1D *h1_MMp_All = new TH1D("h1_MMp_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
+  TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
+  TH1D *h1_MMp_Random = new TH1D("h1_MMp_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
+  TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
+  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
   TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 240, 10, 70); 
   TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
@@ -206,7 +210,28 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_Random->Fill(CT_rn, Beta_rn);
     h2_CT_MMp_Random->Fill(CT_rn, MMp_rn);
   } 
- 
+
+  // Fit the Proton MM plot
+  // Function is two Gaussians + a linear component for the background
+  // TF1 *Proton_Fit = new TF1("Proton_Fit","([0]*exp(-0.5*((x-[1])/[2])*((x-[1])/[2])))+([3]*exp(-0.5*((x-[4])/[5])*((x-[4])/[5])))+(([6]*x)+[7])",0.5,1.3);
+  // Proton_Fit->SetParName(0,"Amplitude_Omega");
+  // Proton_Fit->SetParName(1,"Mean_Omega");
+  // Proton_Fit->SetParName(2,"Sigma_Omega");
+  // Proton_Fit->SetParName(3,"Amplitude_Phi");
+  // Proton_Fit->SetParName(4,"Mean_Phi");
+  // Proton_Fit->SetParName(5,"Sigma_Phi");
+  // Proton_Fit->SetParName(6, "Lin_Slope");
+  // Proton_Fit->SetParName(7, "Lin_Intercept");
+  // Proton_Fit->SetParLimits(0, 1000 , 1000000);
+  // Proton_Fit->SetParLimits(1,0.7,0.9);
+  // Proton_Fit->SetParameter(1, 0.782);
+  // Proton_Fit->SetParLimits(2, 0.001, 0.1);
+  // Proton_Fit->SetParLimits(3, 1000, 1000000);
+  // Proton_Fit->SetParLimits(4, 0.95, 1.25);
+  // Proton_Fit->SetParameter(4, 1.02);
+  // Proton_Fit->SetParLimits(5, 0.001, 0.1);
+  // h1_MMp_BGSub->Fit("Proton_Fit","RM");
+  
   TCanvas *c_MM = new TCanvas("c_MM", "Proton missing mass distributions", 100, 0, 1000, 900);
   c_MM->Divide(2,2);
   c_MM->cd(1);
@@ -217,6 +242,7 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   h1_MMp_Random->Draw();
   c_MM->cd(4);
   h1_MMp_BGSub->Draw("HIST");
+  //Proton_Fit->DrawClone("SAME");
   c_MM->Print(foutpdf + '(');
 
   TCanvas *c_Track = new TCanvas("c_Track", "Tracking cut distributions", 100, 0, 1000, 900);  
@@ -345,6 +371,7 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   phizero->SetLineColor(kBlack); phizero->SetLineWidth(2); phizero->Draw();
   c_Kine->cd(4);
   h1_MMp_BGSub->Draw("HIST");
+  //Proton_Fit->DrawClone("SAME");
   c_Kine->Print(foutpdf + ')');
 
   TFile *OutHisto_file = new TFile(foutname,"RECREATE");
