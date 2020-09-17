@@ -8,6 +8,12 @@ if [[ -z "$1" ]]; then
     echo "Please provide a kinematic setting as input"
     exit 2
 fi
+declare -i Autosub=0
+read -p "Auto submit batch jobs for missing replays/analyses? <Y/N> " prompt
+if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]; then
+    Autosub=$((Autosub+1))
+else echo "Will not submit any batch jobs, please check input lists manually and submit if needed"
+fi
 
 echo "######################################################"
 echo "### Processing kinematic ${KINEMATIC} ###"
@@ -57,59 +63,88 @@ done < "$RunListFile"
 
 if [ $TestingVar == 1 ]; then
     echo "All replay files and analysed files present - processing"
+    rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays"
 elif [ $TestingVar != 1 ]; then
     cp "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays" "$REPLAYPATH/UTIL_BATCH/InputRunLists/${KINEMATIC}_MissingReplays"
-    yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_NewProtonLT.sh ${KINEMATIC}_MissingReplays"
+    if [ $Autosub == 1 ]; then
+	yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_NewProtonLT.sh ${KINEMATIC}_MissingReplays"
+    else echo "Replays missing, list copied to UTIL_BATCH directory, run if desired"  
+  fi
+fi
+# Check if proton analysis is present for each file in the kinematic, if not, submit a job to process it
+TestingVar=$((1))
+if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis" ]; then
+    rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
+else touch "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
+fi
+while IFS='' read -r line || [[ -n "$line" ]]; do
+    runNum=$line
+    RootName+="${runNum}_-1_Analysed_Data.root "
+    if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${runNum}_-1_Analysed_Data.root" ]; then
+	echo "Proton analysis not found for run $runNum in ${UTILPATH}/scripts/protonyield/OUTPUT/"
+	echo "${runNum}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
+	TestingVar=$((TestingVar+1))
+    fi
+done < "$RunListFile"
+if [ $TestingVar == 1 ]; then
+    echo "All proton analysis files found, combining to kinematic"
+    rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
+elif [ $TestingVar != 1 ]; then
+    cp "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis" "$REPLAYPATH/UTIL_BATCH/InputRunLists/${KINEMATIC}_MissingProtonAnalysis"
+    if [ $Autosub == 1 ]; then
+	yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_NewProtonLT.sh ${KINEMATIC}_MissingProtonAnalysis"
+    else echo "Analyses missing, list copied to UTIL_BATCH directory, run if desired"
+    fi
 fi
 
 if [ $TestingVar == 1 ]; then   
     source /apps/root/6.18.04/setroot_CUE.bash
     declare -i TestingVar2=1
 
-    if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis" ]; then
-	rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
-    else touch "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
+    # if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis" ]; then
+    # 	rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"
+    # else touch "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"
+    # fi
+
+    # while IFS='' read -r line || [[ -n "$line" ]]; do
+    # 	runNum=$line
+    # 	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${runNum}_-1_Analysed_Data.root" ]; then
+    # 	    TestingVar2=$((TestingVar2+1))
+    # 	    echo " !!! WARNING !!! Proton analysis files *STILL* not found !!!"
+    # 	    echo "${runNum}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"	
+    # 	fi
+    # done < "$RunListFile"
+
+    if [[ ! -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis" && ! -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays" ]]; then
+	echo "No missing replays or proton analyses detected, processing kinematic"
+    elif [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays" ]; then
+	echo "Missing proton replays detected for ${KINEMATIC} - check lists and process as needed"
+	 TestingVar2=$((TestingVar2+1))
+    elif [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis" ]; then
+	echo "Missing proton analyses detected for ${KINEMATIC} - check lists and process as needed"
+	 TestingVar2=$((TestingVar2+1))
     fi
-
-    while IFS='' read -r line || [[ -n "$line" ]]; do
-	runNum=$line
-	RootName+="${runNum}_-1_Analysed_Data.root "
-	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${runNum}_-1_Analysed_Data.root" ]; then
-	    echo "Proton analysis not found for run $runNum in ${UTILPATH}/scripts/protonyield/OUTPUT/"
-	    echo "Processing proton analysis for run $runNum"
-	    echo "${runNum}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"	
-	    eval '"$SCRIPTPATH" $runNum -1'
-	    sleep 1
-	fi
-    done < "$RunListFile"
-
-    if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis" ]; then
-	rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"
-    else touch "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"
-    fi
-
-    while IFS='' read -r line || [[ -n "$line" ]]; do
-	runNum=$line
-	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${runNum}_-1_Analysed_Data.root" ]; then
-	    TestingVar2=$((TestingVar2+1))
-	    echo " !!! WARNING !!! Proton analysis files *STILL* not found !!!"
-	    echo "${runNum}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_BrokenProtonAnalysis"	
-	fi
-    done < "$RunListFile"
 
     if [ $TestingVar2 == 1 ]; then 
-	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}.root" ]; then
-	    cd "${UTILPATH}/scripts/protonyield/OUTPUT"
-	    KINFILE="${KINEMATIC}.root"
-	    hadd ${KINFILE} ${RootName}
-	    if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root" ]; then
-		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
-	    elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.pdf" ]; then
-		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
-	    else echo "Proton plots already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root and .pdf - Plotting macro skipped"
-	    fi
-	else echo "${KINEMATIC} already analysed, skipping"
-	fi
+    	if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}.root" ]; then
+    	    cd "${UTILPATH}/scripts/protonyield/OUTPUT"
+    	    KINFILE="${KINEMATIC}.root"
+    	    hadd ${KINFILE} ${RootName}
+    	    if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root" ]; then
+    		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
+    	    elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.pdf" ]; then
+    		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${KINFILE}\", \"${KINEMATIC}_Protons\")"
+    	    else echo "Proton plots already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons.root and .pdf - Plotting macro skipped"
+    	    fi
+	    if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons_NoRF.root" ]; then
+    		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics_NoRFCut.C(\"${KINFILE}\", \"${KINEMATIC}_Protons_NoRF\")"
+    	    elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons_NoRF.pdf" ]; then
+    		root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics_NoRFCut.C(\"${KINFILE}\", \"${KINEMATIC}_Protons_NoRF\")"
+    	    else echo "Proton plots (without RF cut) already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/${KINEMATIC}_Protons_NoRF.root and .pdf - Plotting macro skipped"
+    	    fi
+
+    	else echo "${KINEMATIC} already analysed, skipping"
+    	fi
     fi
 fi
 

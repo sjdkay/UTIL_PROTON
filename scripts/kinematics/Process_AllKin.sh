@@ -7,7 +7,12 @@ if [[ -z "$1" ]]; then
     echo "Please provide a kinematic setting list as input"
     exit 2
 fi
-
+declare -i Autosub=0
+read -p "Auto submit batch jobs for missing replays/analyses? <Y/N> " prompt
+if [[ $prompt == "y" || $prompt == "Y" || $prompt == "yes" || $prompt == "Yes" ]]; then
+    Autosub=$((Autosub+1))
+else echo "Will not submit any batch jobs, please check input lists manually and submit if needed"
+fi
 echo "######################################################################"
 echo "Processing all kinematic settings provided in list - ${KINEMATIC_LIST}"
 echo "######################################################################"
@@ -43,7 +48,10 @@ fi
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
     Kinematic=$line
-    eval "${UTILPATH}/scripts/kinematics/Process_Kinematic.sh ${Kinematic}"
+    if [ $Autosub == 1 ]; then
+	yes y | eval "${UTILPATH}/scripts/kinematics/Process_Kinematic.sh ${Kinematic}"
+    else yes N | eval "${UTILPATH}/scripts/kinematics/Process_Kinematic.sh ${Kinematic}"
+    fi
     echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/MissingReplays"
     echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/BrokenProtonAnalysis"
     if [[ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${Kinematic}_MissingProtonAnalysis" ]]; then
@@ -56,4 +64,3 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     fi
     sleep 5
 done < "$KINEMATIC_LIST_FILE"
-

@@ -98,7 +98,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
   TH1D *h1_MMp_Random = new TH1D("h1_MMp_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
   TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
-  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 150, 0.5, 2.0);
+  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
   TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 240, 10, 70); 
   TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
