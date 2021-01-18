@@ -135,7 +135,7 @@ RF_CutDist = np.array([ ((RFTime-StartTime + RF_Offset)%(BunchSpacing)) for (RFT
 r = klt.pyRoot()
 fout = '%s/UTIL_PROTON/DB/CUTS/run_type/coin_prod.cuts' % REPLAYPATH
 # read in cuts file and make dictionary
-c = klt.pyPlot(None)
+c = klt.pyPlot(REPLAYPATH)
 readDict = c.read_dict(fout,runNum)
 # This method calls several methods in kaonlt package. It is required to create properly formated
 # dictionaries. The evaluation must be in the analysis script because the analysis variables (i.e. the
@@ -146,7 +146,7 @@ def make_cutDict(cut,inputDict=None):
 
     global c
 
-    c = klt.pyPlot(readDict)
+    c = klt.pyPlot(REPLAYPATH,readDict)
     x = c.w_dict(cut)
     print("%s" % cut)
     print("x ", x)
@@ -172,7 +172,7 @@ cutDict = make_cutDict("coin_ek_cut_all", cutDict)
 cutDict = make_cutDict("coin_ep_cut_all", cutDict)
 cutDict = make_cutDict("coin_ep_cut_prompt", cutDict)
 cutDict = make_cutDict("coin_ep_cut_rand", cutDict)
-c = klt.pyPlot(cutDict)
+c = klt.pyPlot(REPLAYPATH,cutDict)
 
 def coin_pions(): 
     # Define the array of arrays containing the relevant HMS and SHMS info
