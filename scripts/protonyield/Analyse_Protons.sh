@@ -42,7 +42,7 @@ UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 cd "${UTILPATH}/scripts"
 
 if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root" ]; then
-    python3 ${UTILPATH}/scripts/pionyield/src/Pionyield.py ${RUNPREFIX} ${RUNNUMBER} ${MAXEVENTS}
+    python3 ${UTILPATH}/scripts/protonyield/src/Protonyield.py ${RUNPREFIX} ${RUNNUMBER} ${MAXEVENTS}
 else echo "Analysed root file already found in ${UTILPATH}/scripts/protonyield/OUTPUT/ - Skipped python script step"
 fi
 

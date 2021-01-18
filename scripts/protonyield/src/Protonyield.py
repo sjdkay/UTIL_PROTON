@@ -46,7 +46,7 @@ sys.path.insert(0, '%s/UTIL_PROTON/bin/python/' % REPLAYPATH)
 import kaonlt as klt
 
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
-rootName = "%s/UTIL_PION/ROOTfiles/%s_%s_%s.root" % (REPLAYPATH, ROOTPrefix, runNum, MaxEvent)
+rootName = "%s/UTIL_PROTON/ROOTfiles/%s_%s_%s.root" % (REPLAYPATH, ROOTPrefix, runNum, MaxEvent)
 
 ###############################################################################################################
 ############################### RF Timing is the only thing left in here ######################################
