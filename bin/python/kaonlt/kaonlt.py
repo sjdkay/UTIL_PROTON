@@ -208,9 +208,9 @@ class pyPlot(pyDict):
         return arrPlot
 
     def cut_RF(self,runNum,MaxEvent):
-        TimingCutFile = self.REPLAYPATH+'/UTIL_KAONLT/DB/PARAM/Timing_Parameters.csv'
+        TimingCutFile = self.REPLAYPATH+'/UTIL_PROTON/DB/PARAM/Timing_Parameters.csv'
         # rootName = "/lustre19/expphy/volatile/hallc/c-kaonlt/sjdkay/ROOTfiles/Proton_Analysis/Pass3/Proton_coin_replay_production_%s_%s.root" % (self.REPLAYPATH, runNum, MaxEvent)
-        rootName = "%s/UTIL_KAONLT/ROOTfiles/coin_replay_Full_Lumi_%s_%s.root" % (self.REPLAYPATH,runNum,MaxEvent)
+        rootName = "%s/UTIL_PROTON/ROOTfiles/coin_replay_Full_Lumi_%s_%s.root" % (self.REPLAYPATH,runNum,MaxEvent)
         e_tree = up.open(rootName)["T"]
         TimingCutf = open(TimingCutFile)
         PromptPeak = [0, 0, 0]
@@ -278,19 +278,19 @@ class pyPlot(pyDict):
                     
                     # Matches run type cuts with the general cuts (e.g pid, track, etc.)
                     if "pid" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/pid.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/pid.cuts"
                     elif "track" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/track.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/track.cuts"
                     elif "accept" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/accept.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/accept.cuts"
                     elif "coin_time" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/coin_time.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/coin_time.cuts"
                     elif "current" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/current.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/current.cuts"
                     elif "misc" in cutplus:
-                        plusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/misc.cuts"
+                        plusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/misc.cuts"
                     else:
-                        print("!!!!ERROR!!!!: Added cut %s not defined in /UTIL_KAONLT/DB/CUTS/general/" % cutplus) # ERROR 2
+                        print("!!!!ERROR!!!!: Added cut %s not defined in /UTIL_PROTON/DB/CUTS/general/" % cutplus) # ERROR 2
                         print("Cut must be pid, track, accept, coin_time or current")
                         continue
                     cutplus = cutplus.split(".")
@@ -350,21 +350,21 @@ class pyPlot(pyDict):
                             print("- ",cutminus)
                         # Matches run type cuts with the general cuts (e.g pid, track, etc.)
                         if "pid" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/pid.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/pid.cuts"
                         elif "track" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/track.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/track.cuts"
                         elif "accept" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/accept.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/accept.cuts"
                         elif "coin_time" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/coin_time.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/coin_time.cuts"
                         elif "current" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/current.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/current.cuts"
                         elif "misc" in cutminus:
-                            minusfout = self.REPLAYPATH+"/UTIL_KAONLT/DB/CUTS/general/misc.cuts"
+                            minusfout = self.REPLAYPATH+"/UTIL_PROTON/DB/CUTS/general/misc.cuts"
                         elif "none" in cutminus:
                             minusfout = "none"
                         else:
-                            print("!!!!ERROR!!!!: Subtracted cut %s not defined in /UTIL_KAONLT/DB/CUTS/general/" % cutplus) # ERROR 3
+                            print("!!!!ERROR!!!!: Subtracted cut %s not defined in /UTIL_PROTON/DB/CUTS/general/" % cutplus) # ERROR 3
                             print("Cut must be pid, track, accept, coin_time or current")
                             continue
                         # Break down the cut to be removed to find specific leaf to be subtracted from
@@ -430,7 +430,7 @@ class pyPlot(pyDict):
                     if "." in val:
                         tmp = val.split(")")[0]
                         tmp = tmp.split(".")[1]
-                        fout = self.REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Acceptance_Parameters.csv"
+                        fout = self.REPLAYPATH+"/UTIL_PROTON/DB/PARAM/Acceptance_Parameters.csv"
                         try:
                             data = dict(pd.read_csv(fout))
                         except IOError:
@@ -452,7 +452,7 @@ class pyPlot(pyDict):
                     if "." in val:
                         tmp = val.split(")")[0]
                         tmp = tmp.split(".")[1]
-                        fout = self.REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Tracking_Parameters.csv"
+                        fout = self.REPLAYPATH+"/UTIL_PROTON/DB/PARAM/Tracking_Parameters.csv"
                         try:
                             data = dict(pd.read_csv(fout))
                         except IOError:
@@ -473,7 +473,7 @@ class pyPlot(pyDict):
                     if "." in val:
                         tmp = val.split(")")[0]
                         tmp = tmp.split(".")[1]
-                        fout = self.REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Timing_Parameters.csv"
+                        fout = self.REPLAYPATH+"/UTIL_PROTON/DB/PARAM/Timing_Parameters.csv"
                         try:
                             data = dict(pd.read_csv(fout))
                         except IOError:
@@ -494,7 +494,7 @@ class pyPlot(pyDict):
                     if "." in val:
                         tmp = val.split(")")[0]
                         tmp = tmp.split(".")[1]
-                        fout = self.REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/PID_Parameters.csv"
+                        fout = self.REPLAYPATH+"/UTIL_PROTON/DB/PARAM/PID_Parameters.csv"
                         try:
                             data = dict(pd.read_csv(fout))
                         except IOError:
@@ -515,7 +515,7 @@ class pyPlot(pyDict):
                     if "." in val:
                         tmp = val.split(")")[0]
                         tmp = tmp.split(".")[1]
-                        fout = self.REPLAYPATH+"/UTIL_KAONLT/DB/PARAM/Misc_Parameters.csv"
+                        fout = self.REPLAYPATH+"/UTIL_PROTON/DB/PARAM/Misc_Parameters.csv"
                         try:
                             data = dict(pd.read_csv(fout))
                         except IOError:
