@@ -5,15 +5,21 @@
 # Configfilename should be the file based in UTIL_PROTON/CONFIG (Not the full path, just the actual filename)
 
 echo "Starting analysis of Proton events"
-echo "I take as arguments the run Number and max number of events!"
-RUNNUMBER=$1
-MAXEVENTS=$2
+echo "I take as arguments the run prefix, run number and max number of events!"
+RUNPREFIX=$1
 if [[ -z "$1" ]]; then
+    echo "I need a Run Prefix!"
+    echo "Please provide a run prefix as input"
+    exit 2
+fi
+RUNNUMBER=$2
+if [[ -z "$2" ]]; then
     echo "I need a Run Number!"
     echo "Please provide a run number as input"
     exit 2
 fi
-if [[ -z "$2" ]]; then
+MAXEVENTS=$3
+if [[ -z "$3" ]]; then
     echo "Only Run Number entered...I'll assume -1 (all) events!" 
     MAXEVENTS=-1 
 fi
@@ -36,7 +42,7 @@ UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 cd "${UTILPATH}/scripts"
 
 if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root" ]; then
-    python3 ${UTILPATH}/scripts/protonyield/src/Protonyield.py ${RUNNUMBER} ${MAXEVENTS}
+    python3 ${UTILPATH}/scripts/pionyield/src/Pionyield.py ${RUNPREFIX} ${RUNNUMBER} ${MAXEVENTS}
 else echo "Analysed root file already found in ${UTILPATH}/scripts/protonyield/OUTPUT/ - Skipped python script step"
 fi
 

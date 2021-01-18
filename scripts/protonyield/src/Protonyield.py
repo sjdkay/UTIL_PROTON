@@ -19,12 +19,14 @@ import matplotlib.pyplot as plt
 import sys, math, os, subprocess
 
 sys.path.insert(0, 'python/')
-if len(sys.argv)-1!=2:
-    print("!!!!! ERROR !!!!!\n Expected 2 arguments\n Usage is with - RunNumber MaxEvents \n!!!!! ERROR !!!!!")
+# Check the number of arguments provided to the script
+if len(sys.argv)-1!=3:
+    print("!!!!! ERROR !!!!!\n Expected 3 arguments\n Usage is with - ROOTfilePrefix RunNumber MaxEvents \n!!!!! ERROR !!!!!")
     sys.exit(1)
 # Input params - run number and max number of events
-runNum = sys.argv[1]
-MaxEvent = sys.argv[2]
+ROOTPrefix = sys.argv[1]
+runNum = sys.argv[2]
+MaxEvent = sys.argv[3]
 
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
@@ -32,17 +34,19 @@ if ("farm" in HOST[1]):
     REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
 elif ("qcd" in HOST[1]):
     REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
-elif ("lark.phys.uregina" in HOST[1]):
+elif ("phys.uregina" in HOST[1]):
     REPLAYPATH = "/home/%s/work/JLab/hallc_replay_lt" % USER[1]
-
+elif("skynet" in HOST[1]):
+    REPLAYPATH = "/home/%s/Work/JLab/hallc_replay_lt" % USER[1]
 # Add more path setting as needed in a similar manner
+
 OUTPATH = "%s/UTIL_PROTON/scripts/protonyield/OUTPUT" % REPLAYPATH
 CUTPATH = "%s/UTIL_PROTON/DB/CUTS" % REPLAYPATH
 sys.path.insert(0, '%s/UTIL_PROTON/bin/python/' % REPLAYPATH)
 import kaonlt as klt
 
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
-rootName = "%s/UTIL_PROTON/ROOTfiles/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
+rootName = "%s/UTIL_PION/ROOTfiles/%s_%s_%s.root" % (REPLAYPATH, ROOTPrefix, runNum, MaxEvent)
 
 ###############################################################################################################
 ############################### RF Timing is the only thing left in here ######################################
