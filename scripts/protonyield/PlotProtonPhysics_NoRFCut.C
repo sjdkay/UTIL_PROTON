@@ -93,6 +93,10 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   Double_t t_pr; Cut_Pr->SetBranchAddress("MandelT", &t_pr);
   Double_t phi_q_pr; Cut_Pr->SetBranchAddress("ph_q", &phi_q_pr);
   // Quantities for PID cuts/comparisons
+  Double_t HMSCal_uncut; Uncut->SetBranchAddress("H_cal_etotnorm", &HMSCal_uncut);
+  Double_t HMSCal_cut; Cut_All_NoRF->SetBranchAddress("H_cal_etotnorm", &HMSCal_cut);
+  Double_t HMSCher_uncut; Uncut->SetBranchAddress("H_cer_npeSum", &HMSCher_uncut);
+  Double_t HMSCher_cut; Cut_All_NoRF->SetBranchAddress("H_cer_npeSum", &HMSCher_cut);
   Double_t AeroNPE_uncut; Uncut->SetBranchAddress("P_aero_npeSum", &AeroNPE_uncut);
   Double_t HGCNPE_uncut; Uncut->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_uncut);
   Double_t AeroNPE_all; Cut_All_NoRF->SetBranchAddress("P_aero_npeSum", &AeroNPE_all);
@@ -135,8 +139,9 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   TH1D *h1_Pyp_Uncut = new TH1D("h1_Pyp_Uncut", "SHMS y' - all events before cuts", 200, -0.1, 0.1);
   TH1D *h1_Pyp_Cut = new TH1D("h1_Pyp_Cut", "SHMS y' - all events after cuts", 200, -0.1, 0.1);
 
-  TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50); 
-  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50); 
+  TH2D *h2_HMS_CalCher_Uncut = new TH2D("h2_HMS_CalCher_Uncut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events before cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+  TH2D *h2_HMS_CalCher_Cut = new TH2D("h2_HMS_CalCher_Cut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events after cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 250, 0, 50, 250, 0, 250); 
+  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 250, 0, 250, 250, 0, 250); 
   
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 2.5, 4.5, 200, 2.7, 3.7);
   TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
@@ -210,27 +215,6 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_Random->Fill(CT_rn, Beta_rn);
     h2_CT_MMp_Random->Fill(CT_rn, MMp_rn);
   } 
-
-  // Fit the Proton MM plot
-  // Function is two Gaussians + a linear component for the background
-  // TF1 *Proton_Fit = new TF1("Proton_Fit","([0]*exp(-0.5*((x-[1])/[2])*((x-[1])/[2])))+([3]*exp(-0.5*((x-[4])/[5])*((x-[4])/[5])))+(([6]*x)+[7])",0.5,1.3);
-  // Proton_Fit->SetParName(0,"Amplitude_Omega");
-  // Proton_Fit->SetParName(1,"Mean_Omega");
-  // Proton_Fit->SetParName(2,"Sigma_Omega");
-  // Proton_Fit->SetParName(3,"Amplitude_Phi");
-  // Proton_Fit->SetParName(4,"Mean_Phi");
-  // Proton_Fit->SetParName(5,"Sigma_Phi");
-  // Proton_Fit->SetParName(6, "Lin_Slope");
-  // Proton_Fit->SetParName(7, "Lin_Intercept");
-  // Proton_Fit->SetParLimits(0, 1000 , 1000000);
-  // Proton_Fit->SetParLimits(1,0.7,0.9);
-  // Proton_Fit->SetParameter(1, 0.782);
-  // Proton_Fit->SetParLimits(2, 0.001, 0.1);
-  // Proton_Fit->SetParLimits(3, 1000, 1000000);
-  // Proton_Fit->SetParLimits(4, 0.95, 1.25);
-  // Proton_Fit->SetParameter(4, 1.02);
-  // Proton_Fit->SetParLimits(5, 0.001, 0.1);
-  // h1_MMp_BGSub->Fit("Proton_Fit","RM");
   
   TCanvas *c_MM = new TCanvas("c_MM", "Proton missing mass distributions", 100, 0, 1000, 900);
   c_MM->Divide(2,2);
@@ -242,7 +226,6 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   h1_MMp_Random->Draw();
   c_MM->cd(4);
   h1_MMp_BGSub->Draw("HIST");
-  //Proton_Fit->DrawClone("SAME");
   c_MM->Print(foutpdf + '(');
 
   TCanvas *c_Track = new TCanvas("c_Track", "Tracking cut distributions", 100, 0, 1000, 900);  
@@ -268,7 +251,7 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   c_Track->Print(foutpdf);
 
   TCanvas *c_PID = new TCanvas("c_PID", "PID cut distributions", 100, 0, 1000, 900);  
-  c_PID->Divide(3,2);
+  c_PID->Divide(4,2);
   c_PID->cd(1); gPad->SetLogy();
   h1_Aero_Uncut->SetLineColor(2); h1_Aero_Cut->SetLineColor(4);
   h1_Aero_Uncut->Draw("HIST"); h1_Aero_Cut->Draw("HISTSAME");
@@ -286,6 +269,10 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
   h2_AeroHGC_Uncut->Draw("COLZ");
   c_PID->cd(6); gPad->SetLogz();
   h2_AeroHGC_Cut->Draw("COLZ"); 
+  c_PID->cd(7); gPad->SetLogz();
+  h2_HMS_CalCher_Uncut->Draw("COLZ");
+  c_PID->cd(8); gPad->SetLogz();
+  h2_HMS_CalCher_Cut->Draw("COLZ");
   c_PID->Print(foutpdf);
 
   TCanvas *c_CT = new TCanvas("c_CT", "Proton CT distributions", 100, 0, 1000, 900);

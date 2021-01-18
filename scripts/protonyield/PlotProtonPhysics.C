@@ -43,7 +43,11 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
     Replaypath = "/home/"+User+"/work/JLab/hallc_replay_lt";
     Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
   }
-  // Add more as needed for your own environment
+  // Add more as needed for your own envrionment
+  else{
+    Replaypath="/ExtDsk/sjdkay/JLab/Proton_Analysis/OUTPUT/Pass2_4";
+    Outpath = Replaypath;
+  }
 
   if(InFilename == "") {
     cout << "Enter a Filename to analyse: ";
@@ -88,17 +92,21 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Double_t t_pr; Cut_Pr->SetBranchAddress("MandelT", &t_pr);
   Double_t phi_q_pr; Cut_Pr->SetBranchAddress("ph_q", &phi_q_pr);
   // Quantities for PID cuts/comparisons
+  Double_t HMSCal_uncut; Uncut->SetBranchAddress("H_cal_etotnorm", &HMSCal_uncut);
+  Double_t HMSCal_cut; Cut_All->SetBranchAddress("H_cal_etotnorm", &HMSCal_cut);
+  Double_t HMSCher_uncut; Uncut->SetBranchAddress("H_cer_npeSum", &HMSCher_uncut);
+  Double_t HMSCher_cut; Cut_All->SetBranchAddress("H_cer_npeSum", &HMSCher_cut);
   Double_t AeroNPE_uncut; Uncut->SetBranchAddress("P_aero_npeSum", &AeroNPE_uncut);
   Double_t HGCNPE_uncut; Uncut->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_uncut);
   Double_t AeroNPE_all; Cut_All->SetBranchAddress("P_aero_npeSum", &AeroNPE_all);
   Double_t HGCNPE_all; Cut_All->SetBranchAddress("P_hgcer_npeSum", &HGCNPE_all);
 
   // Define Histograms
-  TH1D *h1_MMp_All = new TH1D("h1_MMp_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
-  TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
-  TH1D *h1_MMp_Random = new TH1D("h1_MMp_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
-  TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
-  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 200, 0.0, 2.0);
+  TH1D *h1_MMp_All = new TH1D("h1_MMp_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
+  TH1D *h1_MMp_Prompt = new TH1D("h1_MMp_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
+  TH1D *h1_MMp_Random = new TH1D("h1_MMp_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
+  TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
+  TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
   TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 240, 10, 70); 
   TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
@@ -129,10 +137,12 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_Hyp_Cut = new TH1D("h1_Hyp_Cut", "HMS y' - all events after cuts", 200, -0.1, 0.1);
   TH1D *h1_Pyp_Uncut = new TH1D("h1_Pyp_Uncut", "SHMS y' - all events before cuts", 200, -0.1, 0.1);
   TH1D *h1_Pyp_Cut = new TH1D("h1_Pyp_Cut", "SHMS y' - all events after cuts", 200, -0.1, 0.1);
-
-  TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50); 
-  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 50, 0, 50, 50, 0, 50);
-
+  
+  TH2D *h2_HMS_CalCher_Uncut = new TH2D("h2_HMS_CalCher_Uncut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events before cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+  TH2D *h2_HMS_CalCher_Cut = new TH2D("h2_HMS_CalCher_Cut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events after cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+  TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 250, 0, 50, 250, 0, 50); 
+  TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 250, 0, 50, 250, 0, 50); 
+  
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 2.5, 4.5, 200, 2.7, 3.7);
   TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
 
@@ -153,7 +163,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_Pr->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Prompt", "", "goff");
   Cut_Rn->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Random", "", "goff");
   Cut_Pr->Draw("epsilon >> h1_Epsilon", "", "goff");
- 
+
   Uncut->Draw("P_aero_npeSum >> h1_Aero_Uncut", "", "goff");
   Uncut->Draw("P_hgcer_npeSum >> h1_HGC_Uncut", "", "goff");
   Uncut->Draw("H_cal_etotnorm >> h1_HCal_Uncut", "", "goff");
@@ -174,7 +184,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_All->Draw("P_gtr_dp >> h1_PDelta_Cut", "", "goff");
   Cut_All->Draw("P_gtr_xp >> h1_Pxp_Cut", "", "goff");
   Cut_All->Draw("P_gtr_yp >> h1_Pyp_Cut", "", "goff");
-
+  
   Uncut->Draw("RF_CutDist >> h1_RFCutDist", "", "goff");
   Cut_All_NoRF->Draw("RF_CutDist >> h1_RFCutDist_woCut", "", "goff");
   Cut_All->Draw("RF_CutDist >> h1_RFCutDist_wCut", "", "goff");
@@ -185,12 +195,14 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   // Loop over all events in tree and fill 2D histos event by event, ensures the events correctly correlate
   for(Long64_t i = 0; i < nEntries_Uncut; i++){
     Uncut->GetEntry(i);
+    h2_HMS_CalCher_Uncut->Fill(HMSCal_uncut, HMSCher_uncut);
     h2_AeroHGC_Uncut->Fill(AeroNPE_uncut, HGCNPE_uncut);
   } 
   for(Long64_t i = 0; i < nEntries_All; i++){
     Cut_All->GetEntry(i);
     h2_CT_Beta_All->Fill(CT_all, Beta_all);
     h2_CT_MMp_All->Fill(CT_all, MMp_all);
+    h2_HMS_CalCher_Cut->Fill(HMSCal_cut, HMSCher_cut);
     h2_AeroHGC_Cut->Fill(AeroNPE_all, HGCNPE_all);
   } 
   for(Long64_t i = 0; i < nEntries_Pr; i++){
@@ -217,7 +229,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   c_MM->cd(4);
   h1_MMp_BGSub->Draw("HIST");
   c_MM->Print(foutpdf + '(');
-  
+
   TCanvas *c_Track = new TCanvas("c_Track", "Tracking cut distributions", 100, 0, 1000, 900);  
   c_Track->Divide(3,2);
   c_Track->cd(1);
@@ -239,9 +251,9 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_Pyp_Uncut->SetLineColor(2); h1_Pyp_Cut->SetLineColor(4);
   h1_Pyp_Uncut->Draw("HIST"); h1_Pyp_Cut->Draw("HISTSAME");
   c_Track->Print(foutpdf);
-
+  
   TCanvas *c_PID = new TCanvas("c_PID", "PID cut distributions", 100, 0, 1000, 900);  
-  c_PID->Divide(3,2);
+  c_PID->Divide(4,2);
   c_PID->cd(1); gPad->SetLogy();
   h1_Aero_Uncut->SetLineColor(2); h1_Aero_Cut->SetLineColor(4);
   h1_Aero_Uncut->Draw("HIST"); h1_Aero_Cut->Draw("HISTSAME");
@@ -258,9 +270,13 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   c_PID->SetLogy(0); c_PID->SetLogz(1);
   h2_AeroHGC_Uncut->Draw("COLZ");
   c_PID->cd(6); gPad->SetLogz();
-  h2_AeroHGC_Cut->Draw("COLZ"); 
+  h2_AeroHGC_Cut->Draw("COLZ");
+  c_PID->cd(7); gPad->SetLogz();
+  h2_HMS_CalCher_Uncut->Draw("COLZ");
+  c_PID->cd(8); gPad->SetLogz();
+  h2_HMS_CalCher_Cut->Draw("COLZ");
   c_PID->Print(foutpdf);
-
+  
   TCanvas *c_CT = new TCanvas("c_CT", "Proton CT distributions", 100, 0, 1000, 900);
   c_CT->Divide(3,2);
   c_CT->cd(1);
@@ -409,6 +425,8 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_PCal_Cut->Write();
   h2_AeroHGC_Uncut->Write();
   h2_AeroHGC_Cut->Write(); 
+  h2_HMS_CalCher_Uncut->Write();
+  h2_HMS_CalCher_Cut->Write();
 
   OutHisto_file->Close();
 

@@ -37,7 +37,7 @@ elif [[ "${HOSTNAME}" = *"phys.uregina.ca"* ]]; then
 fi
 UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 KINEMATIC_LIST_FILE="${UTILPATH}/scripts/kinematics/${KINEMATIC_LIST}"
-if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kimematics" ]; then
+if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics" ]; then
     rm "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics"
     else touch "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics"
 fi

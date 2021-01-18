@@ -86,6 +86,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 	TestingVar=$((TestingVar+1))
     fi
 done < "$RunListFile"
+
 if [ $TestingVar == 1 ]; then
     echo "All proton analysis files found, combining to kinematic"
     rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingProtonAnalysis"
