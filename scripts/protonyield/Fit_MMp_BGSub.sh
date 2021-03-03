@@ -14,14 +14,14 @@ echo "######################################################################"
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     if [[ "${HOSTNAME}" != *"ifarm"* ]]; then
 	source /site/12gev_phys/softenv.sh 2.3
     fi
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh"
 elif [[ "${HOSTNAME}" = *"qcd"* ]]; then
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     source /site/12gev_phys/softenv.sh 2.3
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh" 
@@ -36,19 +36,19 @@ KINEMATIC_LIST_FILE="${UTILPATH}/scripts/protonyield/$KINEMATIC_LIST"
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
     Kinematic=$line
-    touch "${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Output"
-    root -l -b -q "Fit_MMp_BGSub.C(\"${Kinematic}.root\", \"${Kinematic}_Fit\")" > "${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Output"
+    touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT${Kinematic}_Output"
+    root -l -b -q "Fit_MMp_BGSub.C(\"${Kinematic}.root\", \"${Kinematic}_Fit\")" > "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Output"
 done < "$KINEMATIC_LIST_FILE"
 
-if [ -f "${UTILPATH}/scripts/protonyield/OUTPUT/Fit_Parameters.csv" ]; then
-    rm "${UTILPATH}/scripts/protonyield/OUTPUT/Fit_Parameters.csv"
-else touch "${UTILPATH}/scripts/protonyield/OUTPUT/Fit_Parameters.csv"
+if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Fit_Parameters.csv" ]; then
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Fit_Parameters.csv"
+else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Fit_Parameters.csv"
 fi
 
-echo "Kinematic,LinBGSl,LinBGSlEr,LinBGIn,LinBGInEr,AmpOm1,AmpOm1Er,MeanOm1,MeanOm1Er,SigOm1,SigOm1Er,AmpOm2,AmpOm2Er,MeanOm2,MeanOm2Er,SigOm2,SigOm2Er,AmpPhi,AmpPhiEr,MeanPhi,MeanPhiEr,SigPhi,SigPhiEr" >> "${UTILPATH}/scripts/protonyield/OUTPUT/Fit_Parameters.csv"
+echo "Kinematic,LinBGSl,LinBGSlEr,LinBGIn,LinBGInEr,AmpOm1,AmpOm1Er,MeanOm1,MeanOm1Er,SigOm1,SigOm1Er,AmpOm2,AmpOm2Er,MeanOm2,MeanOm2Er,SigOm2,SigOm2Er,AmpPhi,AmpPhiEr,MeanPhi,MeanPhiEr,SigPhi,SigPhiEr" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Fit_Parameters.csv"
 while IFS='' read -r line || [[ -n "$line" ]]; do
     Kinematic=$line
-    KinematicOutputFile="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Output"
+    KinematicOutputFile="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Output"
     # awk command to print 3rd tabbed variable of line 7 from file, NR == LINE, print TABBED VALUE
     LinBGSl=$(awk 'NR==7{print $3}' ${KinematicOutputFile}) 
     LinBGSlEr=$(awk 'NR==7{print $4}' ${KinematicOutputFile})
@@ -72,7 +72,7 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
     MeanPhiEr=$(awk 'NR==26{print $4}' ${KinematicOutputFile})
     SigPhi=$(awk 'NR==27{print $3}' ${KinematicOutputFile})
     SigPhiEr=$(awk 'NR==27{print $4}' ${KinematicOutputFile})
-    echo "${Kinematic},${LinBGSl},${LinBGSlEr},${LinBGIn},${LinBGInEr},${AmpOm1},${AmpOm1Er},${MeanOm1},${MeanOm1Er},${SigOm1},${SigOm1Er},${AmpOm2},${AmpOm2Er},${MeanOm2},${MeanOm2Er},${SigOm2},${SigOm2Er},${AmpPhi},${AmpPhiEr},${MeanPhi},${MeanPhiEr},${SigPhi},${SigPhiEr}" >> "${UTILPATH}/scripts/protonyield/OUTPUT/Fit_Parameters.csv"
+    echo "${Kinematic},${LinBGSl},${LinBGSlEr},${LinBGIn},${LinBGInEr},${AmpOm1},${AmpOm1Er},${MeanOm1},${MeanOm1Er},${SigOm1},${SigOm1Er},${AmpOm2},${AmpOm2Er},${MeanOm2},${MeanOm2Er},${SigOm2},${SigOm2Er},${AmpPhi},${AmpPhiEr},${MeanPhi},${MeanPhiEr},${SigPhi},${SigPhiEr}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Fit_Parameters.csv"
 
 done < "$KINEMATIC_LIST_FILE"
 

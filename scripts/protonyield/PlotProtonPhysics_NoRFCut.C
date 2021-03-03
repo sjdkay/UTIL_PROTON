@@ -33,16 +33,16 @@ void PlotProtonPhysics_NoRFCut(string InFilename = "", string OutFilename = "")
 
   // Set paths depending on system you're running on
   if(Hostname.Contains("farm")){
-    Replaypath = "/group/c-kaonlt/USERS/"+User+"/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    Replaypath = "/group/c-pionlt/USERS/"+User+"/hallc_replay_lt";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   else if(Hostname.Contains("qcd")){
-    Replaypath = "/group/c-kaonlt/USERS/"+User+"/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    Replaypath = "/group/c-pionlt/USERS/"+User+"/hallc_replay_lt";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   else if (Hostname.Contains("phys.uregina.ca")){
     Replaypath = "/home/"+User+"/work/JLab/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   // Add more as needed for your own envrionment
   else{

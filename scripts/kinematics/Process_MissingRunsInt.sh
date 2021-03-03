@@ -16,7 +16,7 @@ echo "######################################################"
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     source /site/12gev_phys/softenv.sh 2.3
     if [[ "${HOSTNAME}" != *"ifarm"* ]]; then
 	source /site/12gev_phys/softenv.sh 2.3
@@ -24,7 +24,7 @@ if [[ "${HOSTNAME}" = *"farm"* ]]; then
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh"
 elif [[ "${HOSTNAME}" = *"qcd"* ]]; then
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     source /site/12gev_phys/softenv.sh 2.3
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh" 
@@ -42,29 +42,29 @@ if [ ! -f "${RunListFile}" ]; then
 fi
 cd $REPLAYPATH
 declare -i TestingVar=1
-if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays" ]; then
-    rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays"
-    else touch "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays"
+if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays" ]; then
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"
+    else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"
 fi
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
     runNum=$line
-    if [[ ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfilesProton/coin_replay_scalers_${runNum}_150000.root" || ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfilesProton/Proton_coin_replay_production_${runNum}_-1.root" ]]; then
-	echo "Scaler or replayfile not found for run $runNum in $REPLAYPATH/UTIL_PROTON/ROOTfilesProton/"
+    if [[ ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Scalerscoin_replay_scalers_${runNum}_150000.root" || ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Analysis/ProtonLT/Proton_coin_replay_production_${runNum}_-1.root" ]]; then
+	echo "Scaler or replayfile not found for run $runNum in $REPLAYPATH/UTIL_PROTON/ROOTfiles/"
 	TestingVar=$((TestingVar+1))
     fi
 done < "$RunListFile"
 cd "$UTILPATH/scripts/protonyield"
 if [ $TestingVar == 1 ]; then
     echo "All replay files and analysed files present - processing"
-    rm "${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays"
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"
     source /apps/root/6.18.04/setroot_CUE.bash
     while IFS='' read -r line || [[ -n "$line" ]]; do
 	runNum=$line
 	eval '"Analyse_Protons.sh" ${runNum} -1'
     done < "$RunListFile"
 elif [ $TestingVar != 1 ]; then
-    echo "!!! ERROR !!! - Some ROOTfiles missing - see ${UTILPATH}/scripts/kinematics/OUTPUT/${KINEMATIC}_MissingReplays - !!! ERROR !!!"
+    echo "!!! ERROR !!! - Some ROOTfiles missing - see ${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays - !!! ERROR !!!"
 fi
 
 exit 0

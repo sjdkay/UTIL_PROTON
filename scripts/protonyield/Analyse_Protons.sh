@@ -26,11 +26,11 @@ fi
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh"
 elif [[ "${HOSTNAME}" = *"qcd"* ]]; then
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh" 
 elif [[ "${HOSTNAME}" = *"cdaq"* ]]; then
@@ -41,16 +41,16 @@ fi
 UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 cd "${UTILPATH}/scripts"
 
-if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root" ]; then
+if [ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root" ]; then
     python3 ${UTILPATH}/scripts/protonyield/src/Protonyield.py ${RUNPREFIX} ${RUNNUMBER} ${MAXEVENTS}
-else echo "Analysed root file already found in ${UTILPATH}/scripts/protonyield/OUTPUT/ - Skipped python script step"
+else echo "Analysed root file already found in ${UTILPATH}/OUTPUT/Analysis/ProtonLT/ - Skipped python script step"
 fi
 
-if [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.root" ]; then
+if [ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.root" ]; then
     root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root\", \"Proton_Histos_${RUNNUMBER}_${MAXEVENTS}\")"
-elif [ ! -f "${UTILPATH}/scripts/protonyield/OUTPUT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.pdf" ]; then
+elif [ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.pdf" ]; then
     root -b -l -q "${UTILPATH}/scripts/protonyield/PlotProtonPhysics.C(\"${RUNNUMBER}_${MAXEVENTS}_Analysed_Data.root\", \"Proton_Histos_${RUNNUMBER}_${MAXEVENTS}\")"
-else echo "Proton plots already found in - ${UTILPATH}/scripts/protonyield/OUTPUT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.root and .pdf - Plotting macro skipped"
+else echo "Proton plots already found in - ${UTILPATH}/OUTPUT/Analysis/ProtonLT/Proton_Histos_${RUNNUMBER}_${MAXEVENTS}.root and .pdf - Plotting macro skipped"
 fi
 exit 0
 

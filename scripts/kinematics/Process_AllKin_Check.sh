@@ -19,14 +19,14 @@ echo "######################################################################"
 
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     if [[ "${HOSTNAME}" != *"ifarm"* ]]; then
 	source /site/12gev_phys/softenv.sh 2.3
     fi
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh"
 elif [[ "${HOSTNAME}" = *"qcd"* ]]; then
-    REPLAYPATH="/group/c-kaonlt/USERS/${USER}/hallc_replay_lt"
+    REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     source /site/12gev_phys/softenv.sh 2.3
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh" 
@@ -37,41 +37,41 @@ elif [[ "${HOSTNAME}" = *"phys.uregina.ca"* ]]; then
 fi
 UTILPATH="${REPLAYPATH}/UTIL_PROTON"
 KINEMATIC_LIST_FILE="${UTILPATH}/scripts/kinematics/${KINEMATIC_LIST}"
-if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics" ]; then
-    rm "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics"
-    else touch "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics"
+if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Completed_Kinematics" ]; then
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Completed_Kinematics"
+    else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Completed_Kinematics"
 fi
-if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics" ]; then
-    rm "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics"
-else touch "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics"
+if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics" ]; then
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics"
+else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics"
 fi
-if [ -f "${UTILPATH}/scripts/kinematics/OUTPUT/PartiallyComplete_Kinematics" ]; then
-    rm "${UTILPATH}/scripts/kinematics/OUTPUT/PartiallyComplete_Kinematics"
-else touch "${UTILPATH}/scripts/kinematics/OUTPUT/PartiallyComplete_Kinematics"
+if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/PartiallyComplete_Kinematics" ]; then
+    rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/PartiallyComplete_Kinematics"
+else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/PartiallyComplete_Kinematics"
 fi
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
     Kinematic=$line
-    KinematicAnalysis="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}.root"
-    KinematicPrroot="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Protons.root"
-    KinematicPrpdf="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Protons.pdf"
-    KinematicPrNoRFroot="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Protons_NoRF.root"
-    KinematicPrNoRFpdf="${UTILPATH}/scripts/protonyield/OUTPUT/${Kinematic}_Protons_NoRF.pdf"
+    KinematicAnalysis="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}.root"
+    KinematicPrroot="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Protons.root"
+    KinematicPrpdf="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Protons.pdf"
+    KinematicPrNoRFroot="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Protons_NoRF.root"
+    KinematicPrNoRFpdf="${UTILPATH}/OUTPUT/Analysis/ProtonLT/${Kinematic}_Protons_NoRF.pdf"
     declare -i PartialComplete=0
     
     if [ ! -f "${KinematicAnalysis}" ]; then
-    	echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics"
+    	echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics"
     elif [ -f "${KinematicAnalysis}" ]; then
 	if [[ -f "${KinematicPrroot}" && -f "${KinematicPrpdf}" ]]; then
 	    if [[ -f "${KinematicPrNoRFroot}" && -f "${KinematicPrNoRFpdf}" ]]; then
-		echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/Completed_Kinematics"
+		echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Completed_Kinematics"
 	    else
 		PartialComplete=$((1))
-		echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics"
+		echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics"
 	    fi
 	else 
 	    PartialComplete=$((1))
-	    echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/Incomplete_Kinematics"
+	    echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/Incomplete_Kinematics"
 	fi
 	if [[ $PartialComplete == 1 ]]; then
 	    if [[ $Autocleanup == 1 ]]; then
@@ -89,10 +89,10 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 		    rm "${KinematicPrNoRFpdf}"
 		fi
 		echo "${Kinematic} did not fully process, cleaned up automatically"
-		echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/PartiallyComplete_Kinematics"
+		echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/PartiallyComplete_Kinematics"
 	    elif [[ $Autocleanup == 0 ]]; then
 		echo "${Kinematic} did not fully process, NOT cleaned up automatically"
-		echo "${Kinematic}" >> "${UTILPATH}/scripts/kinematics/OUTPUT/PartiallyComplete_Kinematics"
+		echo "${Kinematic}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/PartiallyComplete_Kinematics"
 	    fi
 	fi
     fi

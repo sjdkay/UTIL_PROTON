@@ -30,20 +30,20 @@ MaxEvent = sys.argv[2]
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
 if ("farm" in HOST[1]):
-    REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
+    REPLAYPATH = "/group/c-pionlt/USERS/%s/hallc_replay_lt" % USER[1]
 elif ("qcd" in HOST[1]):
-    REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
+    REPLAYPATH = "/group/c-pionlt/USERS/%s/hallc_replay_lt" % USER[1]
 elif ("lark.phys.uregina" in HOST[1]):
     REPLAYPATH = "/home/%s/work/JLab/hallc_replay_lt" % USER[1]
 
 # Add more path setting as needed in a similar manner
-OUTPATH = "%s/UTIL_PROTON/scripts/protonyield/OUTPUT" % REPLAYPATH
+OUTPATH = "%s/UTIL_PROTON/OUTPUT/Analysis/ProtonLT" % REPLAYPATH
 CUTPATH = "%s/UTIL_PROTON/DB/CUTS" % REPLAYPATH
 sys.path.insert(0, '%s/UTIL_PROTON/bin/python/' % REPLAYPATH)
 import kaonlt as klt
 
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
-rootName = "%s/UTIL_PROTON/ROOTfiles/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
+rootName = "%s/UTIL_PROTON/ROOTfiles/Analysis/ProtonLT/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
 
 ###############################################################################################################
 ############################### RF Timing is the only thing left in here ######################################

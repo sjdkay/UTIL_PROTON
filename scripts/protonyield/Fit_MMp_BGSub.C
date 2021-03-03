@@ -32,21 +32,21 @@ void Fit_MMp_BGSub(string InFilename = "", string OutFilename = "")
 
   // Set paths depending on system you're running on
   if(Hostname.Contains("farm")){
-    Replaypath = "/group/c-kaonlt/USERS/"+User+"/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    //Replaypath = "/group/c-pionlt/USERS/"+User+"/hallc_replay_lt";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   else if(Hostname.Contains("qcd")){
-    Replaypath = "/group/c-kaonlt/USERS/"+User+"/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    //Replaypath = "/group/c-pionlt/USERS/"+User+"/hallc_replay_lt";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   else if (Hostname.Contains("phys.uregina.ca")){
-    Replaypath = "/home/"+User+"/work/JLab/hallc_replay_lt";
-    Outpath = Replaypath+"/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    //Replaypath = "/home/"+User+"/work/JLab/hallc_replay_lt";
+    Outpath = Replaypath+"/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
   // Add more as needed for your own envrionment
   else{
-    Replaypath="/ExtDsk/sjdkay/JLab/Proton_Analysis/OUTPUT/Pass2_3";
-    Outpath = "/home/sjdkay/Work/JLab/UTIL_PROTON/scripts/protonyield/OUTPUT";
+    //Replaypath="/ExtDsk/sjdkay/JLab/Proton_Analysis/OUTPUT/Pass2_3";
+    Outpath = "/home/sjdkay/Work/JLab/UTIL_PROTON/OUTPUT/Analysis/ProtonLT";
   }
 
   if(InFilename == "") {
@@ -58,7 +58,7 @@ void Fit_MMp_BGSub(string InFilename = "", string OutFilename = "")
     cin >> OutFilename;
   }
   TString TInFilename = InFilename;
-  rootFile = Replaypath+"/"+TInFilename;
+  rootFile = Outpath+"/"+TInFilename;
   // Complain and exit if your file doesn't exist
   if (gSystem->AccessPathName(rootFile) == kTRUE){
     cerr << "!!!!! ERROR !!!!! " << endl << rootFile <<  " not found" << endl <<  "!!!!! ERRROR !!!!!" << endl;
@@ -162,6 +162,5 @@ void Fit_MMp_BGSub(string InFilename = "", string OutFilename = "")
    PhiFit->Write();
 
    OutHistoFile->Close();
-
    
 }
