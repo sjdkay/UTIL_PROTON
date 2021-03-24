@@ -54,7 +54,7 @@ fi
 
 while IFS='' read -r line || [[ -n "$line" ]]; do
     runNum=$line
-    if [[ ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Scalerscoin_replay_scalers_${runNum}_150000.root" || ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Analysis/ProtonLT/Proton_coin_replay_production_${runNum}_-1.root" ]]; then
+    if [[ ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Scalers/coin_replay_scalers_${runNum}_150000.root" || ! -f "$REPLAYPATH/UTIL_PROTON/ROOTfiles/Analysis/ProtonLT/Proton_coin_replay_production_${runNum}_-1.root" ]]; then
 	echo "Scaler or replayfile not found for run $runNum in $REPLAYPATH/UTIL_PROTON/ROOTfiles/"
 	echo "${runNum}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"	
 	TestingVar=$((TestingVar+1))
@@ -68,6 +68,7 @@ elif [ $TestingVar != 1 ]; then
     cp "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays" "$REPLAYPATH/UTIL_BATCH/InputRunLists/${KINEMATIC}_MissingReplays"
     if [ $Autosub == 1 ]; then
 	yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_ProtonLT.sh ${KINEMATIC}_MissingReplays"
+	exit 4
     else echo "Replays missing, list copied to UTIL_BATCH directory, run if desired"  
   fi
 fi
@@ -94,6 +95,7 @@ elif [ $TestingVar != 1 ]; then
     cp "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingProtonAnalysis" "$REPLAYPATH/UTIL_BATCH/InputRunLists/${KINEMATIC}_MissingProtonAnalysis"
     if [ $Autosub == 1 ]; then
 	yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_ProtonLT.sh ${KINEMATIC}_MissingProtonAnalysis"
+	exit 5
     else echo "Analyses missing, list copied to UTIL_BATCH directory, run if desired"
     fi
 fi

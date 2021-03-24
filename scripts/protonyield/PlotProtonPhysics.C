@@ -74,19 +74,28 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   
   TTree* Uncut = (TTree*)InFile->Get("Uncut_Proton_Events"); Long64_t nEntries_Uncut = (Long64_t)Uncut->GetEntries();
   TTree* Cut_All = (TTree*)InFile->Get("Cut_Proton_Events_All"); Long64_t nEntries_All = (Long64_t)Cut_All->GetEntries();
-  TTree* Cut_All_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_All_NoRF"); Long64_t nEntries_All_NoRF = (Long64_t)Cut_All_NoRF->GetEntries();
   TTree* Cut_Pr = (TTree*)InFile->Get("Cut_Proton_Events_Prompt"); Long64_t nEntries_Pr = (Long64_t)Cut_Pr->GetEntries();
   TTree* Cut_Rn = (TTree*)InFile->Get("Cut_Proton_Events_Random"); Long64_t nEntries_Rn = (Long64_t)Cut_Rn->GetEntries();
+  TTree* Cut_All_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_All_NoRF"); Long64_t nEntries_All_NoRF = (Long64_t)Cut_All_NoRF->GetEntries();
+  TTree* Cut_Pr_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_Prompt_NoRF"); Long64_t nEntries_Pr_NoRF = (Long64_t)Cut_Pr_NoRF->GetEntries();
+  TTree* Cut_Rn_NoRF = (TTree*)InFile->Get("Cut_Proton_Events_Random_NoRF"); Long64_t nEntries_Rn_NoRF = (Long64_t)Cut_Rn_NoRF->GetEntries();
   // Set branch address -> Need this to ensure event info is entangled correctly for 2D plots
   Double_t CT_all; Cut_All->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_all);
   Double_t CT_pr; Cut_Pr->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_pr);
   Double_t CT_rn; Cut_Rn->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_rn);
+  Double_t CT_all_NoRF; Cut_All_NoRF->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_all_NoRF);
+  Double_t RF_all; Cut_All_NoRF->SetBranchAddress("RF_CutDist", &RF_all);
+  Double_t RF_pr; Cut_Pr_NoRF->SetBranchAddress("RF_CutDist", &RF_pr);
+  Double_t RF_rn; Cut_Rn_NoRF->SetBranchAddress("RF_CutDist", &RF_rn);
   Double_t Beta_all; Cut_All->SetBranchAddress("P_gtr_beta", &Beta_all);
   Double_t Beta_pr; Cut_Pr->SetBranchAddress("P_gtr_beta", &Beta_pr);
   Double_t Beta_rn; Cut_Rn->SetBranchAddress("P_gtr_beta", &Beta_rn);
   Double_t MMp_all; Cut_All->SetBranchAddress("MMp", &MMp_all);
   Double_t MMp_pr; Cut_Pr->SetBranchAddress("MMp", &MMp_pr);
   Double_t MMp_rn; Cut_Rn->SetBranchAddress("MMp", &MMp_rn);
+  Double_t MMp_all_NoRF; Cut_All_NoRF->SetBranchAddress("MMp", &MMp_all_NoRF);
+  Double_t MMp_pr_NoRF; Cut_Pr_NoRF->SetBranchAddress("MMp", &MMp_pr_NoRF);
+  Double_t MMp_rn_NoRF; Cut_Rn_NoRF->SetBranchAddress("MMp", &MMp_rn_NoRF);
   Double_t W_pr; Cut_Pr->SetBranchAddress("W", &W_pr);
   Double_t Q2_pr; Cut_Pr->SetBranchAddress("Q2", &Q2_pr);
   Double_t t_pr; Cut_Pr->SetBranchAddress("MandelT", &t_pr);
@@ -154,6 +163,11 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH2D *h2_CT_MMp_Prompt = new TH2D("h2_CT_MMp_Prompt","Proton CT vs MM_{p} - Prompt events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
   TH2D *h2_CT_MMp_Random = new TH2D("h2_CT_MMp_Random","Proton CT vs MM_{p} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
 
+  TH2D *h2_RF_MMp_All = new TH2D("h2_RF_MMp_All","Proton RF vs MM_{p} - All events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
+  TH2D *h2_RF_CT_All = new TH2D("h2_RF_CT_All","Proton Rf vs CT - All events after cuts; RFTime (ns); CoinTime (ns)", 100, 0, 4.008, 240, 10, 70);
+  TH2D *h2_RF_MMp_Prompt = new TH2D("h2_RF_MMp_Prompt","Proton RF vs MM_{p} - Prompt events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
+  TH2D *h2_RF_MMp_Random = new TH2D("h2_RF_MMp_Random","Proton RF vs MM_{p} - Random events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
+
   // For 1D histos, can easily create directly from the corresponding branch
   Cut_All->Draw("MMp >> h1_MMp_All", "", "goff");
   Cut_Pr->Draw("MMp >> h1_MMp_Prompt", "", "goff");
@@ -217,7 +231,20 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_Random->Fill(CT_rn, Beta_rn);
     h2_CT_MMp_Random->Fill(CT_rn, MMp_rn);
   } 
- 
+  for(Long64_t i = 0; i < nEntries_All_NoRF; i++){
+    Cut_All_NoRF->GetEntry(i);
+    h2_RF_MMp_All->Fill(RF_all, MMp_all_NoRF);
+    h2_RF_CT_All->Fill(RF_all, CT_all_NoRF);
+  }
+  for(Long64_t i = 0; i < nEntries_Pr_NoRF; i++){
+    Cut_Pr_NoRF->GetEntry(i);
+    h2_RF_MMp_Prompt->Fill(RF_pr, MMp_pr_NoRF);
+  }
+  for(Long64_t i = 0; i < nEntries_Rn_NoRF; i++){
+    Cut_Rn_NoRF->GetEntry(i);
+    h2_RF_MMp_Random->Fill(RF_rn, MMp_rn_NoRF);
+  }
+  
   TCanvas *c_MM = new TCanvas("c_MM", "Proton missing mass distributions", 100, 0, 1000, 900);
   c_MM->Divide(2,2);
   c_MM->cd(1);
@@ -320,6 +347,18 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_RFCutDist_woCut->Draw("SAME");
   h1_RFCutDist_wCut->Draw("SAME");
   c_RFCut->Print(foutpdf);
+
+  TCanvas *c_RFMM = new TCanvas("c_RFMM", "Proton RF vs MM distributions", 100, 0, 1000, 900);
+  c_RFMM->Divide(2,2);
+  c_RFMM->cd(1);
+  h2_RF_MMp_All->Draw("COLZ");
+  c_RFMM->cd(2);
+  h2_RF_MMp_Prompt->Draw("COLZ");
+  c_RFMM->cd(3);
+  h2_RF_MMp_Random->Draw("COLZ");
+  c_RFMM->cd(4);
+  h2_RF_CT_All->Draw("COLZ");
+  c_RFMM->Print(foutpdf);
    
   TCanvas *c_Kine = new TCanvas("c_Kine", "Kinematics info", 100, 0, 1000, 900);
   c_Kine->Divide(2,2);
@@ -376,18 +415,22 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_CT_All->Write();
   h2_CT_Beta_All->Write();
   h2_CT_MMp_All->Write();
+  h2_RF_MMp_All->Write();
+  h2_RF_CT_All->Write();
 
   d_ProtonPr->cd();
   h1_MMp_Prompt->Write();
   h1_CT_Prompt->Write();
   h2_CT_Beta_Prompt->Write();
   h2_CT_MMp_Prompt->Write();
+  h2_RF_MMp_Prompt->Write();
  
   d_ProtonRn->cd();
   h1_MMp_Random->Write();
   h1_CT_Random->Write();
   h2_CT_Beta_Random->Write();
   h2_CT_MMp_Random->Write();
+  h2_RF_MMp_Random->Write();
 
   d_ProtonRF->cd();
   h1_RFCutDist->Write();
