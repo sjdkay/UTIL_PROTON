@@ -22,15 +22,16 @@ echo "######################################################"
 # Set path depending upon hostname. Change or add more as needed  
 if [[ "${HOSTNAME}" = *"farm"* ]]; then  
     REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
-    source /site/12gev_phys/softenv.sh 2.3
     if [[ "${HOSTNAME}" != *"ifarm"* ]]; then
 	source /site/12gev_phys/softenv.sh 2.3
+	source /apps/root/6.18.04/setroot_CUE.bash
     fi
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh"
 elif [[ "${HOSTNAME}" = *"qcd"* ]]; then
     REPLAYPATH="/group/c-pionlt/USERS/${USER}/hallc_replay_lt"
     source /site/12gev_phys/softenv.sh 2.3
+    source /apps/root/6.18.04/setroot_CUE.bash
     cd "$REPLAYPATH"
     source "$REPLAYPATH/setup.sh" 
 elif [[ "${HOSTNAME}" = *"cdaq"* ]]; then
@@ -46,7 +47,7 @@ if [ ! -f "${RunListFile}" ]; then
     exit 3
 fi
 cd $REPLAYPATH
-declare -i TestingVar=1
+declare -i TestingVar=1 # This checks if the replays required are present
 if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays" ]; then
     rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"
     else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays"
@@ -73,7 +74,7 @@ elif [ $TestingVar != 1 ]; then
   fi
 fi
 # Check if proton analysis is present for each file in the kinematic, if not, submit a job to process it
-TestingVar=$((1))
+TestingVar=$((1)) # Reset the test variable to 1, now check if the analysis is present
 if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingProtonAnalysis" ]; then
     rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingProtonAnalysis"
 else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingProtonAnalysis"
@@ -96,27 +97,24 @@ elif [ $TestingVar != 1 ]; then
     if [ $Autosub == 1 ]; then
 	yes y | eval "$REPLAYPATH/UTIL_BATCH/batch_scripts/run_batch_ProtonLT.sh ${KINEMATIC}_MissingProtonAnalysis"
 	exit 5
-    else echo "Analyses missing, list copied to UTIL_BATCH directory, run if desired"
+    elif [ $Autosub != 1 ]; then
+	echo "Analyses missing, list copied to UTIL_BATCH directory, run on farm if desired"
+	read -p "Process python script for missing replays/analyses interactively? <Y/N> " prompt2
+	if [[ $prompt2 == "y" || $prompt2 == "Y" || $prompt2 == "yes" || $prompt2 == "Yes" ]]; then
+	    cd "${UTILPATH}/scripts/protonyield"
+	    while IFS='' read -r line || [[ -n "$line" ]]; do
+		runNum=$line
+		if [ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${runNum}_-1_Analysed_Data.root" ]; then
+		    eval '"Analyse_Protons.sh" Proton_coin_replay_production ${runNum} -1'
+		fi
+	    done < "$RunListFile"
+	    else echo "Not processing python script interactively. Analyses missing, list copied to UTIL_BATCH directory, run if desired"
+	fi
     fi
 fi
 
 if [ $TestingVar == 1 ]; then   
-    source /apps/root/6.18.04/setroot_CUE.bash
     declare -i TestingVar2=1
-
-    # if [ -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_BrokenProtonAnalysis" ]; then
-    # 	rm "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_BrokenProtonAnalysis"
-    # else touch "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_BrokenProtonAnalysis"
-    # fi
-
-    # while IFS='' read -r line || [[ -n "$line" ]]; do
-    # 	runNum=$line
-    # 	if [ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${runNum}_-1_Analysed_Data.root" ]; then
-    # 	    TestingVar2=$((TestingVar2+1))
-    # 	    echo " !!! WARNING !!! Proton analysis files *STILL* not found !!!"
-    # 	    echo "${runNum}" >> "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_BrokenProtonAnalysis"	
-    # 	fi
-    # done < "$RunListFile"
 
     if [[ ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingProtonAnalysis" && ! -f "${UTILPATH}/OUTPUT/Analysis/ProtonLT/${KINEMATIC}_MissingReplays" ]]; then
 	echo "No missing replays or proton analyses detected, processing kinematic"

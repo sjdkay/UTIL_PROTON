@@ -103,6 +103,8 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   // Quantities for PID cuts/comparisons
   Double_t HMSCal_uncut; Uncut->SetBranchAddress("H_cal_etotnorm", &HMSCal_uncut);
   Double_t HMSCal_cut; Cut_All->SetBranchAddress("H_cal_etotnorm", &HMSCal_cut);
+  Double_t HMSCalTrack_uncut; Uncut->SetBranchAddress("H_cal_etottracknorm", &HMSCalTrack_uncut);
+  Double_t HMSCalTrack_cut; Cut_All->SetBranchAddress("H_cal_etottracknorm", &HMSCalTrack_cut);
   Double_t HMSCher_uncut; Uncut->SetBranchAddress("H_cer_npeSum", &HMSCher_uncut);
   Double_t HMSCher_cut; Cut_All->SetBranchAddress("H_cer_npeSum", &HMSCher_cut);
   Double_t AeroNPE_uncut; Uncut->SetBranchAddress("P_aero_npeSum", &AeroNPE_uncut);
@@ -132,7 +134,11 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_HCal_Uncut = new TH1D("h1_HCal_Uncut", "HMS Normalised Calorimeter Energy - all events before cuts", 150, 0, 1.5);
   TH1D *h1_HCal_Cut = new TH1D("h1_HCal_Cut", "HMS Normalised Calorimeter Energy - all events before cuts", 150, 0, 1.5);
   TH1D *h1_PCal_Uncut = new TH1D("h1_PCal_Uncut", "SHMS Normalised Calorimeter Energy - all events before cuts", 150, 0, 1.5);
+  TH1D *h1_HCalTrack_Uncut = new TH1D("h1_HCalTrack_Uncut", "HMS Normalised Track Calorimeter Energy - all events before cuts", 150, 0, 1.5);
+  TH1D *h1_HCalTrack_Cut = new TH1D("h1_HCalTrack_Cut", "HMS Normalised Track Calorimeter Energy - all events before cuts", 150, 0, 1.5);
   TH1D *h1_PCal_Cut = new TH1D("h1_PCal_Cut", "SHMS Normalised Calorimeter Energy - all events before cuts", 150, 0, 1.5);
+  TH1D *h1_PCalTrack_Uncut = new TH1D("h1_PCalTrack_Uncut", "SHMS Normalised Track Calorimeter Energy - all events before cuts", 150, 0, 1.5);
+  TH1D *h1_PCalTrack_Cut = new TH1D("h1_PCalTrack_Cut", "SHMS Normalised Track Calorimeter Energy - all events before cuts", 150, 0, 1.5);
 
   TH1D *h1_HDelta_Uncut = new TH1D("h1_HDelta_Uncut", "HMS #delta - all events before cuts", 400, -20, 20);
   TH1D *h1_HDelta_Cut = new TH1D("h1_HDelta_Cut", "HMS #delta - all events after cuts", 400, -20, 20);
@@ -149,6 +155,10 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   
   TH2D *h2_HMS_CalCher_Uncut = new TH2D("h2_HMS_CalCher_Uncut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events before cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
   TH2D *h2_HMS_CalCher_Cut = new TH2D("h2_HMS_CalCher_Cut", "HMS Calorimeter E_{TotNorm} vs HMS Cherenkov NPE - all events after cuts; HMS Cal E_{TotNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+
+  TH2D *h2_HMS_CalTrackCher_Uncut = new TH2D("h2_HMS_CalTrackCher_Uncut", "HMS Calorimeter E_{TotTrackNorm} vs HMS Cherenkov NPE - all events before cuts; HMS Cal E_{TotTrackNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+  TH2D *h2_HMS_CalTrackCher_Cut = new TH2D("h2_HMS_CalTraclCher_Cut", "HMS Calorimeter E_{TotTrackNorm} vs HMS Cherenkov NPE - all events after cuts; HMS Cal E_{TotTrackNorm}; HMS Cherenkov NPE", 150, 0, 1.5, 100, 0, 50);
+
   TH2D *h2_AeroHGC_Uncut = new TH2D("h2_AeroHGC_Uncut", "Aerogel vs HGC NPESum - all events before cuts; Aerogel NPE; HGC NPE", 250, 0, 50, 250, 0, 50); 
   TH2D *h2_AeroHGC_Cut = new TH2D("h2_AeroHGC_Cut", "Aerogel vs HGC NPESum - all events after cuts; Aerogel NPE; HGC NPE", 250, 0, 50, 250, 0, 50); 
   
@@ -181,7 +191,9 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Uncut->Draw("P_aero_npeSum >> h1_Aero_Uncut", "", "goff");
   Uncut->Draw("P_hgcer_npeSum >> h1_HGC_Uncut", "", "goff");
   Uncut->Draw("H_cal_etotnorm >> h1_HCal_Uncut", "", "goff");
+  Uncut->Draw("H_cal_etottracknorm >> h1_HCalTrack_Uncut", "", "goff");
   Uncut->Draw("P_cal_etotnorm >> h1_PCal_Uncut", "", "goff");
+  Uncut->Draw("P_cal_etottracknorm >> h1_PCalTrack_Uncut", "", "goff");
   Uncut->Draw("H_gtr_dp >> h1_HDelta_Uncut", "", "goff");
   Uncut->Draw("H_gtr_xp >> h1_Hxp_Uncut", "", "goff");
   Uncut->Draw("H_gtr_yp >> h1_Hyp_Uncut", "", "goff");
@@ -191,7 +203,9 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_All->Draw("P_aero_npeSum >> h1_Aero_Cut", "", "goff");
   Cut_All->Draw("P_hgcer_npeSum >> h1_HGC_Cut", "", "goff");
   Cut_All->Draw("H_cal_etotnorm >> h1_HCal_Cut", "", "goff");
+  Cut_All->Draw("H_cal_etottracknorm >> h1_HCalTrack_Cut", "", "goff");
   Cut_All->Draw("P_cal_etotnorm >> h1_PCal_Cut", "", "goff");
+  Cut_All->Draw("P_cal_etottracknorm >> h1_PCalTrack_Cut", "", "goff");
   Cut_All->Draw("H_gtr_dp >> h1_HDelta_Cut", "", "goff");
   Cut_All->Draw("H_gtr_xp >> h1_Hxp_Cut", "", "goff");
   Cut_All->Draw("H_gtr_yp >> h1_Hyp_Cut", "", "goff");
@@ -210,6 +224,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   for(Long64_t i = 0; i < nEntries_Uncut; i++){
     Uncut->GetEntry(i);
     h2_HMS_CalCher_Uncut->Fill(HMSCal_uncut, HMSCher_uncut);
+    h2_HMS_CalTrackCher_Uncut->Fill(HMSCalTrack_uncut, HMSCher_uncut);
     h2_AeroHGC_Uncut->Fill(AeroNPE_uncut, HGCNPE_uncut);
   } 
   for(Long64_t i = 0; i < nEntries_All; i++){
@@ -217,6 +232,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
     h2_CT_Beta_All->Fill(CT_all, Beta_all);
     h2_CT_MMp_All->Fill(CT_all, MMp_all);
     h2_HMS_CalCher_Cut->Fill(HMSCal_cut, HMSCher_cut);
+    h2_HMS_CalTrackCher_Cut->Fill(HMSCalTrack_cut, HMSCher_cut);
     h2_AeroHGC_Cut->Fill(AeroNPE_all, HGCNPE_all);
   } 
   for(Long64_t i = 0; i < nEntries_Pr; i++){
@@ -280,7 +296,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   c_Track->Print(foutpdf);
   
   TCanvas *c_PID = new TCanvas("c_PID", "PID cut distributions", 100, 0, 1000, 900);  
-  c_PID->Divide(4,2);
+  c_PID->Divide(5,2);
   c_PID->cd(1); gPad->SetLogy();
   h1_Aero_Uncut->SetLineColor(2); h1_Aero_Cut->SetLineColor(4);
   h1_Aero_Uncut->Draw("HIST"); h1_Aero_Cut->Draw("HISTSAME");
@@ -302,6 +318,10 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h2_HMS_CalCher_Uncut->Draw("COLZ");
   c_PID->cd(8); gPad->SetLogz();
   h2_HMS_CalCher_Cut->Draw("COLZ");
+  c_PID->cd(9); gPad->SetLogz();
+  h2_HMS_CalTrackCher_Uncut->Draw("COLZ");
+  c_PID->cd(10); gPad->SetLogz();
+  h2_HMS_CalTrackCher_Cut->Draw("COLZ");
   c_PID->Print(foutpdf);
   
   TCanvas *c_CT = new TCanvas("c_CT", "Proton CT distributions", 100, 0, 1000, 900);
@@ -464,12 +484,18 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_HGC_Cut->Write();
   h1_HCal_Uncut->Write();
   h1_HCal_Cut->Write();
+  h1_HCalTrack_Uncut->Write();
+  h1_HCalTrack_Cut->Write();
   h1_PCal_Uncut->Write();
   h1_PCal_Cut->Write();
+  h1_PCalTrack_Uncut->Write();
+  h1_PCalTrack_Cut->Write();
   h2_AeroHGC_Uncut->Write();
   h2_AeroHGC_Cut->Write(); 
   h2_HMS_CalCher_Uncut->Write();
   h2_HMS_CalCher_Cut->Write();
+  h2_HMS_CalTrackCher_Uncut->Write();
+  h2_HMS_CalTrackCher_Cut->Write();
 
   OutHisto_file->Close();
 
