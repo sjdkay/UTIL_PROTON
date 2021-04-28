@@ -1,5 +1,4 @@
 // 16/6/20 - Stephen Kay, University of Regina
-// 27/04/21 - Updated to use new hcana variables for RF timing, MM values switched in python stage
 
 // root .c macro plotting script, reads in desired trees from analysed root file and plots some stuff
 // Saves  pdf file with plots and a .root file
@@ -85,9 +84,12 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Double_t CT_pr; Cut_Pr->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_pr);
   Double_t CT_rn; Cut_Rn->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_rn);
   Double_t CT_all_NoRF; Cut_All_NoRF->SetBranchAddress("CTime_epCoinTime_ROC1", &CT_all_NoRF);
-  Double_t RF_all; Cut_All_NoRF->SetBranchAddress("P_RF_Dist", &RF_all);
-  Double_t RF_pr; Cut_Pr_NoRF->SetBranchAddress("P_RF_Dist", &RF_pr);
-  Double_t RF_rn; Cut_Rn_NoRF->SetBranchAddress("P_RF_Dist", &RF_rn);
+  Double_t RF_all; Cut_All_NoRF->SetBranchAddress("RF_CutDist", &RF_all);
+  Double_t RF_pr; Cut_Pr_NoRF->SetBranchAddress("RF_CutDist", &RF_pr);
+  Double_t RF_rn; Cut_Rn_NoRF->SetBranchAddress("RF_CutDist", &RF_rn);
+  Double_t P_RF_all; Cut_All_NoRF->SetBranchAddress("P_RF_Dist", &P_RF_all);
+  Double_t P_RF_pr; Cut_Pr_NoRF->SetBranchAddress("P_RF_Dist", &P_RF_pr);
+  Double_t P_RF_rn; Cut_Rn_NoRF->SetBranchAddress("P_RF_Dist", &P_RF_rn);
   Double_t Beta_all; Cut_All->SetBranchAddress("P_gtr_beta", &Beta_all);
   Double_t Beta_pr; Cut_Pr->SetBranchAddress("P_gtr_beta", &Beta_pr);
   Double_t Beta_rn; Cut_Rn->SetBranchAddress("P_gtr_beta", &Beta_rn);
@@ -97,6 +99,13 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Double_t MMp_all_NoRF; Cut_All_NoRF->SetBranchAddress("MMp", &MMp_all_NoRF);
   Double_t MMp_pr_NoRF; Cut_Pr_NoRF->SetBranchAddress("MMp", &MMp_pr_NoRF);
   Double_t MMp_rn_NoRF; Cut_Rn_NoRF->SetBranchAddress("MMp", &MMp_rn_NoRF);
+
+  Double_t MMp_hcana_all; Cut_All->SetBranchAddress("MMp_hcana", &MMp_hcana_all);
+  Double_t MMp_hcana_pr; Cut_Pr->SetBranchAddress("MMp_hcana", &MMp_hcana_pr);
+  Double_t MMp_hcana_rn; Cut_Rn->SetBranchAddress("MMp_hcana", &MMp_hcana_rn);
+  Double_t MMp_hcana_all_NoRF; Cut_All_NoRF->SetBranchAddress("MMp_hcana", &MMp_hcana_all_NoRF);
+  Double_t MMp_hcana_pr_NoRF; Cut_Pr_NoRF->SetBranchAddress("MMp_hcana", &MMp_hcana_pr_NoRF);
+  Double_t MMp_hcana_rn_NoRF; Cut_Rn_NoRF->SetBranchAddress("MMp_hcana", &MMp_hcana_rn_NoRF);
 
   Double_t W_pr; Cut_Pr->SetBranchAddress("W", &W_pr);
   Double_t Q2_pr; Cut_Pr->SetBranchAddress("Q2", &Q2_pr);
@@ -121,14 +130,24 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
   TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
 
+  TH1D *h1_MMp_hcana_All = new TH1D("h1_MMp_hcana_All", "MM_{p} - All events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
+  TH1D *h1_MMp_hcana_Prompt = new TH1D("h1_MMp_hcana_Prompt", "MM_{p} - Prompt events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
+  TH1D *h1_MMp_hcana_Random = new TH1D("h1_MMp_hcana_Random", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
+  TH1D *h1_MMp_hcana_Random_Scaled = new TH1D("h1_MMp_hcana_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
+  TH1D *h1_MMp_hcana_BGSub = new TH1D("h1_MMp _hcana_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 220, 0.5, 1.6);
+
   TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 240, 10, 70); 
   TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
   TH1D *h1_Epsilon = new TH1D("h1_Epsilon", "#epsilon - Prompt events after cuts; #epsilon", 200, 0, 1);
 
-  TH1D *h1_PRFDist = new TH1D("h1_PRFDist", "SHMS RFDist - No RF or PID Cut applied", 200, 0, 4);
-  TH1D *h1_PRFDist_woCut = new TH1D("h1_PRFDist_woCut", "Proton PRFDist - No RF Cut applied", 200, 0, 4);
-  TH1D *h1_PRFDist_wCut = new TH1D("h1_PRFDist_wCut", "Proton PRFDist - RF Cut applied", 200, 0, 4);
+  TH1D *h1_RFCutDist = new TH1D("h1_RFCutDist", "RFCutDist - No RF or PID Cut applied", 200, 0, 4);
+  TH1D *h1_RFCutDist_woCut = new TH1D("h1_RFCutDist_woCut", "Proton RFCutDist - No RF Cut applied", 200, 0, 4);
+  TH1D *h1_RFCutDist_wCut = new TH1D("h1_RFCutDist_wCut", "Proton RFCutDist - RF Cut applied", 200, 0, 4);
+
+  TH1D *h1_P_RFDist = new TH1D("h1_P_RFDist", "SHMS RFDist - No RF or PID Cut applied", 200, 0, 4);
+  TH1D *h1_P_RFDist_woCut = new TH1D("h1_P_RFDist_woCut", "SHMS Proton RFDist - No RF Cut  applied", 200, 0, 4);
+  TH1D *h1_P_RFDist_wCut = new TH1D("h1_P_RFDist_wCut", "SHMS Proton RFDist - RF Cut applied", 200, 0, 4);
 
   TH1D *h1_Aero_Uncut = new TH1D("h1_Aero_Uncut", "Aerogel NPESum - all events before cuts", 50, 0, 50);
   TH1D *h1_Aero_Cut = new TH1D("h1_Aero_Cut", "Aerogel NPESum - all events after cuts", 50, 0, 50);
@@ -187,6 +206,11 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_Rn->Draw("MMp >> h1_MMp_Random", "", "goff");
   Cut_Rn->Draw("MMp  >> h1_MMp_Random_Scaled", "", "goff");
 
+  Cut_All->Draw("MMp_hcana >> h1_MMp_hcana_All", "", "goff");
+  Cut_Pr->Draw("MMp_hcana >> h1_MMp_hcana_Prompt", "", "goff");
+  Cut_Rn->Draw("MMp_hcana >> h1_MMp_hcana_Random", "", "goff");
+  Cut_Rn->Draw("MMp_hcana  >> h1_MMp_hcana_Random_Scaled", "", "goff");
+
   Cut_All->Draw("CTime_epCoinTime_ROC1 >> h1_CT_All", "", "goff");
   Cut_Pr->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Prompt", "", "goff");
   Cut_Rn->Draw("CTime_epCoinTime_ROC1 >> h1_CT_Random", "", "goff");
@@ -217,12 +241,19 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   Cut_All->Draw("P_gtr_xp >> h1_Pxp_Cut", "", "goff");
   Cut_All->Draw("P_gtr_yp >> h1_Pyp_Cut", "", "goff");
   
-  Uncut->Draw("P_RF_Dist >> h1_PRFDist", "", "goff");
-  Cut_All_NoRF->Draw("P_RF_Dist >> h1_PRFDist_woCut", "", "goff");
-  Cut_All->Draw("P_RF_Dist >> h1_PRFDist_wCut", "", "goff");
+  Uncut->Draw("RF_CutDist >> h1_RFCutDist", "", "goff");
+  Cut_All_NoRF->Draw("RF_CutDist >> h1_RFCutDist_woCut", "", "goff");
+  Cut_All->Draw("RF_CutDist >> h1_RFCutDist_wCut", "", "goff");
+
+  Uncut->Draw("P_RF_Dist >> h1_P_RFDist", "", "goff");
+  Cut_All_NoRF->Draw("P_RF_Dist >> h1_P_RFDist_woCut", "", "goff");
+  Cut_All->Draw("P_RF_Dist >> h1_P_RFDist_wCut","","goff");
 
   h1_MMp_Random_Scaled->Scale(1.0/nWindows);
   h1_MMp_BGSub->Add(h1_MMp_Prompt, h1_MMp_Random_Scaled, 1, -1);
+
+  h1_MMp_hcana_Random_Scaled->Scale(1.0/nWindows);
+  h1_MMp_hcana_BGSub->Add(h1_MMp_hcana_Prompt, h1_MMp_hcana_Random_Scaled, 1, -1);
 
   // Loop over all events in tree and fill 2D histos event by event, ensures the events correctly correlate
   for(Long64_t i = 0; i < nEntries_Uncut; i++){
@@ -266,7 +297,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   }
   
   TCanvas *c_MM = new TCanvas("c_MM", "Proton missing mass distributions", 100, 0, 1000, 900);
-  c_MM->Divide(2,2);
+  c_MM->Divide(4,2);
   c_MM->cd(1);
   h1_MMp_All->Draw();
   c_MM->cd(2);
@@ -275,6 +306,14 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   h1_MMp_Random->Draw();
   c_MM->cd(4);
   h1_MMp_BGSub->Draw("HIST");
+  c_MM->cd(5);
+  h1_MMp_hcana_All->Draw();
+  c_MM->cd(6);
+  h1_MMp_hcana_Prompt->Draw();
+  c_MM->cd(7);
+  h1_MMp_hcana_Random->Draw();
+  c_MM->cd(8);
+  h1_MMp_hcana_BGSub->Draw("HIST");
   c_MM->Print(foutpdf + '(');
 
   TCanvas *c_Track = new TCanvas("c_Track", "Tracking cut distributions", 100, 0, 1000, 900);  
@@ -355,21 +394,35 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   c_CT2->Print(foutpdf);
 
   TCanvas *c_RFCut = new TCanvas("c_RFCut", "Proton RFCut distributions", 100, 0, 1000, 900);
-  c_RFCut->Divide(2,2);
+  c_RFCut->Divide(4,2);
   c_RFCut->cd(1);
-  h1_PRFDist_woCut->Draw();
+  h1_RFCutDist_woCut->Draw();
   c_RFCut->cd(2);
-  h1_PRFDist_woCut->SetLineColor(2);
-  h1_PRFDist_woCut->Draw();
-  h1_PRFDist_wCut->SetLineColor(4);
-  h1_PRFDist_wCut->Draw("SAME");
+  h1_RFCutDist_woCut->SetLineColor(2);
+  h1_RFCutDist_woCut->Draw();
+  h1_RFCutDist_wCut->SetLineColor(4);
+  h1_RFCutDist_wCut->Draw("SAME");
   c_RFCut->cd(3);
-  h1_PRFDist->SetLineColor(6);
-  h1_PRFDist->Draw();
+  h1_RFCutDist->SetLineColor(6);
+  h1_RFCutDist->Draw();
   c_RFCut->cd(4);
-  h1_PRFDist->Draw();
-  h1_PRFDist_woCut->Draw("SAME");
-  h1_PRFDist_wCut->Draw("SAME");
+  h1_RFCutDist->Draw();
+  h1_RFCutDist_woCut->Draw("SAME");
+  h1_RFCutDist_wCut->Draw("SAME");
+  c_RFCut->cd(5);
+  h1_P_RFDist_woCut->Draw();
+  c_RFCut->cd(6);
+  h1_P_RFDist_woCut->SetLineColor(2);
+  h1_P_RFDist_woCut->Draw();
+  h1_P_RFDist_wCut->SetLineColor(4);
+  h1_P_RFDist_wCut->Draw("SAME");
+  c_RFCut->cd(7);
+  h1_P_RFDist->SetLineColor(6);
+  h1_P_RFDist->Draw();
+  c_RFCut->cd(8);
+  h1_P_RFDist->Draw();
+  h1_P_RFDist_woCut->Draw("SAME");
+  h1_P_RFDist_wCut->Draw("SAME");
   c_RFCut->Print(foutpdf);
 
   TCanvas *c_RFMM = new TCanvas("c_RFMM", "Proton RF vs MM distributions", 100, 0, 1000, 900);
@@ -436,6 +489,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   
   d_ProtonAll->cd();
   h1_MMp_All->Write();
+  h1_MMp_hcana_All->Write();
   h1_CT_All->Write();
   h2_CT_Beta_All->Write();
   h2_CT_MMp_All->Write();
@@ -444,6 +498,7 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
 
   d_ProtonPr->cd();
   h1_MMp_Prompt->Write();
+  h1_MMp_hcana_Prompt->Write();
   h1_CT_Prompt->Write();
   h2_CT_Beta_Prompt->Write();
   h2_CT_MMp_Prompt->Write();
@@ -451,21 +506,26 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
  
   d_ProtonRn->cd();
   h1_MMp_Random->Write();
+  h1_MMp_hcana_Random->Write();
   h1_CT_Random->Write();
   h2_CT_Beta_Random->Write();
   h2_CT_MMp_Random->Write();
   h2_RF_MMp_Random->Write();
 
   d_ProtonRF->cd();
-  h1_PRFDist->Write();
-  h1_PRFDist_woCut->Write();
-  h1_PRFDist_wCut->Write();
+  h1_RFCutDist->Write();
+  h1_RFCutDist_woCut->Write();
+  h1_RFCutDist_wCut->Write();
+  h1_P_RFDist->Write();
+  h1_P_RFDist_woCut->Write();
+  h1_P_RFDist_wCut->Write();
 
   d_Kine->cd();
   h2_Q2vsW->Write();
   h1_Epsilon->Write();
   h2_phiqvst->Write();
   h1_MMp_BGSub->Write();
+  h1_MMp_hcana_BGSub->Write();
 
   d_ProtonTracking->cd();
   h1_HDelta_Uncut->Write();
