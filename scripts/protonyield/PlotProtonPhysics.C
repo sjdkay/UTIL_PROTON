@@ -121,9 +121,9 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH1D *h1_MMp_Random_Scaled = new TH1D("h1_MMp_Random_Scaled", "MM_{p} - Random events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
   TH1D *h1_MMp_BGSub = new TH1D("h1_MMp_BGSub", "MM_{p} - BGSub events after cuts; Mass (GeV/c^{2})", 100, 0.0, 2.0);
 
-  TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 240, 10, 70); 
-  TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 240, 10, 70);
-  TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 240, 10, 70);
+  TH1D *h1_CT_All = new TH1D("h1_CT_All", "Proton CT - All events after cuts; Time (ns)", 480, -60, 60); 
+  TH1D *h1_CT_Prompt = new TH1D("h1_CT_Prompt", "Proton CT - Prompt events after cuts; Time (ns)", 480, -60, 60);
+  TH1D *h1_CT_Random = new TH1D("h1_CT_Random", "Proton CT - Random events after cuts; Time (ns)", 480, -60, 60);
   TH1D *h1_Epsilon = new TH1D("h1_Epsilon", "#epsilon - Prompt events after cuts; #epsilon", 200, 0, 1);
 
   TH1D *h1_PRFDist = new TH1D("h1_PRFDist", "SHMS RFDist - No RF or PID Cut applied", 200, 0, 4);
@@ -168,16 +168,16 @@ void PlotProtonPhysics(string InFilename = "", string OutFilename = "")
   TH2D *h2_Q2vsW = new TH2D("h2_Q2vsW","Q2 vs W;Q2;W", 200, 2.5, 4.5, 200, 2.7, 3.7);
   TH2D *h2_phiqvst = new TH2D("h2_phiqvst",";#phi;t",12,-3.14,3.14,40,0.0,2.0); 
 
-  TH2D *h2_CT_Beta_All = new TH2D("h2_CT_Beta_All","Proton CT vs #beta - All events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
-  TH2D *h2_CT_Beta_Prompt = new TH2D("h2_CT_Beta_Prompt","Proton CT vs #beta - Prompt events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
-  TH2D *h2_CT_Beta_Random = new TH2D("h2_CT_Beta_Random","Proton CT vs #beta - Random events after cuts;Time (ns);#beta",240,10,70,80,0.6,1.4);
+  TH2D *h2_CT_Beta_All = new TH2D("h2_CT_Beta_All","Proton CT vs #beta - All events after cuts;Time (ns);#beta",480, -60, 60,80,0.6,1.4);
+  TH2D *h2_CT_Beta_Prompt = new TH2D("h2_CT_Beta_Prompt","Proton CT vs #beta - Prompt events after cuts;Time (ns);#beta",480, -60, 60,80,0.6,1.4);
+  TH2D *h2_CT_Beta_Random = new TH2D("h2_CT_Beta_Random","Proton CT vs #beta - Random events after cuts;Time (ns);#beta",480, -60, 60,80,0.6,1.4);
 
-  TH2D *h2_CT_MMp_All = new TH2D("h2_CT_MMp_All","Proton CT vs MM_{p} - All events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
-  TH2D *h2_CT_MMp_Prompt = new TH2D("h2_CT_MMp_Prompt","Proton CT vs MM_{p} - Prompt events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
-  TH2D *h2_CT_MMp_Random = new TH2D("h2_CT_MMp_Random","Proton CT vs MM_{p} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",240,10,70,150,0.5,2.0);
+  TH2D *h2_CT_MMp_All = new TH2D("h2_CT_MMp_All","Proton CT vs MM_{p} - All events after cuts;Time (ns);Mass (GeV/c^{2})",480, -60, 60,150,0.5,2.0);
+  TH2D *h2_CT_MMp_Prompt = new TH2D("h2_CT_MMp_Prompt","Proton CT vs MM_{p} - Prompt events after cuts;Time (ns);Mass (GeV/c^{2})",480, -60, 60,150,0.5,2.0);
+  TH2D *h2_CT_MMp_Random = new TH2D("h2_CT_MMp_Random","Proton CT vs MM_{p} - Random events after cuts;Time (ns);Mass (GeV/c^{2})",480, -60, 60,150,0.5,2.0);
 
   TH2D *h2_RF_MMp_All = new TH2D("h2_RF_MMp_All","Proton RF vs MM_{p} - All events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
-  TH2D *h2_RF_CT_All = new TH2D("h2_RF_CT_All","Proton Rf vs CT - All events after cuts; RFTime (ns); CoinTime (ns)", 100, 0, 4.008, 240, 10, 70);
+  TH2D *h2_RF_CT_All = new TH2D("h2_RF_CT_All","Proton Rf vs CT - All events after cuts; RFTime (ns); CoinTime (ns)", 100, 0, 4.008, 480, -60, 60);
   TH2D *h2_RF_MMp_Prompt = new TH2D("h2_RF_MMp_Prompt","Proton RF vs MM_{p} - Prompt events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
   TH2D *h2_RF_MMp_Random = new TH2D("h2_RF_MMp_Random","Proton RF vs MM_{p} - Random events after cuts;RFTime (ns);Mass (GeV/c^{2})",100,0,4.008,150,0.5,2.0);
 
