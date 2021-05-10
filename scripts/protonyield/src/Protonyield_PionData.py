@@ -20,12 +20,14 @@ import matplotlib.pyplot as plt
 import sys, math, os, subprocess
 
 sys.path.insert(0, 'python/')
-if len(sys.argv)-1!=2:
-    print("!!!!! ERROR !!!!!\n Expected 2 arguments\n Usage is with - RunNumber MaxEvents \n!!!!! ERROR !!!!!")
+# Check the number of arguments provided to the script
+if len(sys.argv)-1!=3:
+    print("!!!!! ERROR !!!!!\n Expected 3 arguments\n Usage is with - ROOTfilePrefix RunNumber MaxEvents \n!!!!! ERROR !!!!!")
     sys.exit(1)
 # Input params - run number and max number of events
-runNum = sys.argv[1]
-MaxEvent = sys.argv[2]
+ROOTPrefix = sys.argv[1]
+runNum = sys.argv[2]
+MaxEvent = sys.argv[3]
 
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
@@ -43,7 +45,7 @@ sys.path.insert(0, '%s/UTIL_PROTON/bin/python/' % REPLAYPATH)
 import kaonlt as klt
 
 print("Running as %s on %s, hallc_replay_lt path assumed as %s" % (USER[1], HOST[1], REPLAYPATH))
-rootName = "%s/UTIL_PROTON/ROOTfiles/Proton_coin_replay_production_%s_%s.root" % (REPLAYPATH, runNum, MaxEvent)
+rootName = "%s/UTIL_PROTON/ROOTfiles/%s_%s_%s.root" % (REPLAYPATH, ROOTPrefix, runNum, MaxEvent)
 
 ###############################################################################################################
 ############################### RF Timing is the only thing left in here ######################################
@@ -128,7 +130,7 @@ RF_CutDist = np.array([ ((RFTime-StartTime + RF_Offset)%(BunchSpacing)) for (RFT
 r = klt.pyRoot()
 fout = '%s/UTIL_PROTON/DB/CUTS/run_type/coin_prod.cuts' % REPLAYPATH
 # read in cuts file and make dictionary
-c = klt.pyPlot(None)
+c = klt.pyPlot(REPLAYPATH)
 readDict = c.read_dict(fout,runNum)
 # This method calls several methods in kaonlt package. It is required to create properly formated
 # dictionaries. The evaluation must be in the analysis script because the analysis variables (i.e. the
@@ -139,7 +141,7 @@ def make_cutDict(cut,inputDict=None):
 
     global c
 
-    c = klt.pyPlot(readDict)
+    c = klt.pyPlot(REPLAYPATH,readDict)
     x = c.w_dict(cut)
     print("%s" % cut)
     print("x ", x)
@@ -165,7 +167,7 @@ cutDict = make_cutDict("coin_ek_cut_all", cutDict)
 cutDict = make_cutDict("coin_ep_cut_all", cutDict)
 cutDict = make_cutDict("coin_ep_cut_prompt", cutDict)
 cutDict = make_cutDict("coin_ep_cut_rand", cutDict)
-c = klt.pyPlot(cutDict)
+c = klt.pyPlot(REPLAYPATH,cutDict)
 
 def coin_pions(): 
     # Define the array of arrays containing the relevant HMS and SHMS info
