@@ -17,7 +17,7 @@ ConfigFileName = sys.argv[1]
 USER = subprocess.getstatusoutput("whoami") # Grab user info for file finding
 HOST = subprocess.getstatusoutput("hostname")
 if ("farm" in HOST[1]):
-    REPLAYPATH = "/group/c-pionlt/USERS/%s/hallc_replay_lt" % USER[1]
+    REPLAYPATH = "/group/c-kaonlt/USERS/%s/hallc_replay_lt" % USER[1]
 elif ("lark.phys.uregina" in HOST[1]):
     REPLAYPATH = "/home/%s/work/JLab/hallc_replay_lt" % USER[1]
 ConfigFile = "%s/UTIL_PROTON/config/%s" % (REPLAYPATH,  ConfigFileName)
